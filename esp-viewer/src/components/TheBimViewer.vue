@@ -6,41 +6,85 @@
       <q-btn icon="info" flat @click="isInspectorOpen = !isInspectorOpen"></q-btn>
     </q-toolbar>
   </q-header>
-  <q-drawer id="Explorer" side='left' v-model='isExplorerOpen' class="bg-red-2"> 
+  <q-drawer id="Explorer" :width=400 side='left' v-model='isExplorerOpen' class="bg-red-2" ref="theExplorer"> 
     <div>Обозреватель модели</div>
     <q-tabs
     v-model="explorerPanelName"
     active-color="indigo-3"
    >
-   <q-tab v-for="item in explorerOptions"  :name="item" :label="item"></q-tab>
+   <q-tab v-for="item in explorerOptions"  :name="item" :label="item" v-bind:key="item"></q-tab>
   </q-tabs>
  <q-tab-panels v-model="explorerPanelName">
-  <q-tab-panel v-for="item in explorerOptions" :name="item" :label="item">
+  <q-tab-panel v-for="item in explorerOptions" :name="item" :label="item" v-bind:key="item" >
     <q-btn-toggle
     :options="[ {label: 'показать'}, {label: 'скрыть'}]"
     ></q-btn-toggle>
 </q-tab-panel>
  </q-tab-panels>
   </q-drawer>
-        <q-drawer id="Inspector" side='right' v-model='isInspectorOpen' > <div> Inspector </div> </q-drawer>
+        <q-drawer id="Inspector" side='right' v-model='isInspectorOpen' ref="theInspector" > <div> Inspector </div> </q-drawer>
     <q-page-container>
       <q-page class="bg-pink-4"> 
-        <q-btn-group>
-          <q-btn>Reset view</q-btn>
-          <q-btn>Toggle 3D / 2D</q-btn>
-          <q-btn>Toggle perspective /  ortho</q-btn>
-          <q-btn>View fit</q-btn>
-          <q-btn>Toggle first person mode</q-btn>
-          <q-btn>Show IFC spaces</q-btn>
+        <q-btn-group ref="theViewerToolbar">
+          <q-btn icon="home">
+            <q-tooltip>
+              К начальному виду
+            </q-tooltip>
+           </q-btn>
+          <q-btn icon="domain_disabled">
+            <q-tooltip>
+              Переключить 2D/3D
+            </q-tooltip>
+          </q-btn>
+          <q-btn icon="crop_rotate">
+            <q-tooltip>Перспективный/ортогональный вид</q-tooltip>
+            </q-btn>
+          <q-btn icon="crop_free">
+            <q-tooltip>
+              Фокус на объекте
+            </q-tooltip></q-btn>
+          <q-btn icon="man">
+            <q-tooltip>От первого лица</q-tooltip>
+            </q-btn>
+          <q-btn icon="picture_in_picture">
+            <q-tooltip>Показать IFC spaces</q-tooltip>
+            </q-btn>
         </q-btn-group>
+        <div ref="theViewer">
+<canvas ref="theViewerCanvas"></canvas>
+<canvas ref="theNavCubeCanvas"></canvas>
+        </div>
       </q-page>
     </q-page-container>
   </q-layout>
 </template>
 <script setup>
 import  { ref } from 'vue'
+import { Server, BIMViewer } from '../assets/bim_viewer_src/index'
+
+
 const isExplorerOpen = ref(true)
 const isInspectorOpen = ref(true)
 const explorerOptions = ref([ 'Модели', 'Объекты', 'Классы', 'Уровни'])
 const explorerPanelName = ref('Модели')
+const theViewer = ref(null)
+const theViewerCanvas = ref(null)
+const theNavCubeCanvas = ref(null)
+const theExplorer = ref(null)
+const theInspector = ref(null)
+const theViewerToolbar = ref(null)
+function launchViewer() {
+  const server = new Server({
+    dataDir: ''
+  })
+  const BIMViewer = new BIMViewer(server, {
+    canvasElement: theViewerCanvas,
+    explorerElement: theExplorer,
+    inspectorElement: theInspector, 
+    navCubeCanvasElement: theNavCubeCanvas, 
+    toolbarElement: theViewerToolbar
+  
+  })
+}
+
 </script>

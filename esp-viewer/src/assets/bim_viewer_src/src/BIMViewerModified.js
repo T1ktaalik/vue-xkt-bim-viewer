@@ -36,7 +36,7 @@ import { MeasureAngleTool } from './toolbar/MeasureAngleTool.js'
 const hideEdgesMinDrawCount = 5 // FastNavPlugin enables dynamic edges when xeokit's per-frame draw count drops below this
 const scaleCanvasResolutionMinDrawCount = 1000 // FastNavPlugin switches to low-res canvas when xeokit's per-frame draw count rises above this
 
-function createExplorerTemplate(cfg) {
+/* function createExplorerTemplate(cfg) {
   const explorerTemplate =
     `<div class="xeokit-tabs"> 
     <div class="xeokit-tab xeokit-modelsTab">
@@ -141,9 +141,9 @@ function createInspectorTemplate() {
     </div>
 </div>`
   return inspectorTemplate
-}
+} */
 
-function initTabs(containerElement) {
+/* function initTabs(containerElement) {
   const tabsClass = 'xeokit-tabs'
   const tabClass = 'xeokit-tab'
   const tabButtonClass = 'xeokit-tab-btn'
@@ -181,7 +181,7 @@ function initTabs(containerElement) {
     }
   }
 }
-
+ */
 /**
  * @desc A BIM viewer based on the [xeokit SDK](http://xeokit.io).
  *
@@ -276,21 +276,21 @@ class BIMViewer extends Controller {
     this._customizeViewer()
     this._initCanvasContextMenus()
 
-    explorerElement.innerHTML = createExplorerTemplate(cfg)
+   // explorerElement.innerHTML = createExplorerTemplate(cfg)
     toolbarElement.innerHTML = createToolbarTemplate({
       enableMeasurements: this._enableMeasurements
     })
-    if (this._enablePropertiesInspector) {
-      inspectorElement.innerHTML = createInspectorTemplate()
-    }
+   // if (this._enablePropertiesInspector) {
+     // inspectorElement.innerHTML = createInspectorTemplate()
+   // }
 
     this._explorerElement = explorerElement
     this._inspectorElement = inspectorElement
 
-    initTabs(explorerElement)
-    if (this._enablePropertiesInspector) {
-      initTabs(inspectorElement)
-    }
+    //initTabs(explorerElement)
+    //if (this._enablePropertiesInspector) {
+     // initTabs(inspectorElement)
+    //}
 
     this._modelsExplorer = new ModelsExplorer(this, {
       enableMeasurements: this._enableMeasurements,
