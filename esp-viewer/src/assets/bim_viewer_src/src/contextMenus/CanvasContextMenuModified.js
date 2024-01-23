@@ -13,8 +13,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.viewFitAll') ||
-                'View Fit All'
+                context.viewer.localeService.translate('canvasContextMenu.viewFitAll') || 'Фокус на весь объект'
+                /* 'View Fit All' */
               )
             },
             doAction: (context) => {
@@ -31,8 +31,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.viewFitSelection') ||
-                'View Fit Selected'
+                context.viewer.localeService.translate('canvasContextMenu.viewFitSelection') || 'Фокус на выделенном объекте'
+                /* 'View Fit Selected' */
               )
             },
             getEnabled: (context) => {
@@ -54,7 +54,7 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.hideAll') || 'Hide All'
+                context.viewer.localeService.translate('canvasContextMenu.hideAll') || 'Скрыть все'/* 'Hide All' */
               )
             },
             getEnabled: (context) => {
@@ -67,7 +67,7 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.showAll') || 'Show All'
+                context.viewer.localeService.translate('canvasContextMenu.showAll') || 'Показать все'/* 'Show All' */
               )
             },
             getEnabled: (context) => {
@@ -88,7 +88,7 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.xRayAll') || 'X-Ray All'
+                context.viewer.localeService.translate('canvasContextMenu.xRayAll') || 'Режим X-Ray для всего '/* 'X-Ray All' */
               )
             },
             getEnabled: (context) => {
@@ -107,7 +107,7 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.xRayNone') || 'X-Ray None'
+                context.viewer.localeService.translate('canvasContextMenu.xRayNone') || 'Отменить X-Ray'/* 'X-Ray None' */
               )
             },
             getEnabled: (context) => {
@@ -124,8 +124,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.selectNone') ||
-                'Select None'
+                context.viewer.localeService.translate('canvasContextMenu.selectNone') || 'Оменить выделение'
+                /* 'Select None' */
               )
             },
             getEnabled: (context) => {
@@ -141,8 +141,8 @@ class CanvasContextMenu extends ContextMenu {
             getTitle: (context) => {
               return (
                 context.viewer.localeService.translate('canvasContextMenu.resetView') ||
-                'Reset View'
-              )
+                'Сбросить вид'/*  'Reset View' */
+              ) 
             },
             doAction: (context) => {
               context.bimViewer.resetView()
@@ -153,8 +153,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.clearSlices') ||
-                'Clear Slices'
+                context.viewer.localeService.translate('canvasContextMenu.clearSlices') || 'Удалить секущие плоскости'
+                /* 'Clear Slices' */
               )
             },
             getEnabled: (context) => {
@@ -171,7 +171,7 @@ class CanvasContextMenu extends ContextMenu {
                 // Item
 
                 getTitle: (context) => {
-                  return 'Measurements'
+                  return /* 'Measurements' */ 'Измерения'
                 },
 
                 doAction: function (context) {
@@ -186,7 +186,7 @@ class CanvasContextMenu extends ContextMenu {
                         return (
                           context.viewer.localeService.translate(
                             'canvasContextMenu.clearMeasurements'
-                          ) || 'Clear'
+                          ) || /* 'Clear' */ 'Очистить измерения'
                         )
                       },
                       getEnabled: (context) => {
@@ -201,10 +201,10 @@ class CanvasContextMenu extends ContextMenu {
                         return context.bimViewer.getMeasurementsAxisVisible()
                           ? context.viewer.localeService.translate(
                               'canvasContextMenu.hideMeasurementAxisWires'
-                            ) || 'Hide Axis Wires'
+                            ) || /* 'Hide Axis Wires' */ 'Скрыть оси'
                           : context.viewer.localeService.translate(
                               'canvasContextMenu.showMeasurementAxisWires'
-                            ) || 'Show Axis Wires'
+                            ) || /* 'Show Axis Wires' */ 'Показать оси'
                       },
                       getEnabled: (context) => {
                         return context.bimViewer.getNumMeasurements() > 0

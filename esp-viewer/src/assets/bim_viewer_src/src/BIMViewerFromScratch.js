@@ -2,6 +2,9 @@ import { Viewer } from '@xeokit/xeokit-sdk/dist/xeokit-sdk.es.js'
 
 import { Controller } from './Controller'
 import { ObjectsKdTree3 } from './collision/ObjectsKdTree3'
+
+import  { CanvasContextMenu } from './contextMenus/CanvasContextMenuModified'
+import { ObjectContextMenu } from './contextMenus/ObjectContextMenuModified'
 class BIMViewer extends Controller {
   constructor(server, cfg = {}) {
     if (!cfg.canvasElement) {
@@ -135,5 +138,13 @@ class BIMViewer extends Controller {
 
   _initCanvasContextMenu() {
     
+    this._canvasContextMenu = new CanvasContextMenu(this, {
+      hideOnAction: true,
+      enableMeasurements: false
+    })
+    this._objectContextMenu = new ObjectContextMenu(this, {
+      hideOnAction: true,
+      enableMeasurements: false
+    })
   }
 }
