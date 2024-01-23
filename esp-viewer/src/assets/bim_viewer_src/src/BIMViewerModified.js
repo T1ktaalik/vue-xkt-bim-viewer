@@ -276,20 +276,20 @@ class BIMViewer extends Controller {
     this._customizeViewer()
     this._initCanvasContextMenus()
 
-   // explorerElement.innerHTML = createExplorerTemplate(cfg)
-  /*   toolbarElement.innerHTML = createToolbarTemplate({
+    // explorerElement.innerHTML = createExplorerTemplate(cfg)
+    /*   toolbarElement.innerHTML = createToolbarTemplate({
       enableMeasurements: this._enableMeasurements
     }) */
-   // if (this._enablePropertiesInspector) {
-     // inspectorElement.innerHTML = createInspectorTemplate()
-   // }
+    // if (this._enablePropertiesInspector) {
+    // inspectorElement.innerHTML = createInspectorTemplate()
+    // }
 
     this._explorerElement = explorerElement
     this._inspectorElement = inspectorElement
 
     //initTabs(explorerElement)
     //if (this._enablePropertiesInspector) {
-     // initTabs(inspectorElement)
+    // initTabs(inspectorElement)
     //}
 
     this._modelsExplorer = new ModelsExplorer(this, {
