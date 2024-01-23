@@ -17,7 +17,8 @@
  <q-tab-panels v-model="explorerPanelName">
   <q-tab-panel v-for="item in explorerOptions" :name="item" :label="item" v-bind:key="item" >
     <q-btn-toggle
-    :options="[ {label: 'показать'}, {label: 'скрыть'}]"
+    v-model='toggling'
+    :options="[ {label: 'показать', value: true}, {label: 'скрыть', value: false} ]"
     ></q-btn-toggle>
 </q-tab-panel>
  </q-tab-panels>
@@ -59,9 +60,10 @@
   </q-layout>
 </template>
 <script setup>
-import  { ref } from 'vue'
+import  { ref, onMounted } from 'vue'
 import { Server, BIMViewer } from '../assets/bim_viewer_src/index'
 
+onMounted(()=> { console.log('TheBimViewer component is mounted')})
 
 const isExplorerOpen = ref(true)
 const isInspectorOpen = ref(true)
@@ -73,6 +75,9 @@ const theNavCubeCanvas = ref(null)
 const theExplorer = ref(null)
 const theInspector = ref(null)
 const theViewerToolbar = ref(null)
+// пустышка
+const toggling = ref(true)
+
 function launchViewer() {
   const server = new Server({
     dataDir: ''
@@ -86,5 +91,7 @@ function launchViewer() {
   
   })
 }
+
+
 
 </script>

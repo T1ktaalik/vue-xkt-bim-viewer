@@ -237,7 +237,7 @@ class BIMViewer extends Controller {
       canvasElement: canvasElement,
       keyboardEventsElement: cfg.keyboardEventsElement,
       transparent: false,
-      backgroundColor: [1, 1, 1],
+      backgroundColor: [0.788, 1, 0.631], //default [1, 1, 1]. Чтобы узнать, что он запустился
       backgroundColorFromAmbientLight: false,
       saoEnabled: true,
       pbrEnabled: false,
@@ -277,9 +277,9 @@ class BIMViewer extends Controller {
     this._initCanvasContextMenus()
 
    // explorerElement.innerHTML = createExplorerTemplate(cfg)
-    toolbarElement.innerHTML = createToolbarTemplate({
+  /*   toolbarElement.innerHTML = createToolbarTemplate({
       enableMeasurements: this._enableMeasurements
-    })
+    }) */
    // if (this._enablePropertiesInspector) {
      // inspectorElement.innerHTML = createInspectorTemplate()
    // }
