@@ -124,7 +124,7 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.selectNone') || 'Оменить выделение'
+                context.viewer.localeService.translate('canvasContextMenu.selectNone') || 'Отменить выделение'
                 /* 'Select None' */
               )
             },

@@ -3,7 +3,7 @@ import { Viewer } from '@xeokit/xeokit-sdk/dist/xeokit-sdk.es.js'
 import { Controller } from './Controller'
 import { ObjectsKdTree3 } from './collision/ObjectsKdTree3'
 
-import  { CanvasContextMenu } from './contextMenus/CanvasContextMenuModified'
+import { CanvasContextMenu } from './contextMenus/CanvasContextMenuModified'
 import { ObjectContextMenu } from './contextMenus/ObjectContextMenuModified'
 class BIMViewer extends Controller {
   constructor(server, cfg = {}) {
@@ -62,6 +62,8 @@ class BIMViewer extends Controller {
 
     // не забудь this._customizeViewer()
   }
+
+  //get localeService() {} - удаляем
 
 
   //Этот класс вызывается в конструкторе
@@ -136,6 +138,8 @@ class BIMViewer extends Controller {
     sao.kernelRadius = 200
   }
 
+
+  //доработать!
   _initCanvasContextMenu() {
     
     this._canvasContextMenu = new CanvasContextMenu(this, {
@@ -146,5 +150,57 @@ class BIMViewer extends Controller {
       hideOnAction: true,
       enableMeasurements: false
     })
+
+    this.viewer.cameraControl.on('rightClick', (e) => {
+      const event = e.event
+      const hit = this.viewer.scene.pick({ canvasPos: e.cavasPos})
+      if (hit && hit.entity.isObject) {
+        this._canvasContextMenu.hide()
+        this._objectContextMenu.context = {
+          viewer: this.viewer,
+          bimViewer: this,
+          showObjectInExplorers: (objectId) => {
+
+          }
+        }
+
+      }
+
+    })
   }
+
+  _initConfigs() {
+    this.setConfigs({
+      cameraNear: '0.05',  // можно бы добавить в аргумент конструктора, но это внутренний метод 
+      cameraFar: '3000.0', // можно бы добавить в аргумент конструктора, но это внутренний метод 
+      smartPivot: true,
+      saoEnabled: true,
+      pbrEnabled: false,
+      scaleCanvasResolution: false,
+      saoBias: 0.5,
+      saoIntensity: 0.15,
+      saoNumSamples: 40,
+      saoKernelRadius: 100,
+      edgesEnabled: true,
+      xrayContext: true,
+      xrayPickable: false,
+      selectedGlowThrough: true,
+      highlightGlowThrough: true,
+      backgroundColor: [1.0, 1.0, 1.0],
+      externalMetadata: false,
+      dtxEnabled: false
+    })
+  }
+
+  setConfigs(viewerConfigs) {
+    for (let name in viewerConfigs) {
+      if (viewerConfigs.hasOwnProperty(name)) {
+        const value = viewerConfigs[name]
+        this.setConfig(name, value)
+      }
+    }
+  }
+
+  setConfig
+
 }
