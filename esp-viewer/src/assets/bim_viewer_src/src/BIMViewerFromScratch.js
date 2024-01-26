@@ -65,7 +65,6 @@ class BIMViewer extends Controller {
 
   //get localeService() {} - удаляем
 
-
   //Этот класс вызывается в конструкторе
   _customizeViewer() {
     const scene = this.viewer.scene
@@ -138,10 +137,8 @@ class BIMViewer extends Controller {
     sao.kernelRadius = 200
   }
 
-
   //доработать!
   _initCanvasContextMenu() {
-    
     this._canvasContextMenu = new CanvasContextMenu(this, {
       hideOnAction: true,
       enableMeasurements: false
@@ -153,26 +150,22 @@ class BIMViewer extends Controller {
 
     this.viewer.cameraControl.on('rightClick', (e) => {
       const event = e.event
-      const hit = this.viewer.scene.pick({ canvasPos: e.cavasPos})
+      const hit = this.viewer.scene.pick({ canvasPos: e.cavasPos })
       if (hit && hit.entity.isObject) {
         this._canvasContextMenu.hide()
         this._objectContextMenu.context = {
           viewer: this.viewer,
           bimViewer: this,
-          showObjectInExplorers: (objectId) => {
-
-          }
+          showObjectInExplorers: (objectId) => {}
         }
-
       }
-
     })
   }
 
   _initConfigs() {
     this.setConfigs({
-      cameraNear: '0.05',  // можно бы добавить в аргумент конструктора, но это внутренний метод 
-      cameraFar: '3000.0', // можно бы добавить в аргумент конструктора, но это внутренний метод 
+      cameraNear: '0.05', // можно бы добавить в аргумент конструктора, но это внутренний метод
+      cameraFar: '3000.0', // можно бы добавить в аргумент конструктора, но это внутренний метод
       smartPivot: true,
       saoEnabled: true,
       pbrEnabled: false,
@@ -202,5 +195,4 @@ class BIMViewer extends Controller {
   }
 
   setConfig
-
 }

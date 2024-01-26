@@ -1,5 +1,5 @@
 import { Server } from './src/server/ServerModified.js'
-import { BIMViewer } from './src/BIMViewer.js'
+import { BIMViewer } from './src/BIMViewerFromScratchV2.js'
 import { LocaleService } from '@xeokit/xeokit-sdk/dist/xeokit-sdk.es.js'
 
 export { BIMViewer }

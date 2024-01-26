@@ -42,7 +42,7 @@ class ObjectContextMenu extends ContextMenu {
           getTitle: (context) => {
             return (
               context.viewer.localeService.translate('objectContextMenu.showInTree') ||
-              /* 'Show in Explorer'  */'Показать в обозревателе модели'
+              /* 'Show in Explorer'  */ 'Показать в обозревателе модели'
             )
           },
           doAction: (context) => {
@@ -57,7 +57,10 @@ class ObjectContextMenu extends ContextMenu {
       ...[
         {
           getTitle: (context) => {
-            return context.viewer.localeService.translate('objectContextMenu.viewFit') || /* 'View Fit' */ 'Фокус на элемент'
+            return (
+              context.viewer.localeService.translate('objectContextMenu.viewFit') ||
+              /* 'View Fit' */ 'Фокус на элемент'
+            )
           },
           doAction: (context) => {
             const viewer = context.viewer
@@ -201,7 +204,10 @@ class ObjectContextMenu extends ContextMenu {
       [
         {
           getTitle: (context) => {
-            return context.viewer.localeService.translate('objectContextMenu.hide') || /* 'Hide' */ 'Скрыть'
+            return (
+              context.viewer.localeService.translate('objectContextMenu.hide') ||
+              /* 'Hide' */ 'Скрыть'
+            )
           },
           getEnabled: (context) => {
             return context.entity.visible
@@ -236,7 +242,10 @@ class ObjectContextMenu extends ContextMenu {
         },
         {
           getTitle: (context) => {
-            return context.viewer.localeService.translate('objectContextMenu.hideAll') || /* 'Hide All' */ 'Скрыть все'
+            return (
+              context.viewer.localeService.translate('objectContextMenu.hideAll') ||
+              /* 'Hide All' */ 'Скрыть все'
+            )
           },
           getEnabled: (context) => {
             return context.viewer.scene.numVisibleObjects > 0
@@ -247,7 +256,10 @@ class ObjectContextMenu extends ContextMenu {
         },
         {
           getTitle: (context) => {
-            return context.viewer.localeService.translate('objectContextMenu.showAll') || /* 'Show All' */ 'Показать все'
+            return (
+              context.viewer.localeService.translate('objectContextMenu.showAll') ||
+              /* 'Show All' */ 'Показать все'
+            )
           },
           getEnabled: (context) => {
             const scene = context.viewer.scene
@@ -267,7 +279,10 @@ class ObjectContextMenu extends ContextMenu {
       [
         {
           getTitle: (context) => {
-            return context.viewer.localeService.translate('objectContextMenu.xray') || /* 'X-Ray' */ 'Режим X-Ray'
+            return (
+              context.viewer.localeService.translate('objectContextMenu.xray') ||
+              /* 'X-Ray' */ 'Режим X-Ray'
+            )
           },
           getEnabled: (context) => {
             return !context.entity.xrayed
@@ -282,7 +297,7 @@ class ObjectContextMenu extends ContextMenu {
           getTitle: (context) => {
             return (
               context.viewer.localeService.translate('objectContextMenu.xrayOthers') ||
-             /*  'X-Ray Others' */  'Режим X-Ray для прочих'
+              /*  'X-Ray Others' */ 'Режим X-Ray для прочих'
             )
           },
           doAction: (context) => {
@@ -310,7 +325,8 @@ class ObjectContextMenu extends ContextMenu {
         {
           getTitle: (context) => {
             return (
-              context.viewer.localeService.translate('objectContextMenu.xrayAll') || /* 'X-Ray All'  */ 'Режим X-Ray для всего'
+              context.viewer.localeService.translate('objectContextMenu.xrayAll') ||
+              /* 'X-Ray All'  */ 'Режим X-Ray для всего'
             )
           },
           getEnabled: (context) => {
@@ -329,7 +345,8 @@ class ObjectContextMenu extends ContextMenu {
         {
           getTitle: (context) => {
             return (
-              context.viewer.localeService.translate('objectContextMenu.xrayNone') ||/*  'X-Ray None' */ 'Сбросить X-Ray'
+              context.viewer.localeService.translate('objectContextMenu.xrayNone') ||
+              /*  'X-Ray None' */ 'Сбросить X-Ray'
             )
           },
           getEnabled: (context) => {
@@ -346,7 +363,10 @@ class ObjectContextMenu extends ContextMenu {
       [
         {
           getTitle: (context) => {
-            return context.viewer.localeService.translate('objectContextMenu.select') || /* 'Select' */ 'Выделить элемент'
+            return (
+              context.viewer.localeService.translate('objectContextMenu.select') ||
+              /* 'Select' */ 'Выделить элемент'
+            )
           },
           getEnabled: (context) => {
             return !context.entity.selected
@@ -373,7 +393,7 @@ class ObjectContextMenu extends ContextMenu {
           getTitle: (context) => {
             return (
               context.viewer.localeService.translate('objectContextMenu.selectNone') ||
-             /*  'Select None' */  'Сбросить выбор элементов'
+              /*  'Select None' */ 'Сбросить выбор элементов'
             )
           },
           getEnabled: (context) => {

@@ -13,7 +13,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.viewFitAll') || 'Фокус на весь объект'
+                context.viewer.localeService.translate('canvasContextMenu.viewFitAll') ||
+                'Фокус на весь объект'
                 /* 'View Fit All' */
               )
             },
@@ -31,7 +32,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.viewFitSelection') || 'Фокус на выделенном объекте'
+                context.viewer.localeService.translate('canvasContextMenu.viewFitSelection') ||
+                'Фокус на выделенном объекте'
                 /* 'View Fit Selected' */
               )
             },
@@ -54,7 +56,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.hideAll') || 'Скрыть все'/* 'Hide All' */
+                context.viewer.localeService.translate('canvasContextMenu.hideAll') ||
+                'Скрыть все' /* 'Hide All' */
               )
             },
             getEnabled: (context) => {
@@ -67,7 +70,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.showAll') || 'Показать все'/* 'Show All' */
+                context.viewer.localeService.translate('canvasContextMenu.showAll') ||
+                'Показать все' /* 'Show All' */
               )
             },
             getEnabled: (context) => {
@@ -88,7 +92,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.xRayAll') || 'Режим X-Ray для всего '/* 'X-Ray All' */
+                context.viewer.localeService.translate('canvasContextMenu.xRayAll') ||
+                'Режим X-Ray для всего ' /* 'X-Ray All' */
               )
             },
             getEnabled: (context) => {
@@ -107,7 +112,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.xRayNone') || 'Отменить X-Ray'/* 'X-Ray None' */
+                context.viewer.localeService.translate('canvasContextMenu.xRayNone') ||
+                'Отменить X-Ray' /* 'X-Ray None' */
               )
             },
             getEnabled: (context) => {
@@ -124,7 +130,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.selectNone') || 'Отменить выделение'
+                context.viewer.localeService.translate('canvasContextMenu.selectNone') ||
+                'Отменить выделение'
                 /* 'Select None' */
               )
             },
@@ -141,8 +148,8 @@ class CanvasContextMenu extends ContextMenu {
             getTitle: (context) => {
               return (
                 context.viewer.localeService.translate('canvasContextMenu.resetView') ||
-                'Сбросить вид'/*  'Reset View' */
-              ) 
+                'Сбросить вид' /*  'Reset View' */
+              )
             },
             doAction: (context) => {
               context.bimViewer.resetView()
@@ -153,7 +160,8 @@ class CanvasContextMenu extends ContextMenu {
           {
             getTitle: (context) => {
               return (
-                context.viewer.localeService.translate('canvasContextMenu.clearSlices') || 'Удалить секущие плоскости'
+                context.viewer.localeService.translate('canvasContextMenu.clearSlices') ||
+                'Удалить секущие плоскости'
                 /* 'Clear Slices' */
               )
             },
