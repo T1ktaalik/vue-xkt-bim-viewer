@@ -81,10 +81,38 @@ class BIMViewer extends Controller {
 
     this._objectsExplorer = new ObjectsExplorer(this, {
       enableMeasurements: this._enableMeasurements,
-      objectsTabElement: null
+      objectsTabElement: null,
+      showAllObjectsButtonElement: undefined,
+      hideAllObjectsButtonElement: undefined,
+      objectsElement: undefined
     })
-    this._classesExplorer = new ClassesExplorer(this, {})
-    this._storeysExplorer = {}
+    this._classesExplorer = new ClassesExplorer(this, {
+      enableMeasurements: this._enableMeasurements,
+      classesTabElement: undefined,
+      showAllClassesButtonElement: undefined,
+      hideAllClassesButtonElement: undefined,
+      classesElement: undefined
+    })
+    this._storeysExplorer = new StoreysExplorer(this, {
+      enableMeasurements: this._enableMeasurements,
+      storeysTabElement: undefined,
+      showAllStoreysButtonElement: undefined,
+      hideAllStoreysButtonElement: undefined,
+      storeysElement: undefined
+    })
+
+    if (this.enablePropertiesInspector) {
+      this._propertiesInspector = new PropertiesInspector(this, {
+        propertiesTabElement: undefined,
+        propertiesElement: undefined
+      })
+    } else {
+      console.log('The properties inspector menu is disabled by a viewer configiration')
+    }
+
+    this._resetAction = {}
+
+    this._fitAction = {}
   }
 
   // не забудь создать экземпляр просмотрщика

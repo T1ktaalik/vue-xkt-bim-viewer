@@ -115,7 +115,7 @@ const classesElement = ref(null)
 const storeysTabElement = ref(null)
 const showAllStoreysButtonElement = ref(null)
 const hideAllStoreysButtonElement = ref(null)
-const storeysElement = ref(nulls)
+const storeysElement = ref(null)
 
 // пустышка
 const toggling = ref(true)
@@ -129,11 +129,36 @@ function launchViewer() {
       messages: messages,
       locale: 'ru'
     }),
-    canvasElement: theViewerCanvas.value,
-    explorerElement: theExplorer.value,
-    inspectorElement: theInspector.value,
-    navCubeCanvasElement: theNavCubeCanvas.value,
-    toolbarElement: theViewerToolbar.value
+    htmlElements: {
+      explorer: {
+        explorerElement: theExplorer.value,
+        modelsTab: {
+          modelsTabElement: modelsTabElement.value,
+          loadModelsButtonElement: loadModelsButtonElement.value,
+          unloadModelsButtonElement: unloadModelsButtonElement.value,
+          addModelButtonElement: addModelButtonElement.value,
+          modelsElement: modelsElement.value
+        },
+        objectsTab: {},
+        classesTab: {},
+        storeysTab: {}
+      },
+      inspector: {
+        inspectorElement: theInspector.value
+      },
+      viewer: {
+        canvasElement: theViewerCanvas.value,
+        navCubeCanvasElement: theNavCubeCanvas.value,
+        toolbarElement: theViewerToolbar.value
+      },
+      busyModalBackdropElement: {}
+    },
+    settings: {
+      enableAddModels: false,
+      enableEditMModels: false,
+      enableMeasurements: false,
+      enablePropertiesInspector: false
+    }
   })
 
   const projectId = 'duplex'
