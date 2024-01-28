@@ -24,14 +24,24 @@
         <q-tab v-for="item in explorerOptions" :name="item" :label="item" v-bind:key="item"></q-tab>
       </q-tabs>
       <q-tab-panels v-model="explorerPanelName">
-        <q-tab-panel v-for="item in explorerOptions" :name="item" :label="item" v-bind:key="item">
-          <q-btn-toggle
-            v-model="toggling"
-            :options="[
-              { label: 'показать', value: true },
-              { label: 'скрыть', value: false }
-            ]"
-          ></q-btn-toggle>
+        <q-tab-panel name="Модели" ref="modelsTabElement">
+          <q-btn-group spread>
+            <q-btn label="Загрузить" ref="loadModelsButtonElement"><q-tooltip class="bg-indigo" :offset="[10, 10]">Загрузить все модели</q-tooltip></q-btn>
+            <q-btn label="Выгрузить" ref="unloadModelsButtonElement"><q-tooltip>Выгрузить все модели</q-tooltip></q-btn>
+            <q-btn label="Добавить модель" ref="addModelButtonElement" v-show="false"></q-btn>
+          </q-btn-group>
+          
+          Модели
+
+        </q-tab-panel>
+        <q-tab-panel name="Объекты">
+          Объекты
+        </q-tab-panel>
+        <q-tab-panel name="Классы">
+          Классы
+        </q-tab-panel>
+        <q-tab-panel name="Уровни">
+          Уровни
         </q-tab-panel>
       </q-tab-panels>
     </q-drawer>
@@ -78,7 +88,7 @@ import { Server, BIMViewer } from '../assets/bim_viewer_src/index'
 import { LocaleService } from '../assets/bim_viewer_src/index'
 import { messages } from '../assets/bim_viewer_src/src/locales/messagesRu'
 onMounted(() => {
-  launchViewer()
+  /* launchViewer() */
 })
 
 const isExplorerOpen = ref(true)
