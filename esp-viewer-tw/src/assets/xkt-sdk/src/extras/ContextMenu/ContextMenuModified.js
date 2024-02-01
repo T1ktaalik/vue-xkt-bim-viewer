@@ -1,7 +1,6 @@
 import {Map} from "../../viewer/scene/utils/Map.js";
-import { h } from 'vue'
 
-
+import * as cheerio from 'cheerio'
 
 const idMap = new Map();
 
@@ -616,15 +615,13 @@ class ContextMenu {
 
         const groups = menu.groups;
         const html = [];
-        const html_m = []
 
-        const vnode = h('div', { class: 'bar', innerHTML: 'hello' })
-
-        console.log(vnode)
-       html.push('<div class="xeokit-context-menu ' + menu.id + '" style="z-index:300000; position: absolute;">');
-        
-
-
+      // html.push('<div id="testingTesting" class="xeokit-context-menu ' + menu.id + '" style="z-index:300000; position: absolute;">');
+       html.push('<div id="testingTesting" class=" ' + menu.id + '" style="z-index:300099; position: absolute;">');
+       
+       
+       const $ = cheerio.load(`<div id="xktContextMenu" class="xeokit-context-menu ${menu.id}" style="z-index:300000; position: absolute;"><ul></ul></div>`)
+ 
         html.push('<ul>');
 
         if (groups) {
@@ -643,9 +640,11 @@ class ContextMenu {
                         const item = groupItems[j];
                         const itemSubMenu = item.subMenu;
                         const actionTitle = item.title || "";
-
+                         /**
+                          * Пока что сабменю не делаем, на Cheerio  переделываем только контекстное меню без сабменю
+                          */
                         if (itemSubMenu) {
-
+                               
                             html.push(
                                 '<li id="' + item.id + '" class="xeokit-context-menu-item" style="' +
                                 ((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black') +
@@ -662,6 +661,8 @@ class ContextMenu {
                                 '">' +
                                 actionTitle +
                                 '</li>');
+                            $('ul').append(`<li id=${item.id} class="xeokit-context-menu-item" style="${((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black')}"> ${actionTitle}</li>`)    
+
                         }
                     }
                 }
@@ -671,20 +672,25 @@ class ContextMenu {
         html.push('</ul>');
         html.push('</div>');
 
+        console.log($.html())
+        console.log($)
+        console.log(typeof $.html())
+
         const htmlString = html.join("");
 
         document.body.insertAdjacentHTML('beforeend', htmlString);
 
         const menuElement = document.querySelector("." + menu.id);
-
+        
         menu.menuElement = menuElement;
 
-        menuElement.style["border-radius"] = 4 + "px";
+        menuElement.style["border-radius"] = 45 + "px";
         menuElement.style.display = 'none';
         menuElement.style["z-index"] = 300000;
-        menuElement.style.background = "white";
-        menuElement.style.border = "1px solid black";
-        menuElement.style["box-shadow"] = "0 4px 5px 0 gray";
+        menuElement.style.background = "red";
+        menuElement.style.border = "20px solid black";
+        menuElement.style["box-shadow"] = "0 4px 5px 0 gray"; 
+        
         menuElement.oncontextmenu = (e) => {
             e.preventDefault();
         };
@@ -794,9 +800,7 @@ class ContextMenu {
         }
     }
 
-    _createMenuUI_draft(menu) {}
-
-
+    
     _updateItemsTitles() { // Dynamically updates the title of each Item to the result of Item#getTitle()
         if (!this._context) {
             return;
