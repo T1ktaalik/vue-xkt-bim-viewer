@@ -608,20 +608,11 @@ class ContextMenu {
     }
 
     _createMenuUI(menu) { // Builds DOM elements for a menu
-
-        //a link to  context menu sample
-        // https://dev.to/itskarelleh/build-a-custom-context-menu-with-tailwind-and-javascript-10hb
-
         const groups = menu.groups;
-        
-        const html = [];
+        const html = [];   
 
-
-        html.push('<div class="xeokit-context-menu ' + menu.id + '" style="z-index:300000; position: absolute;">');
-        const $ = cheerio.load(`<div id="xktContextMenu" class="tw-bg-gray-100/90 ${menu.id}" style="z-index:300099; position: absolute;"><ul></ul></div>`)
-        console.log($)
-        html.push('<ul>');
-
+        const $ = cheerio.load(`<div class="xeokit-context-menu ${menu.id}" style="z-index:300000; position: absolute;"></div>`) 
+        $('div').append('<ul class="tw-p-1"></ul>')
         if (groups) {
 
             for (let i = 0, len = groups.length; i < len; i++) {
@@ -640,46 +631,29 @@ class ContextMenu {
                         const actionTitle = item.title || "";
 
                         if (itemSubMenu) {
+                            $('ul').append(`<li id="${item.id}" class="xeokit-context-menu-item  " style="${((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black')}">${actionTitle} [MORE]</li> `)
 
-                            html.push(
-                                '<li id="' + item.id + '" class="xeokit-context-menu-item" style="' +
-                                ((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black') +
-                                '">' +
-                                actionTitle +
-                                ' [MORE]' +
-                                '</li>');
 
                         } else {
+                           /*  $('ul').append(`<li id="${item.id}" class="xeokit-context-menu-item " style="${((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black')}">${actionTitle}</li>`) */
+                            $('ul').append(`<li id="${item.id}" class="xeokit-context-menu-item  ${((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? '' : 'tw-border-solid tw-border tw-border-b-gray-600')}" style="">${actionTitle}</li>`)
 
-                            html.push(
-                                '<li id="' + item.id + '" class="xeokit-context-menu-item" style="' +
-                                ((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black') +
-                                '">' +
-                                actionTitle +
-                                '</li>');
                         }
                     }
                 }
             }
         }
 
-        html.push('</ul>');
-        html.push('</div>');
 
-        const htmlString = html.join("");
+        $('div').addClass('tw-hidden tw-shadow-orange-100 tw-bg-orange-50/80 tw-text-gray-600 ')
+        $('li').addClass('hover:tw-text-blue-700 hover:tw-cursor-pointer')
 
-        document.body.insertAdjacentHTML('beforeend', htmlString);
-
+        document.body.insertAdjacentHTML('beforeend', $('body').html());
         const menuElement = document.querySelector("." + menu.id);
-
+        
         menu.menuElement = menuElement;
-
-        menuElement.style["border-radius"] = 4 + "px";
-        menuElement.style.display = 'none';
-        menuElement.style["z-index"] = 300000;
-        menuElement.style.background = "white";
-        menuElement.style.border = "1px solid black";
-        menuElement.style["box-shadow"] = "0 4px 5px 0 gray";
+        
+      
         menuElement.oncontextmenu = (e) => {
             e.preventDefault();
         };

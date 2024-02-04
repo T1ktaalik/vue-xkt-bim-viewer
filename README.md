@@ -28,3 +28,7 @@ https://designshack.net/articles/trends/best-website-color-schemes/
 53. Dropbox
 ************************************************************
 ************************************************************
+
+19 Minimal Yet Warm
+
+https://visme.co/blog/website-color-schemes/

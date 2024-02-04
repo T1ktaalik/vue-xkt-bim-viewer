@@ -6,8 +6,8 @@
       v-bind="{ class: showExplorer ? 'tw-left-[350px]' : 'tw-left-[50px]' }"
       v-on:click="showExplorer = !showExplorer"
     >
-    <KeyboardDoubleArrowLeftFilled v-if="showExplorer" class="tw-text-grey-600 tw-w-[50px]" />
-    <KeyboardDoubleArrowRightFilled v-else class=" tw-text--grey-600 tw-w-[50px]" />
+    <KeyboardDoubleArrowLeftFilled v-if="showExplorer" class="tw-text-grey-600 hover:tw-text-blue-700 tw-w-[50px]" />
+    <KeyboardDoubleArrowRightFilled v-else class=" tw-text-grey-600 hover:tw-text-blue-700 tw-w-[50px]" />
     </button>
     <button
       id="inspectorSwitch"
@@ -15,22 +15,22 @@
       v-bind="{ class: showInspector ? 'tw-right-[400px]' : 'tw-right-[50px]' }"
       v-on:click="showInspector = !showInspector"
     >
-    <KeyboardDoubleArrowRightFilled v-if="showInspector" class="tw-text-grey-600 tw-w-[50px]" />
-    <KeyboardDoubleArrowLeftFilled v-else class=" tw-text-grey-600 tw-w-[50px]" />
+    <KeyboardDoubleArrowRightFilled v-if="showInspector" class="tw-text-grey-600 hover:tw-text-blue-700 tw-w-[50px]" />
+    <KeyboardDoubleArrowLeftFilled v-else class=" tw-text-grey-600 hover:tw-text-blue-700 tw-w-[50px]" />
     </button>
     <div
       id="viewerExplorer"
-      class="tw-absolute tw-bg-gray-100/90 tw-w-[300px] tw-text-gray-600 tw-z-30 tw-h-screen tw-overflow-auto "
+      class="tw-absolute tw-bg-orange-50/80 tw-w-[300px] tw-text-gray-600 tw-z-30 tw-h-screen tw-overflow-auto "
       ref="viewerExplorer"
       v-show="showExplorer"
     ></div>
-    <div id="viewerInspector" v-show="showInspector" class="tw-absolute tw-right-0 tw-w-[350px] tw-h-screen tw-z-30 tw-bg-gray-100/90 tw-text-gray-600 tw-overflow-auto"></div>
+    <div id="viewerInspector" v-show="showInspector" class="tw-absolute tw-right-0 tw-w-[350px] tw-h-screen tw-z-30 tw-bg-orange-50/80 tw-text-gray-600 tw-overflow-auto"></div>
     <div id="viewerToolbar" v-show="false"></div>
     
     <div id="bimViewer" class="tw-z-10">
       <canvas
         id="viewerCanvas"
-        class="tw-z-20 tw-h-screen tw-w-screen tw-overflow-hidden tw-absolute"
+        class="tw-z-20 tw-h-screen tw-w-screen tw-overflow-hidden tw-absolute "
       ></canvas>
       <canvas id="navCubeCanvas" class="tw-z-20 tw-absolute tw-bottom-0 tw-right-[350px]"></canvas>
     </div>
