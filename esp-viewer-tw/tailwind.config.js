@@ -1,9 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   prefix: 'tw-',
-  content: ['./public/**/*.html', './src/**/*.vue'],
+  content: ['./public/**/*.html', './src/**/*.vue', './src/**/*.js'],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+      }
+    },
   },
   plugins: [],
 

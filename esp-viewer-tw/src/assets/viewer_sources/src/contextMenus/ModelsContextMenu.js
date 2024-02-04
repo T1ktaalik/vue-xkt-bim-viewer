@@ -1,5 +1,5 @@
-import { ContextMenu } from '@xeokit/xeokit-sdk/dist/xeokit-sdk.es.js'
-
+//import { ContextMenu } from '@xeokit/xeokit-sdk/dist/xeokit-sdk.es.js'
+import { ContextMenu } from '../../../xkt-sdk/src/index'
 /**
  * @private
  * @param {*} cfg Configs

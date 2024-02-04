@@ -1,5 +1,7 @@
 import {Map} from "../../viewer/scene/utils/Map.js";
+
 import * as cheerio from 'cheerio'
+
 const idMap = new Map();
 
 /**
@@ -517,6 +519,8 @@ class ContextMenu {
         this._itemMap = {};
     }
 
+    
+
     _parseItems(itemsCfg) { // Parses "items" config into menu data
 
         const visitItems = (itemsCfg) => {
@@ -609,17 +613,15 @@ class ContextMenu {
 
     _createMenuUI(menu) { // Builds DOM elements for a menu
 
-        //a link to  context menu sample
-        // https://dev.to/itskarelleh/build-a-custom-context-menu-with-tailwind-and-javascript-10hb
-
         const groups = menu.groups;
-        
         const html = [];
 
-
-        html.push('<div class="xeokit-context-menu ' + menu.id + '" style="z-index:300000; position: absolute;">');
-        const $ = cheerio.load(`<div id="xktContextMenu" class="tw-bg-gray-100/90 ${menu.id}" style="z-index:300099; position: absolute;"><ul></ul></div>`)
-        console.log($)
+      // html.push('<div id="testingTesting" class="xeokit-context-menu ' + menu.id + '" style="z-index:300000; position: absolute;">');
+       html.push('<div id="testingTesting" class="tw-bg-red-800/80 tw-text-white ' + menu.id + '" style="z-index:300099; position: absolute;">');
+       
+       
+       const $ = cheerio.load(`<div id="xktContextMenu" class="xeokit-context-menu ${menu.id}" style="z-index:300099; position: absolute;"><ul></ul></div>`)
+ 
         html.push('<ul>');
 
         if (groups) {
@@ -638,9 +640,11 @@ class ContextMenu {
                         const item = groupItems[j];
                         const itemSubMenu = item.subMenu;
                         const actionTitle = item.title || "";
-
+                         /**
+                          * Пока что сабменю не делаем, на Cheerio  переделываем только контекстное меню без сабменю
+                          */
                         if (itemSubMenu) {
-
+                               
                             html.push(
                                 '<li id="' + item.id + '" class="xeokit-context-menu-item" style="' +
                                 ((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black') +
@@ -651,12 +655,19 @@ class ContextMenu {
 
                         } else {
 
-                            html.push(
+                   /*          html.push(
                                 '<li id="' + item.id + '" class="xeokit-context-menu-item" style="' +
                                 ((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black') +
                                 '">' +
                                 actionTitle +
                                 '</li>');
+                            $('ul').append(`<li id=${item.id} class="xeokit-context-menu-item" style="${((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black')}"> ${actionTitle}</li>`)   */  
+                            html.push(
+                                '<li id="' + item.id + '" class="">' +
+                                actionTitle +
+                                '</li>');
+                            $('ul').append(`<li id=${item.id} class="xeokit-context-menu-item" style="${((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black')}"> ${actionTitle}</li>`)    
+
                         }
                     }
                 }
@@ -666,20 +677,26 @@ class ContextMenu {
         html.push('</ul>');
         html.push('</div>');
 
+        console.log($.html())
+        console.log($)
+        console.log(typeof $.html())
+
         const htmlString = html.join("");
 
         document.body.insertAdjacentHTML('beforeend', htmlString);
 
         const menuElement = document.querySelector("." + menu.id);
-
+        
         menu.menuElement = menuElement;
 
-        menuElement.style["border-radius"] = 4 + "px";
-        menuElement.style.display = 'none';
-        menuElement.style["z-index"] = 300000;
-        menuElement.style.background = "white";
-        menuElement.style.border = "1px solid black";
-        menuElement.style["box-shadow"] = "0 4px 5px 0 gray";
+        //menuElement.style["border-radius"] = 4 + "px";
+        //menuElement.style.display = 'none';
+        //menuElement.style["z-index"] = 300777;
+        //menuElement.style["z-index"] = 300000;
+        //menuElement.style.background = "red";
+        //menuElement.style.border = "20px solid black";
+        //menuElement.style["box-shadow"] = "0 4px 5px 0 gray"; 
+        
         menuElement.oncontextmenu = (e) => {
             e.preventDefault();
         };
@@ -789,6 +806,7 @@ class ContextMenu {
         }
     }
 
+    
     _updateItemsTitles() { // Dynamically updates the title of each Item to the result of Item#getTitle()
         if (!this._context) {
             return;
