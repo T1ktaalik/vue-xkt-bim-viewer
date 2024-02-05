@@ -1,2 +1,2 @@
-export * from "./TextureTranscoder.js";
-export * from "./KTX2TextureTranscoder/index.js";
+export * from './TextureTranscoder.js'
+export * from './KTX2TextureTranscoder/index.js'

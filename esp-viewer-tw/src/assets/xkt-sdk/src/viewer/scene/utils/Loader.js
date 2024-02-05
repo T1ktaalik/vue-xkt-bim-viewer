@@ -1,55 +1,51 @@
-import {DefaultLoadingManager} from './LoadingManager.js';
+import { DefaultLoadingManager } from './LoadingManager.js'
 
 class Loader {
+  constructor(manager) {
+    this.manager = manager !== undefined ? manager : DefaultLoadingManager
 
-    constructor(manager) {
+    this.crossOrigin = 'anonymous'
+    this.withCredentials = false
+    this.path = ''
+    this.resourcePath = ''
+    this.requestHeader = {}
+  }
 
-        this.manager = (manager !== undefined) ? manager : DefaultLoadingManager;
+  load(/* url, onLoad, onProgress, onError */) {}
 
-        this.crossOrigin = 'anonymous';
-        this.withCredentials = false;
-        this.path = '';
-        this.resourcePath = '';
-        this.requestHeader = {};
-    }
+  loadAsync(url, onProgress) {
+    const scope = this
+    return new Promise(function (resolve, reject) {
+      scope.load(url, resolve, onProgress, reject)
+    })
+  }
 
-    load( /* url, onLoad, onProgress, onError */) {
-    }
+  parse(/* data */) {}
 
-    loadAsync(url, onProgress) {
-        const scope = this;
-        return new Promise(function (resolve, reject) {
-            scope.load(url, resolve, onProgress, reject);
-        });
-    }
+  setCrossOrigin(crossOrigin) {
+    this.crossOrigin = crossOrigin
+    return this
+  }
 
-    parse( /* data */) {
-    }
+  setWithCredentials(value) {
+    this.withCredentials = value
+    return this
+  }
 
-    setCrossOrigin(crossOrigin) {
-        this.crossOrigin = crossOrigin;
-        return this;
-    }
+  setPath(path) {
+    this.path = path
+    return this
+  }
 
-    setWithCredentials(value) {
-        this.withCredentials = value;
-        return this;
-    }
+  setResourcePath(resourcePath) {
+    this.resourcePath = resourcePath
+    return this
+  }
 
-    setPath(path) {
-        this.path = path;
-        return this;
-    }
-
-    setResourcePath(resourcePath) {
-        this.resourcePath = resourcePath;
-        return this;
-    }
-
-    setRequestHeader(requestHeader) {
-        this.requestHeader = requestHeader;
-        return this;
-    }
+  setRequestHeader(requestHeader) {
+    this.requestHeader = requestHeader
+    return this
+  }
 }
 
-export {Loader};
+export { Loader }

@@ -1,115 +1,115 @@
-import {Material} from './Material.js';
-import {RenderState} from '../webgl/RenderState.js';
+import { Material } from './Material.js'
+import { RenderState } from '../webgl/RenderState.js'
 
 const PRESETS = {
-    "default": {
-        fill: true,
-        fillColor: [0.4, 0.4, 0.4],
-        fillAlpha: 0.2,
-        edges: true,
-        edgeColor: [0.2, 0.2, 0.2],
-        edgeAlpha: 0.5,
-        edgeWidth: 1
-    },
-    "defaultWhiteBG": {
-        fill: true,
-        fillColor: [1, 1, 1],
-        fillAlpha: 0.6,
-        edgeColor: [0.2, 0.2, 0.2],
-        edgeAlpha: 1.0,
-        edgeWidth: 1
-    },
-    "defaultLightBG": {
-        fill: true,
-        fillColor: [0.4, 0.4, 0.4],
-        fillAlpha: 0.2,
-        edges: true,
-        edgeColor: [0.2, 0.2, 0.2],
-        edgeAlpha: 0.5,
-        edgeWidth: 1
-    },
-    "defaultDarkBG": {
-        fill: true,
-        fillColor: [0.4, 0.4, 0.4],
-        fillAlpha: 0.2,
-        edges: true,
-        edgeColor: [0.5, 0.5, 0.5],
-        edgeAlpha: 0.5,
-        edgeWidth: 1
-    },
-    "phosphorous": {
-        fill: true,
-        fillColor: [0.0, 0.0, 0.0],
-        fillAlpha: 0.4,
-        edges: true,
-        edgeColor: [0.9, 0.9, 0.9],
-        edgeAlpha: 0.5,
-        edgeWidth: 2
-    },
-    "sunset": {
-        fill: true,
-        fillColor: [0.9, 0.9, 0.6],
-        fillAlpha: 0.2,
-        edges: true,
-        edgeColor: [0.9, 0.9, 0.9],
-        edgeAlpha: 0.5,
-        edgeWidth: 1
-    },
-    "vectorscope": {
-        fill: true,
-        fillColor: [0.0, 0.0, 0.0],
-        fillAlpha: 0.7,
-        edges: true,
-        edgeColor: [0.2, 1.0, 0.2],
-        edgeAlpha: 1,
-        edgeWidth: 2
-    },
-    "battlezone": {
-        fill: true,
-        fillColor: [0.0, 0.0, 0.0],
-        fillAlpha: 1.0,
-        edges: true,
-        edgeColor: [0.2, 1.0, 0.2],
-        edgeAlpha: 1,
-        edgeWidth: 3
-    },
-    "sepia": {
-        fill: true,
-        fillColor: [0.970588207244873, 0.7965892553329468, 0.6660899519920349],
-        fillAlpha: 0.4,
-        edges: true,
-        edgeColor: [0.529411792755127, 0.4577854573726654, 0.4100345969200134],
-        edgeAlpha: 1.0,
-        edgeWidth: 1
-    },
-    "yellowHighlight": {
-        fill: true,
-        fillColor: [1.0, 1.0, 0.0],
-        fillAlpha: 0.5,
-        edges: true,
-        edgeColor: [1.0, 1.0, 1.0],
-        edgeAlpha: 1.0,
-        edgeWidth: 1
-    },
-    "greenSelected": {
-        fill: true,
-        fillColor: [0.0, 1.0, 0.0],
-        fillAlpha: 0.5,
-        edges: true,
-        edgeColor: [1.0, 1.0, 1.0],
-        edgeAlpha: 1.0,
-        edgeWidth: 1
-    },
-    "gamegrid": {
-        fill: true,
-        fillColor: [0.2, 0.2, 0.7],
-        fillAlpha: 0.9,
-        edges: true,
-        edgeColor: [0.4, 0.4, 1.6],
-        edgeAlpha: 0.8,
-        edgeWidth: 3
-    }
-};
+  default: {
+    fill: true,
+    fillColor: [0.4, 0.4, 0.4],
+    fillAlpha: 0.2,
+    edges: true,
+    edgeColor: [0.2, 0.2, 0.2],
+    edgeAlpha: 0.5,
+    edgeWidth: 1
+  },
+  defaultWhiteBG: {
+    fill: true,
+    fillColor: [1, 1, 1],
+    fillAlpha: 0.6,
+    edgeColor: [0.2, 0.2, 0.2],
+    edgeAlpha: 1.0,
+    edgeWidth: 1
+  },
+  defaultLightBG: {
+    fill: true,
+    fillColor: [0.4, 0.4, 0.4],
+    fillAlpha: 0.2,
+    edges: true,
+    edgeColor: [0.2, 0.2, 0.2],
+    edgeAlpha: 0.5,
+    edgeWidth: 1
+  },
+  defaultDarkBG: {
+    fill: true,
+    fillColor: [0.4, 0.4, 0.4],
+    fillAlpha: 0.2,
+    edges: true,
+    edgeColor: [0.5, 0.5, 0.5],
+    edgeAlpha: 0.5,
+    edgeWidth: 1
+  },
+  phosphorous: {
+    fill: true,
+    fillColor: [0.0, 0.0, 0.0],
+    fillAlpha: 0.4,
+    edges: true,
+    edgeColor: [0.9, 0.9, 0.9],
+    edgeAlpha: 0.5,
+    edgeWidth: 2
+  },
+  sunset: {
+    fill: true,
+    fillColor: [0.9, 0.9, 0.6],
+    fillAlpha: 0.2,
+    edges: true,
+    edgeColor: [0.9, 0.9, 0.9],
+    edgeAlpha: 0.5,
+    edgeWidth: 1
+  },
+  vectorscope: {
+    fill: true,
+    fillColor: [0.0, 0.0, 0.0],
+    fillAlpha: 0.7,
+    edges: true,
+    edgeColor: [0.2, 1.0, 0.2],
+    edgeAlpha: 1,
+    edgeWidth: 2
+  },
+  battlezone: {
+    fill: true,
+    fillColor: [0.0, 0.0, 0.0],
+    fillAlpha: 1.0,
+    edges: true,
+    edgeColor: [0.2, 1.0, 0.2],
+    edgeAlpha: 1,
+    edgeWidth: 3
+  },
+  sepia: {
+    fill: true,
+    fillColor: [0.970588207244873, 0.7965892553329468, 0.6660899519920349],
+    fillAlpha: 0.4,
+    edges: true,
+    edgeColor: [0.529411792755127, 0.4577854573726654, 0.4100345969200134],
+    edgeAlpha: 1.0,
+    edgeWidth: 1
+  },
+  yellowHighlight: {
+    fill: true,
+    fillColor: [1.0, 1.0, 0.0],
+    fillAlpha: 0.5,
+    edges: true,
+    edgeColor: [1.0, 1.0, 1.0],
+    edgeAlpha: 1.0,
+    edgeWidth: 1
+  },
+  greenSelected: {
+    fill: true,
+    fillColor: [0.0, 1.0, 0.0],
+    fillAlpha: 0.5,
+    edges: true,
+    edgeColor: [1.0, 1.0, 1.0],
+    edgeAlpha: 1.0,
+    edgeWidth: 1
+  },
+  gamegrid: {
+    fill: true,
+    fillColor: [0.2, 0.2, 0.7],
+    fillAlpha: 0.9,
+    edges: true,
+    edgeColor: [0.4, 0.4, 1.6],
+    edgeAlpha: 0.8,
+    edgeWidth: 3
+  }
+}
 
 /**
  * Configures the appearance of {@link Entity}s when they are xrayed, highlighted or selected.
@@ -195,419 +195,433 @@ const PRESETS = {
  * ````
  */
 class EmphasisMaterial extends Material {
-
-    /**
+  /**
      @private
      */
-    get type() {
-        return "EmphasisMaterial";
+  get type() {
+    return 'EmphasisMaterial'
+  }
+
+  /**
+   * Gets available EmphasisMaterial presets.
+   *
+   * @type {Object}
+   */
+  get presets() {
+    return PRESETS
+  }
+
+  /**
+   * @constructor
+   * @param {Component} owner Owner component. When destroyed, the owner will destroy this component as well.
+   * @param {*} [cfg] The EmphasisMaterial configuration
+   * @param {String} [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+   * @param {Boolean} [cfg.fill=true] Indicates if xray surfaces are filled with color.
+   * @param {Number[]} [cfg.fillColor=[0.4,0.4,0.4]] EmphasisMaterial fill color.
+   * @param  {Number} [cfg.fillAlpha=0.2] Transparency of filled xray faces. A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   * @param {Boolean} [cfg.edges=true] Indicates if xray edges are visible.
+   * @param {Number[]} [cfg.edgeColor=[0.2,0.2,0.2]]  RGB color of xray edges.
+   * @param {Number} [cfg.edgeAlpha=0.5] Transparency of xray edges. A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   * @param {Number} [cfg.edgeWidth=1] Width of xray edges, in pixels.
+   * @param {String} [cfg.preset] Selects a preset EmphasisMaterial configuration - see {@link EmphasisMaterial#presets}.
+   * @param {Boolean} [cfg.backfaces=false] Whether to render geometry backfaces when emphasising.
+   * @param {Boolean} [cfg.glowThrough=true] Whether to make the emphasized object appear to float on top of other objects, as if it were "glowing through" them.
+   */
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
+
+    this._state = new RenderState({
+      type: 'EmphasisMaterial',
+      fill: null,
+      fillColor: null,
+      fillAlpha: null,
+      edges: null,
+      edgeColor: null,
+      edgeAlpha: null,
+      edgeWidth: null,
+      backfaces: true,
+      glowThrough: true
+    })
+
+    this._preset = 'default'
+
+    if (cfg.preset) {
+      // Apply preset then override with configs where provided
+      this.preset = cfg.preset
+      if (cfg.fill !== undefined) {
+        this.fill = cfg.fill
+      }
+      if (cfg.fillColor) {
+        this.fillColor = cfg.fillColor
+      }
+      if (cfg.fillAlpha !== undefined) {
+        this.fillAlpha = cfg.fillAlpha
+      }
+      if (cfg.edges !== undefined) {
+        this.edges = cfg.edges
+      }
+      if (cfg.edgeColor) {
+        this.edgeColor = cfg.edgeColor
+      }
+      if (cfg.edgeAlpha !== undefined) {
+        this.edgeAlpha = cfg.edgeAlpha
+      }
+      if (cfg.edgeWidth !== undefined) {
+        this.edgeWidth = cfg.edgeWidth
+      }
+      if (cfg.backfaces !== undefined) {
+        this.backfaces = cfg.backfaces
+      }
+      if (cfg.glowThrough !== undefined) {
+        this.glowThrough = cfg.glowThrough
+      }
+    } else {
+      this.fill = cfg.fill
+      this.fillColor = cfg.fillColor
+      this.fillAlpha = cfg.fillAlpha
+      this.edges = cfg.edges
+      this.edgeColor = cfg.edgeColor
+      this.edgeAlpha = cfg.edgeAlpha
+      this.edgeWidth = cfg.edgeWidth
+      this.backfaces = cfg.backfaces
+      this.glowThrough = cfg.glowThrough
     }
+  }
 
-    /**
-     * Gets available EmphasisMaterial presets.
-     *
-     * @type {Object}
-     */
-    get presets() {
-        return PRESETS;
-    };
-
-    /**
-     * @constructor
-     * @param {Component} owner Owner component. When destroyed, the owner will destroy this component as well.
-     * @param {*} [cfg] The EmphasisMaterial configuration
-     * @param {String} [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
-     * @param {Boolean} [cfg.fill=true] Indicates if xray surfaces are filled with color.
-     * @param {Number[]} [cfg.fillColor=[0.4,0.4,0.4]] EmphasisMaterial fill color.
-     * @param  {Number} [cfg.fillAlpha=0.2] Transparency of filled xray faces. A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     * @param {Boolean} [cfg.edges=true] Indicates if xray edges are visible.
-     * @param {Number[]} [cfg.edgeColor=[0.2,0.2,0.2]]  RGB color of xray edges.
-     * @param {Number} [cfg.edgeAlpha=0.5] Transparency of xray edges. A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     * @param {Number} [cfg.edgeWidth=1] Width of xray edges, in pixels.
-     * @param {String} [cfg.preset] Selects a preset EmphasisMaterial configuration - see {@link EmphasisMaterial#presets}.
-     * @param {Boolean} [cfg.backfaces=false] Whether to render geometry backfaces when emphasising.
-     * @param {Boolean} [cfg.glowThrough=true] Whether to make the emphasized object appear to float on top of other objects, as if it were "glowing through" them.
-     */
-    constructor(owner, cfg = {}) {
-
-        super(owner, cfg);
-
-        this._state = new RenderState({
-            type: "EmphasisMaterial",
-            fill: null,
-            fillColor: null,
-            fillAlpha: null,
-            edges: null,
-            edgeColor: null,
-            edgeAlpha: null,
-            edgeWidth: null,
-            backfaces: true,
-            glowThrough: true
-        });
-
-        this._preset = "default";
-
-        if (cfg.preset) { // Apply preset then override with configs where provided
-            this.preset = cfg.preset;
-            if (cfg.fill !== undefined) {
-                this.fill = cfg.fill;
-            }
-            if (cfg.fillColor) {
-                this.fillColor = cfg.fillColor;
-            }
-            if (cfg.fillAlpha !== undefined) {
-                this.fillAlpha = cfg.fillAlpha;
-            }
-            if (cfg.edges !== undefined) {
-                this.edges = cfg.edges;
-            }
-            if (cfg.edgeColor) {
-                this.edgeColor = cfg.edgeColor;
-            }
-            if (cfg.edgeAlpha !== undefined) {
-                this.edgeAlpha = cfg.edgeAlpha;
-            }
-            if (cfg.edgeWidth !== undefined) {
-                this.edgeWidth = cfg.edgeWidth;
-            }
-            if (cfg.backfaces !== undefined) {
-                this.backfaces = cfg.backfaces;
-            }
-            if (cfg.glowThrough !== undefined) {
-                this.glowThrough = cfg.glowThrough;
-            }
-        } else {
-            this.fill = cfg.fill;
-            this.fillColor = cfg.fillColor;
-            this.fillAlpha = cfg.fillAlpha;
-            this.edges = cfg.edges;
-            this.edgeColor = cfg.edgeColor;
-            this.edgeAlpha = cfg.edgeAlpha;
-            this.edgeWidth = cfg.edgeWidth;
-            this.backfaces = cfg.backfaces;
-            this.glowThrough = cfg.glowThrough;
-        }
+  /**
+   * Sets if surfaces are filled with color.
+   *
+   * Default is ````true````.
+   *
+   * @type {Boolean}
+   */
+  set fill(value) {
+    value = value !== false
+    if (this._state.fill === value) {
+      return
     }
+    this._state.fill = value
+    this.glRedraw()
+  }
 
-    /**
-     * Sets if surfaces are filled with color.
-     *
-     * Default is ````true````.
-     *
-     * @type {Boolean}
-     */
-    set fill(value) {
-        value = value !== false;
-        if (this._state.fill === value) {
-            return;
-        }
-        this._state.fill = value;
-        this.glRedraw();
-    }
+  /**
+   * Gets if surfaces are filled with color.
+   *
+   * Default is ````true````.
+   *
+   * @type {Boolean}
+   */
+  get fill() {
+    return this._state.fill
+  }
 
-    /**
-     * Gets if surfaces are filled with color.
-     *
-     * Default is ````true````.
-     *
-     * @type {Boolean}
-     */
-    get fill() {
-        return this._state.fill;
+  /**
+   * Sets the RGB color of filled faces.
+   *
+   * Default is ````[0.4, 0.4, 0.4]````.
+   *
+   * @type {Number[]}
+   */
+  set fillColor(value) {
+    let fillColor = this._state.fillColor
+    if (!fillColor) {
+      fillColor = this._state.fillColor = new Float32Array(3)
+    } else if (
+      value &&
+      fillColor[0] === value[0] &&
+      fillColor[1] === value[1] &&
+      fillColor[2] === value[2]
+    ) {
+      return
     }
+    if (value) {
+      fillColor[0] = value[0]
+      fillColor[1] = value[1]
+      fillColor[2] = value[2]
+    } else {
+      fillColor[0] = 0.4
+      fillColor[1] = 0.4
+      fillColor[2] = 0.4
+    }
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the RGB color of filled faces.
-     *
-     * Default is ````[0.4, 0.4, 0.4]````.
-     *
-     * @type {Number[]}
-     */
-    set fillColor(value) {
-        let fillColor = this._state.fillColor;
-        if (!fillColor) {
-            fillColor = this._state.fillColor = new Float32Array(3);
-        } else if (value && fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
-            return;
-        }
-        if (value) {
-            fillColor[0] = value[0];
-            fillColor[1] = value[1];
-            fillColor[2] = value[2];
-        } else {
-            fillColor[0] = 0.4;
-            fillColor[1] = 0.4;
-            fillColor[2] = 0.4;
-        }
-        this.glRedraw();
-    }
+  /**
+   * Gets the RGB color of filled faces.
+   *
+   * Default is ````[0.4, 0.4, 0.4]````.
+   *
+   * @type {Number[]}
+   */
+  get fillColor() {
+    return this._state.fillColor
+  }
 
-    /**
-     * Gets the RGB color of filled faces.
-     *
-     * Default is ````[0.4, 0.4, 0.4]````.
-     *
-     * @type {Number[]}
-     */
-    get fillColor() {
-        return this._state.fillColor;
+  /**
+   * Sets the transparency of filled faces.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   *
+   * @type {Number}
+   */
+  set fillAlpha(value) {
+    value = value !== undefined && value !== null ? value : 0.2
+    if (this._state.fillAlpha === value) {
+      return
     }
+    this._state.fillAlpha = value
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the transparency of filled faces.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default is ````0.2````.
-     *
-     * @type {Number}
-     */
-    set fillAlpha(value) {
-        value = (value !== undefined && value !== null) ? value : 0.2;
-        if (this._state.fillAlpha === value) {
-            return;
-        }
-        this._state.fillAlpha = value;
-        this.glRedraw();
-    }
+  /**
+   * Gets the transparency of filled faces.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   *
+   * @type {Number}
+   */
+  get fillAlpha() {
+    return this._state.fillAlpha
+  }
 
-    /**
-     * Gets the transparency of filled faces.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default is ````0.2````.
-     *
-     * @type {Number}
-     */
-    get fillAlpha() {
-        return this._state.fillAlpha;
+  /**
+   * Sets if edges are visible.
+   *
+   * Default is ````true````.
+   *
+   * @type {Boolean}
+   */
+  set edges(value) {
+    value = value !== false
+    if (this._state.edges === value) {
+      return
     }
+    this._state.edges = value
+    this.glRedraw()
+  }
 
-    /**
-     * Sets if edges are visible.
-     *
-     * Default is ````true````.
-     *
-     * @type {Boolean}
-     */
-    set edges(value) {
-        value = value !== false;
-        if (this._state.edges === value) {
-            return;
-        }
-        this._state.edges = value;
-        this.glRedraw();
-    }
+  /**
+   * Gets if edges are visible.
+   *
+   * Default is ````true````.
+   *
+   * @type {Boolean}
+   */
+  get edges() {
+    return this._state.edges
+  }
 
-    /**
-     * Gets if edges are visible.
-     *
-     * Default is ````true````.
-     *
-     * @type {Boolean}
-     */
-    get edges() {
-        return this._state.edges;
+  /**
+   * Sets the RGB color of edges.
+   *
+   * Default is ```` [0.2, 0.2, 0.2]````.
+   *
+   * @type {Number[]}
+   */
+  set edgeColor(value) {
+    let edgeColor = this._state.edgeColor
+    if (!edgeColor) {
+      edgeColor = this._state.edgeColor = new Float32Array(3)
+    } else if (
+      value &&
+      edgeColor[0] === value[0] &&
+      edgeColor[1] === value[1] &&
+      edgeColor[2] === value[2]
+    ) {
+      return
     }
+    if (value) {
+      edgeColor[0] = value[0]
+      edgeColor[1] = value[1]
+      edgeColor[2] = value[2]
+    } else {
+      edgeColor[0] = 0.2
+      edgeColor[1] = 0.2
+      edgeColor[2] = 0.2
+    }
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the RGB color of edges.
-     *
-     * Default is ```` [0.2, 0.2, 0.2]````.
-     *
-     * @type {Number[]}
-     */
-    set edgeColor(value) {
-        let edgeColor = this._state.edgeColor;
-        if (!edgeColor) {
-            edgeColor = this._state.edgeColor = new Float32Array(3);
-        } else if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
-            return;
-        }
-        if (value) {
-            edgeColor[0] = value[0];
-            edgeColor[1] = value[1];
-            edgeColor[2] = value[2];
-        } else {
-            edgeColor[0] = 0.2;
-            edgeColor[1] = 0.2;
-            edgeColor[2] = 0.2;
-        }
-        this.glRedraw();
-    }
+  /**
+   * Gets the RGB color of edges.
+   *
+   * Default is ```` [0.2, 0.2, 0.2]````.
+   *
+   * @type {Number[]}
+   */
+  get edgeColor() {
+    return this._state.edgeColor
+  }
 
-    /**
-     * Gets the RGB color of edges.
-     *
-     * Default is ```` [0.2, 0.2, 0.2]````.
-     *
-     * @type {Number[]}
-     */
-    get edgeColor() {
-        return this._state.edgeColor;
+  /**
+   * Sets the transparency of edges.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   *
+   * @type {Number}
+   */
+  set edgeAlpha(value) {
+    value = value !== undefined && value !== null ? value : 0.5
+    if (this._state.edgeAlpha === value) {
+      return
     }
+    this._state.edgeAlpha = value
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the transparency of edges.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default is ````0.2````.
-     *
-     * @type {Number}
-     */
-    set edgeAlpha(value) {
-        value = (value !== undefined && value !== null) ? value : 0.5;
-        if (this._state.edgeAlpha === value) {
-            return;
-        }
-        this._state.edgeAlpha = value;
-        this.glRedraw();
-    }
+  /**
+   * Gets the transparency of edges.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   *
+   * @type {Number}
+   */
+  get edgeAlpha() {
+    return this._state.edgeAlpha
+  }
 
-    /**
-     * Gets the transparency of edges.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default is ````0.2````.
-     *
-     * @type {Number}
-     */
-    get edgeAlpha() {
-        return this._state.edgeAlpha;
-    }
+  /**
+   * Sets edge width.
+   *
+   * This is not supported by WebGL implementations based on DirectX [2019].
+   *
+   * Default value is ````1.0```` pixels.
+   *
+   * @type {Number}
+   */
+  set edgeWidth(value) {
+    this._state.edgeWidth = value || 1.0
+    this.glRedraw()
+  }
 
-    /**
-     * Sets edge width.
-     *
-     * This is not supported by WebGL implementations based on DirectX [2019].
-     *
-     * Default value is ````1.0```` pixels.
-     *
-     * @type {Number}
-     */
-    set edgeWidth(value) {
-        this._state.edgeWidth = value || 1.0;
-        this.glRedraw();
-    }
+  /**
+   * Gets edge width.
+   *
+   * This is not supported by WebGL implementations based on DirectX [2019].
+   *
+   * Default value is ````1.0```` pixels.
+   *
+   * @type {Number}
+   */
+  get edgeWidth() {
+    return this._state.edgeWidth
+  }
 
-    /**
-     * Gets edge width.
-     *
-     * This is not supported by WebGL implementations based on DirectX [2019].
-     *
-     * Default value is ````1.0```` pixels.
-     *
-     * @type {Number}
-     */
-    get edgeWidth() {
-        return this._state.edgeWidth;
+  /**
+   * Sets whether to render backfaces when {@link EmphasisMaterial#fill} is ````true````.
+   *
+   * Default is ````false````.
+   *
+   * @type {Boolean}
+   */
+  set backfaces(value) {
+    value = !!value
+    if (this._state.backfaces === value) {
+      return
     }
+    this._state.backfaces = value
+    this.glRedraw()
+  }
 
-    /**
-     * Sets whether to render backfaces when {@link EmphasisMaterial#fill} is ````true````.
-     *
-     * Default is ````false````.
-     *
-     * @type {Boolean}
-     */
-    set backfaces(value) {
-        value = !!value;
-        if (this._state.backfaces === value) {
-            return;
-        }
-        this._state.backfaces = value;
-        this.glRedraw();
-    }
+  /**
+   * Gets whether to render backfaces when {@link EmphasisMaterial#fill} is ````true````.
+   *
+   * Default is ````true````.
+   *
+   * @type {Boolean}
+   */
+  get backfaces() {
+    return this._state.backfaces
+  }
 
-    /**
-     * Gets whether to render backfaces when {@link EmphasisMaterial#fill} is ````true````.
-     *
-     * Default is ````true````.
-     *
-     * @type {Boolean}
-     */
-    get backfaces() {
-        return this._state.backfaces;
+  /**
+   * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+   *
+   * Default is ````true````.
+   *
+   * Note: updating this property will not affect the appearance of objects that are already emphasized.
+   *
+   * @type {Boolean}
+   */
+  set glowThrough(value) {
+    value = value !== false
+    if (this._state.glowThrough === value) {
+      return
     }
+    this._state.glowThrough = value
+    this.glRedraw()
+  }
 
-    /**
-     * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
-     *
-     * Default is ````true````.
-     *
-     * Note: updating this property will not affect the appearance of objects that are already emphasized.
-     *
-     * @type {Boolean}
-     */
-    set glowThrough(value) {
-        value = (value !== false);
-        if (this._state.glowThrough === value) {
-            return;
-        }
-        this._state.glowThrough = value;
-        this.glRedraw();
-    }
+  /**
+   * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+   *
+   * Default is ````true````.
+   *
+   * @type {Boolean}
+   */
+  get glowThrough() {
+    return this._state.glowThrough
+  }
 
-    /**
-     * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
-     *
-     * Default is ````true````.
-     *
-     * @type {Boolean}
-     */
-    get glowThrough() {
-        return this._state.glowThrough;
+  /**
+   * Selects a preset EmphasisMaterial configuration.
+   *
+   * Default value is "default".
+   *
+   * @type {String}
+   */
+  set preset(value) {
+    value = value || 'default'
+    if (this._preset === value) {
+      return
     }
+    const preset = PRESETS[value]
+    if (!preset) {
+      this.error(
+        "unsupported preset: '" +
+          value +
+          "' - supported values are " +
+          Object.keys(PRESETS).join(', ')
+      )
+      return
+    }
+    this.fill = preset.fill
+    this.fillColor = preset.fillColor
+    this.fillAlpha = preset.fillAlpha
+    this.edges = preset.edges
+    this.edgeColor = preset.edgeColor
+    this.edgeAlpha = preset.edgeAlpha
+    this.edgeWidth = preset.edgeWidth
+    this.glowThrough = preset.glowThrough
+    this._preset = value
+  }
 
-    /**
-     * Selects a preset EmphasisMaterial configuration.
-     *
-     * Default value is "default".
-     *
-     * @type {String}
-     */
-    set preset(value) {
-        value = value || "default";
-        if (this._preset === value) {
-            return;
-        }
-        const preset = PRESETS[value];
-        if (!preset) {
-            this.error("unsupported preset: '" + value + "' - supported values are " + Object.keys(PRESETS).join(", "));
-            return;
-        }
-        this.fill = preset.fill;
-        this.fillColor = preset.fillColor;
-        this.fillAlpha = preset.fillAlpha;
-        this.edges = preset.edges;
-        this.edgeColor = preset.edgeColor;
-        this.edgeAlpha = preset.edgeAlpha;
-        this.edgeWidth = preset.edgeWidth;
-        this.glowThrough = preset.glowThrough;
-        this._preset = value;
-    }
+  /**
+   * Gets the current preset EmphasisMaterial configuration.
+   *
+   * Default value is "default".
+   *
+   * @type {String}
+   */
+  get preset() {
+    return this._preset
+  }
 
-    /**
-     * Gets the current preset EmphasisMaterial configuration.
-     *
-     * Default value is "default".
-     *
-     * @type {String}
-     */
-    get preset() {
-        return this._preset;
-    }
-
-    /**
-     * Destroys this EmphasisMaterial.
-     */
-    destroy() {
-        super.destroy();
-        this._state.destroy();
-    }
+  /**
+   * Destroys this EmphasisMaterial.
+   */
+  destroy() {
+    super.destroy()
+    this._state.destroy()
+  }
 }
 
-export {EmphasisMaterial};
+export { EmphasisMaterial }

@@ -1,8 +1,8 @@
-import {Node} from "../../viewer/scene/nodes/Node.js";
-import {Plugin} from "../../viewer/Plugin.js";
-import {STLSceneGraphLoader} from "./STLSceneGraphLoader.js";
-import {utils} from "../../viewer/scene/utils.js";
-import {STLDefaultDataSource} from "./STLDefaultDataSource.js";
+import { Node } from '../../viewer/scene/nodes/Node.js'
+import { Plugin } from '../../viewer/Plugin.js'
+import { STLSceneGraphLoader } from './STLSceneGraphLoader.js'
+import { utils } from '../../viewer/scene/utils.js'
+import { STLDefaultDataSource } from './STLDefaultDataSource.js'
 
 /**
  * {@link Viewer} plugin that loads models from <a href="https://en.wikipedia.org/wiki/STL_(file_format)">STL</a> files.
@@ -178,97 +178,100 @@ import {STLDefaultDataSource} from "./STLDefaultDataSource.js";
  * @class STLLoaderPlugin
  */
 class STLLoaderPlugin extends Plugin {
+  /**
+   * @constructor
+   *
+   * @param {Viewer} viewer The Viewer.
+   * @param {Object} [cfg]  Plugin configuration.
+   * @param {String} [cfg.id="STLLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+   * @param {Object} [cfg.dataSource] A custom data source through which the STLLoaderPlugin can load STL files. Defaults to an instance of {@link STLDefaultDataSource}, which loads over HTTP.
+   */
+  constructor(viewer, cfg = {}) {
+    super('STLLoader', viewer, cfg)
 
     /**
-     * @constructor
-     *
-     * @param {Viewer} viewer The Viewer.
-     * @param {Object} [cfg]  Plugin configuration.
-     * @param {String} [cfg.id="STLLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {Object} [cfg.dataSource] A custom data source through which the STLLoaderPlugin can load STL files. Defaults to an instance of {@link STLDefaultDataSource}, which loads over HTTP.
+     * @private
      */
-    constructor(viewer, cfg = {}) {
+    this._sceneGraphLoader = new STLSceneGraphLoader()
 
-        super("STLLoader", viewer, cfg);
+    this.dataSource = cfg.dataSource
+  }
 
-        /**
-         * @private
-         */
-        this._sceneGraphLoader = new STLSceneGraphLoader();
+  /**
+   * Sets a custom data source through which the STLLoaderPlugin can load STL files.
+   *
+   * Default value is {@link STLDefaultDataSource}, which loads via an XMLHttpRequest.
+   *
+   * @type {Object}
+   */
+  set dataSource(value) {
+    this._dataSource = value || new STLDefaultDataSource()
+  }
 
-        this.dataSource = cfg.dataSource;
+  /**
+   * Gets the custom data source through which the STLLoaderPlugin can load STL files.
+   *
+   * Default value is {@link STLDefaultDataSource}, which loads via an XMLHttpRequest.
+   *
+   * @type {Object}
+   */
+  get dataSource() {
+    return this._dataSource
+  }
+
+  /**
+   * Loads an STL model from a file into this STLLoaderPlugin's {@link Viewer}.
+   *
+   * @param {*} params Loading parameters.
+   * @param {String} params.id ID to assign to the model's root {@link Entity}, unique among all components in the Viewer's {@link Scene}.
+   * @param {String} [params.src] Path to an STL file. Overrides the ````stl```` parameter.
+   * @param {String} [params.stl] Contents of an STL file, either binary of ASCII. Overridden by the ````src```` parameter.
+   * @param {Boolean} [params.edges=false] Whether or not to renders the model with edges emphasized.
+   * @param {Number[]} [params.origin=[0,0,0]] The model's World-space double-precision 3D origin. Use this to position the model within xeokit's World coordinate system, using double-precision coordinates.
+   * @param {Number[]} [params.position=[0,0,0]] The model single-precision 3D position, relative to the ````origin```` parameter.
+   * @param {Number[]} [params.scale=[1,1,1]] The model's scale.
+   * @param {Number[]} [params.rotation=[0,0,0]] The model's orientation, given as Euler angles in degrees, for each of the X, Y and Z axis.
+   * @param {Number[]} [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters. Relative to ````origin````.
+   * @param {Boolean} [params.backfaces=false] When true, allows visible backfaces, wherever specified in the STL.  When false, ignores backfaces.
+   * @param {Boolean} [params.smoothNormals=true] When true, automatically converts face-oriented normals to vertex normals for a smooth appearance.
+   * @param {Number} [params.smoothNormalsAngleThreshold=20] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
+   * @param {Number} [params.edgeThreshold=20] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
+   * @param {Boolean} [params.splitMeshes=true] When true, creates a separate {@link Mesh} for each group of faces that share the same vertex colors. Only works with binary STL.
+   * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}
+   */
+  load(params) {
+    if (params.id && this.viewer.scene.components[params.id]) {
+      this.error(
+        'Component with this ID already exists in viewer: ' +
+          params.id +
+          ' - will autogenerate this ID'
+      )
+      delete params.id
     }
 
-    /**
-     * Sets a custom data source through which the STLLoaderPlugin can load STL files.
-     *
-     * Default value is {@link STLDefaultDataSource}, which loads via an XMLHttpRequest.
-     *
-     * @type {Object}
-     */
-    set dataSource(value) {
-        this._dataSource = value || new STLDefaultDataSource();
+    const modelNode = new Node(
+      this.viewer.scene,
+      utils.apply(params, {
+        isModel: true
+      })
+    )
+
+    const src = params.src
+    const stl = params.stl
+
+    if (!src && !stl) {
+      this.error("load() param expected: either 'src' or 'stl'")
+      return modelNode
     }
 
-    /**
-     * Gets the custom data source through which the STLLoaderPlugin can load STL files.
-     *
-     * Default value is {@link STLDefaultDataSource}, which loads via an XMLHttpRequest.
-     *
-     * @type {Object}
-     */
-    get dataSource() {
-        return this._dataSource;
+    if (src) {
+      this._sceneGraphLoader.load(this, modelNode, src, params)
+    } else {
+      this._sceneGraphLoader.parse(this, modelNode, stl, params)
     }
 
-    /**
-     * Loads an STL model from a file into this STLLoaderPlugin's {@link Viewer}.
-     *
-     * @param {*} params Loading parameters.
-     * @param {String} params.id ID to assign to the model's root {@link Entity}, unique among all components in the Viewer's {@link Scene}.
-     * @param {String} [params.src] Path to an STL file. Overrides the ````stl```` parameter.
-     * @param {String} [params.stl] Contents of an STL file, either binary of ASCII. Overridden by the ````src```` parameter.
-     * @param {Boolean} [params.edges=false] Whether or not to renders the model with edges emphasized.
-     * @param {Number[]} [params.origin=[0,0,0]] The model's World-space double-precision 3D origin. Use this to position the model within xeokit's World coordinate system, using double-precision coordinates.
-     * @param {Number[]} [params.position=[0,0,0]] The model single-precision 3D position, relative to the ````origin```` parameter.
-     * @param {Number[]} [params.scale=[1,1,1]] The model's scale.
-     * @param {Number[]} [params.rotation=[0,0,0]] The model's orientation, given as Euler angles in degrees, for each of the X, Y and Z axis.
-     * @param {Number[]} [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters. Relative to ````origin````.
-     * @param {Boolean} [params.backfaces=false] When true, allows visible backfaces, wherever specified in the STL.  When false, ignores backfaces.
-     * @param {Boolean} [params.smoothNormals=true] When true, automatically converts face-oriented normals to vertex normals for a smooth appearance.
-     * @param {Number} [params.smoothNormalsAngleThreshold=20] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
-     * @param {Number} [params.edgeThreshold=20] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
-     * @param {Boolean} [params.splitMeshes=true] When true, creates a separate {@link Mesh} for each group of faces that share the same vertex colors. Only works with binary STL.
-     * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}
-     */
-    load(params) {
-
-        if (params.id && this.viewer.scene.components[params.id]) {
-            this.error("Component with this ID already exists in viewer: " + params.id + " - will autogenerate this ID");
-            delete params.id;
-        }
-
-        const modelNode = new Node(this.viewer.scene, utils.apply(params, {
-            isModel: true
-        }));
-
-        const src = params.src;
-        const stl = params.stl;
-
-        if (!src && !stl) {
-            this.error("load() param expected: either 'src' or 'stl'");
-            return modelNode;
-        }
-
-        if (src) {
-            this._sceneGraphLoader.load(this, modelNode, src, params);
-        } else {
-            this._sceneGraphLoader.parse(this, modelNode, stl, params);
-        }
-
-        return modelNode;
-    }
+    return modelNode
+  }
 }
 
-
-export {STLLoaderPlugin}
+export { STLLoaderPlugin }

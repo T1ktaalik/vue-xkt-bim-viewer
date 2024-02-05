@@ -1,26 +1,26 @@
-import {math} from '../math/math.js';
-import {Component} from '../Component.js';
-import {RenderState} from '../webgl/RenderState.js';
-import {Perspective} from './Perspective.js';
-import {Ortho} from './Ortho.js';
-import {Frustum} from './Frustum.js';
-import {CustomProjection} from './CustomProjection.js';
+import { math } from '../math/math.js'
+import { Component } from '../Component.js'
+import { RenderState } from '../webgl/RenderState.js'
+import { Perspective } from './Perspective.js'
+import { Ortho } from './Ortho.js'
+import { Frustum } from './Frustum.js'
+import { CustomProjection } from './CustomProjection.js'
 
-const tempVec3 = math.vec3();
-const tempVec3b = math.vec3();
-const tempVec3c = math.vec3();
-const tempVec3d = math.vec3();
-const tempVec3e = math.vec3();
-const tempVec3f = math.vec3();
-const tempVec4a = math.vec4();
-const tempVec4b = math.vec4();
-const tempVec4c = math.vec4();
-const tempMat = math.mat4();
-const tempMatb = math.mat4();
-const eyeLookVec = math.vec3();
-const eyeLookVecNorm = math.vec3();
-const eyeLookOffset = math.vec3();
-const offsetEye = math.vec3();
+const tempVec3 = math.vec3()
+const tempVec3b = math.vec3()
+const tempVec3c = math.vec3()
+const tempVec3d = math.vec3()
+const tempVec3e = math.vec3()
+const tempVec3f = math.vec3()
+const tempVec4a = math.vec4()
+const tempVec4b = math.vec4()
+const tempVec4c = math.vec4()
+const tempMat = math.mat4()
+const tempMatb = math.mat4()
+const eyeLookVec = math.vec3()
+const eyeLookVecNorm = math.vec3()
+const eyeLookOffset = math.vec3()
+const offsetEye = math.vec3()
 
 /**
  * @desc Manages viewing and projection transforms for its {@link Scene}.
@@ -212,460 +212,475 @@ const offsetEye = math.vec3();
  * See: <a href="https://en.wikipedia.org/wiki/Gimbal_lock">https://en.wikipedia.org/wiki/Gimbal_lock</a>
  */
 class Camera extends Component {
-
-    /**
+  /**
      @private
      */
-    get type() {
-        return "Camera";
+  get type() {
+    return 'Camera'
+  }
+
+  /**
+   * @constructor
+   * @private
+   */
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
+
+    this._state = new RenderState({
+      deviceMatrix: math.mat4(),
+      hasDeviceMatrix: false, // True when deviceMatrix set to other than identity
+      matrix: math.mat4(),
+      normalMatrix: math.mat4(),
+      inverseMatrix: math.mat4()
+    })
+
+    this._perspective = new Perspective(this)
+    this._ortho = new Ortho(this)
+    this._frustum = new Frustum(this)
+    this._customProjection = new CustomProjection(this)
+    this._project = this._perspective
+
+    this._eye = math.vec3([0, 0, 10.0])
+    this._look = math.vec3([0, 0, 0])
+    this._up = math.vec3([0, 1, 0])
+
+    this._worldUp = math.vec3([0, 1, 0])
+    this._worldRight = math.vec3([1, 0, 0])
+    this._worldForward = math.vec3([0, 0, -1])
+
+    this.deviceMatrix = cfg.deviceMatrix
+    this.eye = cfg.eye
+    this.look = cfg.look
+    this.up = cfg.up
+    this.worldAxis = cfg.worldAxis
+    this.gimbalLock = cfg.gimbalLock
+    this.constrainPitch = cfg.constrainPitch
+
+    this.projection = cfg.projection
+
+    this._perspective.on('matrix', () => {
+      if (this._projectionType === 'perspective') {
+        this.fire('projMatrix', this._perspective.matrix)
+      }
+    })
+    this._ortho.on('matrix', () => {
+      if (this._projectionType === 'ortho') {
+        this.fire('projMatrix', this._ortho.matrix)
+      }
+    })
+    this._frustum.on('matrix', () => {
+      if (this._projectionType === 'frustum') {
+        this.fire('projMatrix', this._frustum.matrix)
+      }
+    })
+    this._customProjection.on('matrix', () => {
+      if (this._projectionType === 'customProjection') {
+        this.fire('projMatrix', this._customProjection.matrix)
+      }
+    })
+  }
+
+  _update() {
+    const state = this._state
+    // In ortho mode, build the view matrix with an eye position that's translated
+    // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
+    // the front off the view (not a problem with perspective, since objects close enough
+    // to be clipped by the front plane are usually too big to see anything of their cross-sections).
+    let eye
+    if (this.projection === 'ortho') {
+      math.subVec3(this._eye, this._look, eyeLookVec)
+      math.normalizeVec3(eyeLookVec, eyeLookVecNorm)
+      math.mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset)
+      math.addVec3(this._look, eyeLookOffset, offsetEye)
+      eye = offsetEye
+    } else {
+      eye = this._eye
     }
-
-    /**
-     * @constructor
-     * @private
-     */
-    constructor(owner, cfg = {}) {
-
-        super(owner, cfg);
-
-        this._state = new RenderState({
-            deviceMatrix: math.mat4(),
-            hasDeviceMatrix: false, // True when deviceMatrix set to other than identity
-            matrix: math.mat4(),
-            normalMatrix: math.mat4(),
-            inverseMatrix: math.mat4()
-        });
-
-        this._perspective = new Perspective(this);
-        this._ortho = new Ortho(this);
-        this._frustum = new Frustum(this);
-        this._customProjection = new CustomProjection(this);
-        this._project = this._perspective;
-
-        this._eye = math.vec3([0, 0, 10.0]);
-        this._look = math.vec3([0, 0, 0]);
-        this._up = math.vec3([0, 1, 0]);
-
-        this._worldUp = math.vec3([0, 1, 0]);
-        this._worldRight = math.vec3([1, 0, 0]);
-        this._worldForward = math.vec3([0, 0, -1]);
-
-        this.deviceMatrix = cfg.deviceMatrix;
-        this.eye = cfg.eye;
-        this.look = cfg.look;
-        this.up = cfg.up;
-        this.worldAxis = cfg.worldAxis;
-        this.gimbalLock = cfg.gimbalLock;
-        this.constrainPitch = cfg.constrainPitch;
-
-        this.projection = cfg.projection;
-
-        this._perspective.on("matrix", () => {
-            if (this._projectionType === "perspective") {
-                this.fire("projMatrix", this._perspective.matrix);
-            }
-        });
-        this._ortho.on("matrix", () => {
-            if (this._projectionType === "ortho") {
-                this.fire("projMatrix", this._ortho.matrix);
-            }
-        });
-        this._frustum.on("matrix", () => {
-            if (this._projectionType === "frustum") {
-                this.fire("projMatrix", this._frustum.matrix);
-            }
-        });
-        this._customProjection.on("matrix", () => {
-            if (this._projectionType === "customProjection") {
-                this.fire("projMatrix", this._customProjection.matrix);
-            }
-        });
+    if (state.hasDeviceMatrix) {
+      math.lookAtMat4v(eye, this._look, this._up, tempMatb)
+      math.mulMat4(state.deviceMatrix, tempMatb, state.matrix)
+      //state.matrix.set(state.deviceMatrix);
+    } else {
+      math.lookAtMat4v(eye, this._look, this._up, state.matrix)
     }
+    math.inverseMat4(this._state.matrix, this._state.inverseMatrix)
+    math.transposeMat4(this._state.inverseMatrix, this._state.normalMatrix)
+    this.glRedraw()
+    this.fire('matrix', this._state.matrix)
+    this.fire('viewMatrix', this._state.matrix)
+  }
 
-    _update() {
-        const state = this._state;
-        // In ortho mode, build the view matrix with an eye position that's translated
-        // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
-        // the front off the view (not a problem with perspective, since objects close enough
-        // to be clipped by the front plane are usually too big to see anything of their cross-sections).
-        let eye;
-        if (this.projection === "ortho") {
-            math.subVec3(this._eye, this._look, eyeLookVec);
-            math.normalizeVec3(eyeLookVec, eyeLookVecNorm);
-            math.mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
-            math.addVec3(this._look, eyeLookOffset, offsetEye);
-            eye = offsetEye;
-        } else {
-            eye = this._eye;
-        }
-        if (state.hasDeviceMatrix) {
-            math.lookAtMat4v(eye, this._look, this._up, tempMatb);
-            math.mulMat4(state.deviceMatrix, tempMatb, state.matrix);
-            //state.matrix.set(state.deviceMatrix);
-        } else {
-            math.lookAtMat4v(eye, this._look, this._up, state.matrix);
-        }
-        math.inverseMat4(this._state.matrix, this._state.inverseMatrix);
-        math.transposeMat4(this._state.inverseMatrix, this._state.normalMatrix);
-        this.glRedraw();
-        this.fire("matrix", this._state.matrix);
-        this.fire("viewMatrix", this._state.matrix);
+  /**
+   * Rotates {@link Camera#eye} about {@link Camera#look}, around the {@link Camera#up} vector
+   *
+   * @param {Number} angleInc Angle of rotation in degrees
+   */
+  orbitYaw(angleInc) {
+    let lookEyeVec = math.subVec3(this._eye, this._look, tempVec3)
+    math.rotationMat4v(
+      angleInc * 0.0174532925,
+      this._gimbalLock ? this._worldUp : this._up,
+      tempMat
+    )
+    lookEyeVec = math.transformPoint3(tempMat, lookEyeVec, tempVec3b)
+    this.eye = math.addVec3(this._look, lookEyeVec, tempVec3c) // Set eye position as 'look' plus 'eye' vector
+    this.up = math.transformPoint3(tempMat, this._up, tempVec3d) // Rotate 'up' vector
+  }
+
+  /**
+   * Rotates {@link Camera#eye} about {@link Camera#look} around the right axis (orthogonal to {@link Camera#up} and "look").
+   *
+   * @param {Number} angleInc Angle of rotation in degrees
+   */
+  orbitPitch(angleInc) {
+    if (this._constrainPitch) {
+      angleInc = math.dotVec3(this._up, this._worldUp) / math.DEGTORAD
+      if (angleInc < 1) {
+        return
+      }
     }
+    let eye2 = math.subVec3(this._eye, this._look, tempVec3)
+    const left = math.cross3Vec3(
+      math.normalizeVec3(eye2, tempVec3b),
+      math.normalizeVec3(this._up, tempVec3c)
+    )
+    math.rotationMat4v(angleInc * 0.0174532925, left, tempMat)
+    eye2 = math.transformPoint3(tempMat, eye2, tempVec3d)
+    this.up = math.transformPoint3(tempMat, this._up, tempVec3e)
+    this.eye = math.addVec3(eye2, this._look, tempVec3f)
+  }
 
-    /**
-     * Rotates {@link Camera#eye} about {@link Camera#look}, around the {@link Camera#up} vector
-     *
-     * @param {Number} angleInc Angle of rotation in degrees
-     */
-    orbitYaw(angleInc) {
-        let lookEyeVec = math.subVec3(this._eye, this._look, tempVec3);
-        math.rotationMat4v(angleInc * 0.0174532925, this._gimbalLock ? this._worldUp : this._up, tempMat);
-        lookEyeVec = math.transformPoint3(tempMat, lookEyeVec, tempVec3b);
-        this.eye = math.addVec3(this._look, lookEyeVec, tempVec3c); // Set eye position as 'look' plus 'eye' vector
-        this.up = math.transformPoint3(tempMat, this._up, tempVec3d); // Rotate 'up' vector
+  /**
+   * Rotates {@link Camera#look} about {@link Camera#eye}, around the {@link Camera#up} vector.
+   *
+   * @param {Number} angleInc Angle of rotation in degrees
+   */
+  yaw(angleInc) {
+    let look2 = math.subVec3(this._look, this._eye, tempVec3)
+    math.rotationMat4v(
+      angleInc * 0.0174532925,
+      this._gimbalLock ? this._worldUp : this._up,
+      tempMat
+    )
+    look2 = math.transformPoint3(tempMat, look2, tempVec3b)
+    this.look = math.addVec3(look2, this._eye, tempVec3c)
+    if (this._gimbalLock) {
+      this.up = math.transformPoint3(tempMat, this._up, tempVec3d)
     }
+  }
 
-    /**
-     * Rotates {@link Camera#eye} about {@link Camera#look} around the right axis (orthogonal to {@link Camera#up} and "look").
-     *
-     * @param {Number} angleInc Angle of rotation in degrees
-     */
-    orbitPitch(angleInc) {
-        if (this._constrainPitch) {
-            angleInc = math.dotVec3(this._up, this._worldUp) / math.DEGTORAD;
-            if (angleInc < 1) {
-                return;
-            }
-        }
-        let eye2 = math.subVec3(this._eye, this._look, tempVec3);
-        const left = math.cross3Vec3(math.normalizeVec3(eye2, tempVec3b), math.normalizeVec3(this._up, tempVec3c));
-        math.rotationMat4v(angleInc * 0.0174532925, left, tempMat);
-        eye2 = math.transformPoint3(tempMat, eye2, tempVec3d);
-        this.up = math.transformPoint3(tempMat, this._up, tempVec3e);
-        this.eye = math.addVec3(eye2, this._look, tempVec3f);
-    }
-
-    /**
-     * Rotates {@link Camera#look} about {@link Camera#eye}, around the {@link Camera#up} vector.
-     *
-     * @param {Number} angleInc Angle of rotation in degrees
-     */
-    yaw(angleInc) {
-        let look2 = math.subVec3(this._look, this._eye, tempVec3);
-        math.rotationMat4v(angleInc * 0.0174532925, this._gimbalLock ? this._worldUp : this._up, tempMat);
-        look2 = math.transformPoint3(tempMat, look2, tempVec3b);
-        this.look = math.addVec3(look2, this._eye, tempVec3c);
-        if (this._gimbalLock) {
-            this.up = math.transformPoint3(tempMat, this._up, tempVec3d);
-        }
-    }
-
-    /**
+  /**
      * Rotates {@link Camera#look} about {@link Camera#eye}, around the right axis (orthogonal to {@link Camera#up} and "look").
 
      * @param {Number} angleInc Angle of rotation in degrees
      */
-    pitch(angleInc) {
-        if (this._constrainPitch) {
-            angleInc = math.dotVec3(this._up, this._worldUp) / math.DEGTORAD;
-            if (angleInc < 1) {
-                return;
-            }
-        }
-        let look2 = math.subVec3(this._look, this._eye, tempVec3);
-        const left = math.cross3Vec3(math.normalizeVec3(look2, tempVec3b), math.normalizeVec3(this._up, tempVec3c));
-        math.rotationMat4v(angleInc * 0.0174532925, left, tempMat);
-        this.up = math.transformPoint3(tempMat, this._up, tempVec3f);
-        look2 = math.transformPoint3(tempMat, look2, tempVec3d);
-        this.look = math.addVec3(look2, this._eye, tempVec3e);
+  pitch(angleInc) {
+    if (this._constrainPitch) {
+      angleInc = math.dotVec3(this._up, this._worldUp) / math.DEGTORAD
+      if (angleInc < 1) {
+        return
+      }
     }
+    let look2 = math.subVec3(this._look, this._eye, tempVec3)
+    const left = math.cross3Vec3(
+      math.normalizeVec3(look2, tempVec3b),
+      math.normalizeVec3(this._up, tempVec3c)
+    )
+    math.rotationMat4v(angleInc * 0.0174532925, left, tempMat)
+    this.up = math.transformPoint3(tempMat, this._up, tempVec3f)
+    look2 = math.transformPoint3(tempMat, look2, tempVec3d)
+    this.look = math.addVec3(look2, this._eye, tempVec3e)
+  }
 
-    /**
-     * Pans the Camera along its local X, Y and Z axis.
-     *
-     * @param pan The pan vector
-     */
-    pan(pan) {
-        const eye2 = math.subVec3(this._eye, this._look, tempVec3);
-        const vec = [0, 0, 0];
-        let v;
-        if (pan[0] !== 0) {
-            const left = math.cross3Vec3(math.normalizeVec3(eye2, []), math.normalizeVec3(this._up, tempVec3b));
-            v = math.mulVec3Scalar(left, pan[0]);
-            vec[0] += v[0];
-            vec[1] += v[1];
-            vec[2] += v[2];
-        }
-        if (pan[1] !== 0) {
-            v = math.mulVec3Scalar(math.normalizeVec3(this._up, tempVec3c), pan[1]);
-            vec[0] += v[0];
-            vec[1] += v[1];
-            vec[2] += v[2];
-        }
-        if (pan[2] !== 0) {
-            v = math.mulVec3Scalar(math.normalizeVec3(eye2, tempVec3d), pan[2]);
-            vec[0] += v[0];
-            vec[1] += v[1];
-            vec[2] += v[2];
-        }
-        this.eye = math.addVec3(this._eye, vec, tempVec3e);
-        this.look = math.addVec3(this._look, vec, tempVec3f);
+  /**
+   * Pans the Camera along its local X, Y and Z axis.
+   *
+   * @param pan The pan vector
+   */
+  pan(pan) {
+    const eye2 = math.subVec3(this._eye, this._look, tempVec3)
+    const vec = [0, 0, 0]
+    let v
+    if (pan[0] !== 0) {
+      const left = math.cross3Vec3(
+        math.normalizeVec3(eye2, []),
+        math.normalizeVec3(this._up, tempVec3b)
+      )
+      v = math.mulVec3Scalar(left, pan[0])
+      vec[0] += v[0]
+      vec[1] += v[1]
+      vec[2] += v[2]
     }
-
-    /**
-     * Increments/decrements the Camera's zoom factor, which is the distance between {@link Camera#eye} and {@link Camera#look}.
-     *
-     * @param {Number} delta Zoom factor increment.
-     */
-    zoom(delta) {
-        const vec = math.subVec3(this._eye, this._look, tempVec3);
-        const lenLook = Math.abs(math.lenVec3(vec, tempVec3b));
-        const newLenLook = Math.abs(lenLook + delta);
-        if (newLenLook < 0.5) {
-            return;
-        }
-        const dir = math.normalizeVec3(vec, tempVec3c);
-        this.eye = math.addVec3(this._look, math.mulVec3Scalar(dir, newLenLook), tempVec3d);
+    if (pan[1] !== 0) {
+      v = math.mulVec3Scalar(math.normalizeVec3(this._up, tempVec3c), pan[1])
+      vec[0] += v[0]
+      vec[1] += v[1]
+      vec[2] += v[2]
     }
-
-    /**
-     * Sets the position of the Camera's eye.
-     *
-     * Default value is ````[0,0,10]````.
-     *
-     * @emits "eye" event on change, with the value of this property.
-     * @type {Number[]} New eye position.
-     */
-    set eye(eye) {
-        this._eye.set(eye || [0, 0, 10]);
-        this._needUpdate(0); // Ensure matrix built on next "tick"
-        this.fire("eye", this._eye);
+    if (pan[2] !== 0) {
+      v = math.mulVec3Scalar(math.normalizeVec3(eye2, tempVec3d), pan[2])
+      vec[0] += v[0]
+      vec[1] += v[1]
+      vec[2] += v[2]
     }
+    this.eye = math.addVec3(this._eye, vec, tempVec3e)
+    this.look = math.addVec3(this._look, vec, tempVec3f)
+  }
 
-    /**
-     * Gets the position of the Camera's eye.
-     *
-     * Default vale is ````[0,0,10]````.
-     *
-     * @type {Number[]} New eye position.
-     */
-    get eye() {
-        return this._eye;
+  /**
+   * Increments/decrements the Camera's zoom factor, which is the distance between {@link Camera#eye} and {@link Camera#look}.
+   *
+   * @param {Number} delta Zoom factor increment.
+   */
+  zoom(delta) {
+    const vec = math.subVec3(this._eye, this._look, tempVec3)
+    const lenLook = Math.abs(math.lenVec3(vec, tempVec3b))
+    const newLenLook = Math.abs(lenLook + delta)
+    if (newLenLook < 0.5) {
+      return
     }
+    const dir = math.normalizeVec3(vec, tempVec3c)
+    this.eye = math.addVec3(this._look, math.mulVec3Scalar(dir, newLenLook), tempVec3d)
+  }
 
-    /**
-     * Sets the position of this Camera's point-of-interest.
-     *
-     * Default value is ````[0,0,0]````.
-     *
-     * @emits "look" event on change, with the value of this property.
-     *
-     * @param {Number[]} look Camera look position.
-     */
-    set look(look) {
-        this._look.set(look || [0, 0, 0]);
-        this._needUpdate(0); // Ensure matrix built on next "tick"
-        this.fire("look", this._look);
+  /**
+   * Sets the position of the Camera's eye.
+   *
+   * Default value is ````[0,0,10]````.
+   *
+   * @emits "eye" event on change, with the value of this property.
+   * @type {Number[]} New eye position.
+   */
+  set eye(eye) {
+    this._eye.set(eye || [0, 0, 10])
+    this._needUpdate(0) // Ensure matrix built on next "tick"
+    this.fire('eye', this._eye)
+  }
+
+  /**
+   * Gets the position of the Camera's eye.
+   *
+   * Default vale is ````[0,0,10]````.
+   *
+   * @type {Number[]} New eye position.
+   */
+  get eye() {
+    return this._eye
+  }
+
+  /**
+   * Sets the position of this Camera's point-of-interest.
+   *
+   * Default value is ````[0,0,0]````.
+   *
+   * @emits "look" event on change, with the value of this property.
+   *
+   * @param {Number[]} look Camera look position.
+   */
+  set look(look) {
+    this._look.set(look || [0, 0, 0])
+    this._needUpdate(0) // Ensure matrix built on next "tick"
+    this.fire('look', this._look)
+  }
+
+  /**
+   * Gets the position of this Camera's point-of-interest.
+   *
+   * Default value is ````[0,0,0]````.
+   *
+   * @returns {Number[]} Camera look position.
+   */
+  get look() {
+    return this._look
+  }
+
+  /**
+   * Sets the direction of this Camera's {@link Camera#up} vector.
+   *
+   * @emits "up" event on change, with the value of this property.
+   *
+   * @param {Number[]} up Direction of "up".
+   */
+  set up(up) {
+    this._up.set(up || [0, 1, 0])
+    this._needUpdate(0)
+    this.fire('up', this._up)
+  }
+
+  /**
+   * Gets the direction of this Camera's {@link Camera#up} vector.
+   *
+   * @returns {Number[]} Direction of "up".
+   */
+  get up() {
+    return this._up
+  }
+
+  /**
+   * Sets an optional matrix to premultiply into {@link Camera#matrix} matrix.
+   *
+   * This is intended to be used for stereo rendering with WebVR etc.
+   *
+   * @param {Number[]} matrix The matrix.
+   */
+  set deviceMatrix(matrix) {
+    this._state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
+    this._state.hasDeviceMatrix = !!matrix
+    this._needUpdate(0)
+    this.fire('deviceMatrix', this._state.deviceMatrix)
+  }
+
+  /**
+   * Gets an optional matrix to premultiply into {@link Camera#matrix} matrix.
+   *
+   * @returns {Number[]} The matrix.
+   */
+  get deviceMatrix() {
+    return this._state.deviceMatrix
+  }
+
+  /**
+   * Sets the up, right and forward axis of the World coordinate system.
+   *
+   * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
+   *
+   * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
+   *
+   * @param {Number[]} axis The new Wworld coordinate axis.
+   */
+  set worldAxis(axis) {
+    axis = axis || [1, 0, 0, 0, 1, 0, 0, 0, 1]
+    if (!this._worldAxis) {
+      this._worldAxis = math.vec3(axis)
+    } else {
+      this._worldAxis.set(axis)
     }
+    this._worldRight[0] = this._worldAxis[0]
+    this._worldRight[1] = this._worldAxis[1]
+    this._worldRight[2] = this._worldAxis[2]
+    this._worldUp[0] = this._worldAxis[3]
+    this._worldUp[1] = this._worldAxis[4]
+    this._worldUp[2] = this._worldAxis[5]
+    this._worldForward[0] = this._worldAxis[6]
+    this._worldForward[1] = this._worldAxis[7]
+    this._worldForward[2] = this._worldAxis[8]
+    this.fire('worldAxis', this._worldAxis)
+  }
 
-    /**
-     * Gets the position of this Camera's point-of-interest.
-     *
-     * Default value is ````[0,0,0]````.
-     *
-     * @returns {Number[]} Camera look position.
-     */
-    get look() {
-        return this._look;
-    }
+  /**
+   * Gets the up, right and forward axis of the World coordinate system.
+   *
+   * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
+   *
+   * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
+   *
+   * @returns {Number[]} The current World coordinate axis.
+   */
+  get worldAxis() {
+    return this._worldAxis
+  }
 
-    /**
-     * Sets the direction of this Camera's {@link Camera#up} vector.
-     *
-     * @emits "up" event on change, with the value of this property.
-     *
-     * @param {Number[]} up Direction of "up".
-     */
-    set up(up) {
-        this._up.set(up || [0, 1, 0]);
-        this._needUpdate(0);
-        this.fire("up", this._up);
-    }
+  /**
+   * Gets the direction of World-space "up".
+   *
+   * This is set by {@link Camera#worldAxis}.
+   *
+   * Default value is ````[0,1,0]````.
+   *
+   * @returns {Number[]} The "up" vector.
+   */
+  get worldUp() {
+    return this._worldUp
+  }
 
-    /**
-     * Gets the direction of this Camera's {@link Camera#up} vector.
-     *
-     * @returns {Number[]} Direction of "up".
-     */
-    get up() {
-        return this._up;
-    }
+  /**
+   * Gets if the World-space X-axis is "up".
+   * @returns {Boolean}
+   */
+  get xUp() {
+    return this._worldUp[0] > this._worldUp[1] && this._worldUp[0] > this._worldUp[2]
+  }
 
-    /**
-     * Sets an optional matrix to premultiply into {@link Camera#matrix} matrix.
-     *
-     * This is intended to be used for stereo rendering with WebVR etc.
-     *
-     * @param {Number[]} matrix The matrix.
-     */
-    set deviceMatrix(matrix) {
-        this._state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-        this._state.hasDeviceMatrix = !!matrix;
-        this._needUpdate(0);
-        this.fire("deviceMatrix", this._state.deviceMatrix);
-    }
+  /**
+   * Gets if the World-space Y-axis is "up".
+   * @returns {Boolean}
+   */
+  get yUp() {
+    return this._worldUp[1] > this._worldUp[0] && this._worldUp[1] > this._worldUp[2]
+  }
 
-    /**
-     * Gets an optional matrix to premultiply into {@link Camera#matrix} matrix.
-     *
-     * @returns {Number[]} The matrix.
-     */
-    get deviceMatrix() {
-        return this._state.deviceMatrix;
-    }
+  /**
+   * Gets if the World-space Z-axis is "up".
+   * @returns {Boolean}
+   */
+  get zUp() {
+    return this._worldUp[2] > this._worldUp[0] && this._worldUp[2] > this._worldUp[1]
+  }
 
-    /**
-     * Sets the up, right and forward axis of the World coordinate system.
-     *
-     * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
-     *
-     * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
-     *
-     * @param {Number[]} axis The new Wworld coordinate axis.
-     */
-    set worldAxis(axis) {
-        axis = axis || [1, 0, 0, 0, 1, 0, 0, 0, 1];
-        if (!this._worldAxis) {
-            this._worldAxis = math.vec3(axis);
-        } else {
-            this._worldAxis.set(axis);
-        }
-        this._worldRight[0] = this._worldAxis[0];
-        this._worldRight[1] = this._worldAxis[1];
-        this._worldRight[2] = this._worldAxis[2];
-        this._worldUp[0] = this._worldAxis[3];
-        this._worldUp[1] = this._worldAxis[4];
-        this._worldUp[2] = this._worldAxis[5];
-        this._worldForward[0] = this._worldAxis[6];
-        this._worldForward[1] = this._worldAxis[7];
-        this._worldForward[2] = this._worldAxis[8];
-        this.fire("worldAxis", this._worldAxis);
-    }
+  /**
+   * Gets the direction of World-space "right".
+   *
+   * This is set by {@link Camera#worldAxis}.
+   *
+   * Default value is ````[1,0,0]````.
+   *
+   * @returns {Number[]} The "up" vector.
+   */
+  get worldRight() {
+    return this._worldRight
+  }
 
-    /**
-     * Gets the up, right and forward axis of the World coordinate system.
-     *
-     * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
-     *
-     * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
-     *
-     * @returns {Number[]} The current World coordinate axis.
-     */
-    get worldAxis() {
-        return this._worldAxis;
-    }
+  /**
+   * Gets the direction of World-space "forwards".
+   *
+   * This is set by {@link Camera#worldAxis}.
+   *
+   * Default value is ````[0,0,1]````.
+   *
+   * @returns {Number[]} The "up" vector.
+   */
+  get worldForward() {
+    return this._worldForward
+  }
 
-    /**
-     * Gets the direction of World-space "up".
-     *
-     * This is set by {@link Camera#worldAxis}.
-     *
-     * Default value is ````[0,1,0]````.
-     *
-     * @returns {Number[]} The "up" vector.
-     */
-    get worldUp() {
-        return this._worldUp;
-    }
+  /**
+   * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
+   *
+   * Fires a {@link Camera#gimbalLock:event} event on change.
+   *
+   * @params {Boolean} gimbalLock Set true to lock gimbal.
+   */
+  set gimbalLock(value) {
+    this._gimbalLock = value !== false
+    this.fire('gimbalLock', this._gimbalLock)
+  }
 
-    /**
-     * Gets if the World-space X-axis is "up".
-     * @returns {Boolean}
-     */
-    get xUp() {
-        return this._worldUp[0] > this._worldUp[1] && this._worldUp[0] > this._worldUp[2];
-    }
+  /**
+   * Gets whether to lock yaw rotation to pivot about the World-space "up" axis.
+   *
+   * @returns {Boolean} Returns ````true```` if gimbal is locked.
+   */
+  get gimbalLock() {
+    return this._gimbalLock
+  }
 
-    /**
-     * Gets if the World-space Y-axis is "up".
-     * @returns {Boolean}
-     */
-    get yUp() {
-        return this._worldUp[1] > this._worldUp[0] && this._worldUp[1] > this._worldUp[2];
-    }
+  /**
+   * Sets whether to prevent camera from being pitched upside down.
+   *
+   * The camera is upside down when the angle between {@link Camera#up} and {@link Camera#worldUp} is less than one degree.
+   *
+   * Fires a {@link Camera#constrainPitch:event} event on change.
+   *
+   * Default value is ````false````.
+   *
+   * @param {Boolean} value Set ````true```` to contrain pitch rotation.
+   */
+  set constrainPitch(value) {
+    this._constrainPitch = !!value
+    this.fire('constrainPitch', this._constrainPitch)
+  }
 
-    /**
-     * Gets if the World-space Z-axis is "up".
-     * @returns {Boolean}
-     */
-    get zUp() {
-        return this._worldUp[2] > this._worldUp[0] && this._worldUp[2] > this._worldUp[1];
-    }
-
-    /**
-     * Gets the direction of World-space "right".
-     *
-     * This is set by {@link Camera#worldAxis}.
-     *
-     * Default value is ````[1,0,0]````.
-     *
-     * @returns {Number[]} The "up" vector.
-     */
-    get worldRight() {
-        return this._worldRight;
-    }
-
-    /**
-     * Gets the direction of World-space "forwards".
-     *
-     * This is set by {@link Camera#worldAxis}.
-     *
-     * Default value is ````[0,0,1]````.
-     *
-     * @returns {Number[]} The "up" vector.
-     */
-    get worldForward() {
-        return this._worldForward;
-    }
-
-    /**
-     * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
-     *
-     * Fires a {@link Camera#gimbalLock:event} event on change.
-     *
-     * @params {Boolean} gimbalLock Set true to lock gimbal.
-     */
-    set gimbalLock(value) {
-        this._gimbalLock = value !== false;
-        this.fire("gimbalLock", this._gimbalLock);
-    }
-
-    /**
-     * Gets whether to lock yaw rotation to pivot about the World-space "up" axis.
-     *
-     * @returns {Boolean} Returns ````true```` if gimbal is locked.
-     */
-    get gimbalLock() {
-        return this._gimbalLock;
-    }
-
-    /**
-     * Sets whether to prevent camera from being pitched upside down.
-     *
-     * The camera is upside down when the angle between {@link Camera#up} and {@link Camera#worldUp} is less than one degree.
-     *
-     * Fires a {@link Camera#constrainPitch:event} event on change.
-     *
-     * Default value is ````false````.
-     *
-     * @param {Boolean} value Set ````true```` to contrain pitch rotation.
-     */
-    set constrainPitch(value) {
-        this._constrainPitch = !!value;
-        this.fire("constrainPitch", this._constrainPitch);
-    }
-
-    /**
+  /**
      * Gets whether to prevent camera from being pitched upside down.
      *
      * The camera is upside down when the angle between {@link Camera#up} and {@link Camera#worldUp} is less than one degree.
@@ -682,231 +697,231 @@ class Camera extends Component {
      *
      * @returns {Number} The distance.
      */
-    get eyeLookDist() {
-        return math.lenVec3(math.subVec3(this._look, this._eye, tempVec3));
-    }
+  get eyeLookDist() {
+    return math.lenVec3(math.subVec3(this._look, this._eye, tempVec3))
+  }
 
-    /**
-     * Gets the Camera's viewing transformation matrix.
-     *
-     * Fires a {@link Camera#matrix:event} event on change.
-     *
-     * @returns {Number[]} The viewing transform matrix.
-     */
-    get matrix() {
-        if (this._updateScheduled) {
-            this._doUpdate();
-        }
-        return this._state.matrix;
+  /**
+   * Gets the Camera's viewing transformation matrix.
+   *
+   * Fires a {@link Camera#matrix:event} event on change.
+   *
+   * @returns {Number[]} The viewing transform matrix.
+   */
+  get matrix() {
+    if (this._updateScheduled) {
+      this._doUpdate()
     }
+    return this._state.matrix
+  }
 
-    /**
-     * Gets the Camera's viewing transformation matrix.
-     *
-     * Fires a {@link Camera#matrix:event} event on change.
-     *
-     * @returns {Number[]} The viewing transform matrix.
-     */
-    get viewMatrix() {
-        if (this._updateScheduled) {
-            this._doUpdate();
-        }
-        return this._state.matrix;
+  /**
+   * Gets the Camera's viewing transformation matrix.
+   *
+   * Fires a {@link Camera#matrix:event} event on change.
+   *
+   * @returns {Number[]} The viewing transform matrix.
+   */
+  get viewMatrix() {
+    if (this._updateScheduled) {
+      this._doUpdate()
     }
+    return this._state.matrix
+  }
 
-    /**
-     * The Camera's viewing normal transformation matrix.
-     *
-     * Fires a {@link Camera#matrix:event} event on change.
-     *
-     * @returns {Number[]} The viewing normal transform matrix.
-     */
-    get normalMatrix() {
-        if (this._updateScheduled) {
-            this._doUpdate();
-        }
-        return this._state.normalMatrix;
+  /**
+   * The Camera's viewing normal transformation matrix.
+   *
+   * Fires a {@link Camera#matrix:event} event on change.
+   *
+   * @returns {Number[]} The viewing normal transform matrix.
+   */
+  get normalMatrix() {
+    if (this._updateScheduled) {
+      this._doUpdate()
     }
+    return this._state.normalMatrix
+  }
 
-    /**
-     * The Camera's viewing normal transformation matrix.
-     *
-     * Fires a {@link Camera#matrix:event} event on change.
-     *
-     * @returns {Number[]} The viewing normal transform matrix.
-     */
-    get viewNormalMatrix() {
-        if (this._updateScheduled) {
-            this._doUpdate();
-        }
-        return this._state.normalMatrix;
+  /**
+   * The Camera's viewing normal transformation matrix.
+   *
+   * Fires a {@link Camera#matrix:event} event on change.
+   *
+   * @returns {Number[]} The viewing normal transform matrix.
+   */
+  get viewNormalMatrix() {
+    if (this._updateScheduled) {
+      this._doUpdate()
     }
+    return this._state.normalMatrix
+  }
 
-    /**
-     * Gets the inverse of the Camera's viewing transform matrix.
-     *
-     * This has the same value as {@link Camera#normalMatrix}.
-     *
-     * @returns {Number[]} The inverse viewing transform matrix.
-     */
-    get inverseViewMatrix() {
-        if (this._updateScheduled) {
-            this._doUpdate();
-        }
-        return this._state.inverseMatrix;
+  /**
+   * Gets the inverse of the Camera's viewing transform matrix.
+   *
+   * This has the same value as {@link Camera#normalMatrix}.
+   *
+   * @returns {Number[]} The inverse viewing transform matrix.
+   */
+  get inverseViewMatrix() {
+    if (this._updateScheduled) {
+      this._doUpdate()
     }
+    return this._state.inverseMatrix
+  }
 
-    /**
-     * Gets the Camera's projection transformation projMatrix.
-     *
-     * Fires a {@link Camera#projMatrix:event} event on change.
-     *
-     * @returns {Number[]} The projection matrix.
-     */
-    get projMatrix() {
-        return this[this.projection].matrix;
-    }
+  /**
+   * Gets the Camera's projection transformation projMatrix.
+   *
+   * Fires a {@link Camera#projMatrix:event} event on change.
+   *
+   * @returns {Number[]} The projection matrix.
+   */
+  get projMatrix() {
+    return this[this.projection].matrix
+  }
 
-    /**
-     * Gets the Camera's perspective projection.
-     *
-     * The Camera uses this while {@link Camera#projection} equals ````perspective````.
-     *
-     * @returns {Perspective} The Perspective component.
-     */
-    get perspective() {
-        return this._perspective;
-    }
+  /**
+   * Gets the Camera's perspective projection.
+   *
+   * The Camera uses this while {@link Camera#projection} equals ````perspective````.
+   *
+   * @returns {Perspective} The Perspective component.
+   */
+  get perspective() {
+    return this._perspective
+  }
 
-    /**
-     * Gets the Camera's orthographic projection.
-     *
-     * The Camera uses this while {@link Camera#projection} equals ````ortho````.
-     *
-     * @returns {Ortho} The Ortho component.
-     */
-    get ortho() {
-        return this._ortho;
-    }
+  /**
+   * Gets the Camera's orthographic projection.
+   *
+   * The Camera uses this while {@link Camera#projection} equals ````ortho````.
+   *
+   * @returns {Ortho} The Ortho component.
+   */
+  get ortho() {
+    return this._ortho
+  }
 
-    /**
-     * Gets the Camera's frustum projection.
-     *
-     * The Camera uses this while {@link Camera#projection} equals ````frustum````.
-     *
-     * @returns {Frustum} The Ortho component.
-     */
-    get frustum() {
-        return this._frustum;
-    }
+  /**
+   * Gets the Camera's frustum projection.
+   *
+   * The Camera uses this while {@link Camera#projection} equals ````frustum````.
+   *
+   * @returns {Frustum} The Ortho component.
+   */
+  get frustum() {
+    return this._frustum
+  }
 
-    /**
-     * Gets the Camera's custom projection.
-     *
-     * This is used while {@link Camera#projection} equals "customProjection".
-     *
-     * @returns {CustomProjection} The custom projection.
-     */
-    get customProjection() {
-        return this._customProjection;
-    }
+  /**
+   * Gets the Camera's custom projection.
+   *
+   * This is used while {@link Camera#projection} equals "customProjection".
+   *
+   * @returns {CustomProjection} The custom projection.
+   */
+  get customProjection() {
+    return this._customProjection
+  }
 
-    /**
-     * Sets the active projection type.
-     *
-     * Accepted values are ````"perspective"````, ````"ortho"````, ````"frustum"```` and ````"customProjection"````.
-     *
-     * Default value is ````"perspective"````.
-     *
-     * @param {String} value Identifies the active projection type.
-     */
-    set projection(value) {
-        value = value || "perspective";
-        if (this._projectionType === value) {
-            return;
-        }
-        if (value === "perspective") {
-            this._project = this._perspective;
-        } else if (value === "ortho") {
-            this._project = this._ortho;
-        } else if (value === "frustum") {
-            this._project = this._frustum;
-        } else if (value === "customProjection") {
-            this._project = this._customProjection;
-        } else {
-            this.error("Unsupported value for 'projection': " + value + " defaulting to 'perspective'");
-            this._project = this._perspective;
-            value = "perspective";
-        }
-        this._project._update();
-        this._projectionType = value;
-        this.glRedraw();
-        this._update(); // Need to rebuild lookat matrix with full eye, look & up
-        this.fire("dirty");
-        this.fire("projection", this._projectionType);
-        this.fire("projMatrix", this._project.matrix);
+  /**
+   * Sets the active projection type.
+   *
+   * Accepted values are ````"perspective"````, ````"ortho"````, ````"frustum"```` and ````"customProjection"````.
+   *
+   * Default value is ````"perspective"````.
+   *
+   * @param {String} value Identifies the active projection type.
+   */
+  set projection(value) {
+    value = value || 'perspective'
+    if (this._projectionType === value) {
+      return
     }
+    if (value === 'perspective') {
+      this._project = this._perspective
+    } else if (value === 'ortho') {
+      this._project = this._ortho
+    } else if (value === 'frustum') {
+      this._project = this._frustum
+    } else if (value === 'customProjection') {
+      this._project = this._customProjection
+    } else {
+      this.error("Unsupported value for 'projection': " + value + " defaulting to 'perspective'")
+      this._project = this._perspective
+      value = 'perspective'
+    }
+    this._project._update()
+    this._projectionType = value
+    this.glRedraw()
+    this._update() // Need to rebuild lookat matrix with full eye, look & up
+    this.fire('dirty')
+    this.fire('projection', this._projectionType)
+    this.fire('projMatrix', this._project.matrix)
+  }
 
-    /**
-     * Gets the active projection type.
-     *
-     * Possible values are ````"perspective"````, ````"ortho"````, ````"frustum"```` and ````"customProjection"````.
-     *
-     * Default value is ````"perspective"````.
-     *
-     * @returns {String} Identifies the active projection type.
-     */
-    get projection() {
-        return this._projectionType;
-    }
+  /**
+   * Gets the active projection type.
+   *
+   * Possible values are ````"perspective"````, ````"ortho"````, ````"frustum"```` and ````"customProjection"````.
+   *
+   * Default value is ````"perspective"````.
+   *
+   * @returns {String} Identifies the active projection type.
+   */
+  get projection() {
+    return this._projectionType
+  }
 
-    /**
-     * Gets the currently active projection for this Camera.
-     *
-     * The currently active project is selected with {@link Camera#projection}.
-     *
-     * @returns {Perspective|Ortho|Frustum|CustomProjection} The currently active projection is active.
-     */
-    get project() {
-        return this._project;
-    }
+  /**
+   * Gets the currently active projection for this Camera.
+   *
+   * The currently active project is selected with {@link Camera#projection}.
+   *
+   * @returns {Perspective|Ortho|Frustum|CustomProjection} The currently active projection is active.
+   */
+  get project() {
+    return this._project
+  }
 
-    /**
-     * Get the 2D canvas position of a 3D world position.
-     *
-     * @param {[number, number, number]} worldPos
-     * @returns {[number, number]} the canvas position
-     */
-    projectWorldPos(worldPos) {
-        const _worldPos = tempVec4a;
-        const viewPos = tempVec4b;
-        const screenPos = tempVec4c;
-        _worldPos[0] = worldPos[0];
-        _worldPos[1] = worldPos[1];
-        _worldPos[2] = worldPos[2];
-        _worldPos[3] = 1;
-        math.mulMat4v4(this.viewMatrix, _worldPos, viewPos);
-        math.mulMat4v4(this.projMatrix, viewPos, screenPos);
-        math.mulVec3Scalar(screenPos, 1.0 / screenPos[3]);
-        screenPos[3] = 1.0;
-        screenPos[1] *= -1;
-        const canvas = this.scene.canvas.canvas;
-        const halfCanvasWidth = canvas.offsetWidth / 2.0;
-        const halfCanvasHeight = canvas.offsetHeight / 2.0;
-        const canvasPos = [
-            screenPos[0] * halfCanvasWidth + halfCanvasWidth,
-            screenPos[1] * halfCanvasHeight + halfCanvasHeight,
-        ]
-        return canvasPos;
-    }
+  /**
+   * Get the 2D canvas position of a 3D world position.
+   *
+   * @param {[number, number, number]} worldPos
+   * @returns {[number, number]} the canvas position
+   */
+  projectWorldPos(worldPos) {
+    const _worldPos = tempVec4a
+    const viewPos = tempVec4b
+    const screenPos = tempVec4c
+    _worldPos[0] = worldPos[0]
+    _worldPos[1] = worldPos[1]
+    _worldPos[2] = worldPos[2]
+    _worldPos[3] = 1
+    math.mulMat4v4(this.viewMatrix, _worldPos, viewPos)
+    math.mulMat4v4(this.projMatrix, viewPos, screenPos)
+    math.mulVec3Scalar(screenPos, 1.0 / screenPos[3])
+    screenPos[3] = 1.0
+    screenPos[1] *= -1
+    const canvas = this.scene.canvas.canvas
+    const halfCanvasWidth = canvas.offsetWidth / 2.0
+    const halfCanvasHeight = canvas.offsetHeight / 2.0
+    const canvasPos = [
+      screenPos[0] * halfCanvasWidth + halfCanvasWidth,
+      screenPos[1] * halfCanvasHeight + halfCanvasHeight
+    ]
+    return canvasPos
+  }
 
-    /**
-     * Destroys this Camera.
-     */
-    destroy() {
-        super.destroy();
-        this._state.destroy();
-    }
+  /**
+   * Destroys this Camera.
+   */
+  destroy() {
+    super.destroy()
+    this._state.destroy()
+  }
 }
 
-export {Camera};
+export { Camera }

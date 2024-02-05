@@ -13,27 +13,26 @@
  * A {@link Scene} is allowed to contain a mixture of these material types.
  *
  */
-import {Component} from '../Component.js';
-import {stats} from '../stats.js';
+import { Component } from '../Component.js'
+import { stats } from '../stats.js'
 
 class Material extends Component {
-
-    /**
+  /**
      @private
      */
-    get type() {
-        return "Material";
-    }
+  get type() {
+    return 'Material'
+  }
 
-    constructor(owner, cfg={}) {
-        super(owner, cfg);
-        stats.memory.materials++;
-    }
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
+    stats.memory.materials++
+  }
 
-    destroy() {
-        super.destroy();
-        stats.memory.materials--;
-    }
+  destroy() {
+    super.destroy()
+    stats.memory.materials--
+  }
 }
 
-export {Material};
+export { Material }

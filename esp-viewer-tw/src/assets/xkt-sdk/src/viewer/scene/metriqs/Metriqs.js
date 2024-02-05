@@ -2,38 +2,38 @@
 // This file is named "Metriqs.js" because "Metrics.js" is blocked by uBlock Origin (https://en.wikipedia.org/wiki/UBlock_Origin)
 //----------------------------------------------------------------------------------------------------------------------
 
-import {Component} from "../Component.js";
-import {math} from "../math/math.js";
+import { Component } from '../Component.js'
+import { math } from '../math/math.js'
 
 const unitsInfo = {
-    meters: {
-        abbrev: "m"
-    },
-    metres: {
-        abbrev: "m"
-    },
-    centimeters: {
-        abbrev: "cm"
-    },
-    centimetres: {
-        abbrev: "cm"
-    },
-    millimeters: {
-        abbrev: "mm"
-    },
-    millimetres: {
-        abbrev: "mm"
-    },
-    yards: {
-        abbrev: "yd"
-    },
-    feet: {
-        abbrev: "ft"
-    },
-    inches: {
-        abbrev: "in"
-    }
-};
+  meters: {
+    abbrev: 'm'
+  },
+  metres: {
+    abbrev: 'm'
+  },
+  centimeters: {
+    abbrev: 'cm'
+  },
+  centimetres: {
+    abbrev: 'cm'
+  },
+  millimeters: {
+    abbrev: 'mm'
+  },
+  millimetres: {
+    abbrev: 'mm'
+  },
+  yards: {
+    abbrev: 'yd'
+  },
+  feet: {
+    abbrev: 'ft'
+  },
+  inches: {
+    abbrev: 'in'
+  }
+}
 
 /**
  * @desc Configures its {@link Scene}'s measurement unit and mapping between the Real-space and World-space 3D Cartesian coordinate systems.
@@ -76,184 +76,182 @@ const unitsInfo = {
  * ````
  */
 class Metrics extends Component {
+  /**
+   * @constructor
+   * @private
+   */
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
 
-    /**
-     * @constructor
-     * @private
-     */
-    constructor(owner, cfg = {}) {
+    this._units = 'meters'
+    this._scale = 1.0
+    this._origin = math.vec3([0, 0, 0])
 
-        super(owner, cfg);
+    this.units = cfg.units
+    this.scale = cfg.scale
+    this.origin = cfg.origin
+  }
 
-        this._units = "meters";
-        this._scale = 1.0;
-        this._origin = math.vec3([0, 0, 0]);
+  /**
+   * Gets info about the supported Real-space unit types.
+   *
+   * This will be:
+   *
+   * ````javascript
+   * {
+   *      {
+   *          meters: {
+   *              abbrev: "m"
+   *          },
+   *          metres: {
+   *              abbrev: "m"
+   *          },
+   *          centimeters: {
+   *              abbrev: "cm"
+   *          },
+   *          centimetres: {
+   *              abbrev: "cm"
+   *          },
+   *          millimeters: {
+   *              abbrev: "mm"
+   *          },
+   *          millimetres: {
+   *              abbrev: "mm"
+   *          },
+   *          yards: {
+   *              abbrev: "yd"
+   *          },
+   *          feet: {
+   *              abbrev: "ft"
+   *          },
+   *          inches: {
+   *              abbrev: "in"
+   *          }
+   *      }
+   * }
+   * ````
+   *
+   * @type {*}
+   */
+  get unitsInfo() {
+    return unitsInfo
+  }
 
-        this.units = cfg.units;
-        this.scale = cfg.scale;
-        this.origin = cfg.origin;
+  /**
+   * Sets the {@link Scene}'s Real-space unit type.
+   *
+   * Accepted values are ````"meters"````, ````"centimeters"````, ````"millimeters"````, ````"metres"````, ````"centimetres"````, ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
+   *
+   * @emits ````"units"```` event on change, with the value of this property.
+   * @type {String}
+   */
+  set units(value) {
+    if (!value) {
+      value = 'meters'
     }
-
-    /**
-     * Gets info about the supported Real-space unit types.
-     *
-     * This will be:
-     *
-     * ````javascript
-     * {
-     *      {
-     *          meters: {
-     *              abbrev: "m"
-     *          },
-     *          metres: {
-     *              abbrev: "m"
-     *          },
-     *          centimeters: {
-     *              abbrev: "cm"
-     *          },
-     *          centimetres: {
-     *              abbrev: "cm"
-     *          },
-     *          millimeters: {
-     *              abbrev: "mm"
-     *          },
-     *          millimetres: {
-     *              abbrev: "mm"
-     *          },
-     *          yards: {
-     *              abbrev: "yd"
-     *          },
-     *          feet: {
-     *              abbrev: "ft"
-     *          },
-     *          inches: {
-     *              abbrev: "in"
-     *          }
-     *      }
-     * }
-     * ````
-     *
-     * @type {*}
-     */
-    get unitsInfo() {
-        return unitsInfo;
+    const info = unitsInfo[value]
+    if (!info) {
+      this.error("Unsupported value for 'units': " + value + " defaulting to 'meters'")
+      value = 'meters'
     }
+    this._units = value
+    this.fire('units', this._units)
+  }
 
-    /**
-     * Sets the {@link Scene}'s Real-space unit type.
-     *
-     * Accepted values are ````"meters"````, ````"centimeters"````, ````"millimeters"````, ````"metres"````, ````"centimetres"````, ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
-     *
-     * @emits ````"units"```` event on change, with the value of this property.
-     * @type {String}
-     */
-    set units(value) {
-        if (!value) {
-            value = "meters";
-        }
-        const info = unitsInfo[value];
-        if (!info) {
-            this.error("Unsupported value for 'units': " + value + " defaulting to 'meters'");
-            value = "meters";
-        }
-        this._units = value;
-        this.fire("units", this._units);
-    }
+  /**
+   * Gets the {@link Scene}'s Real-space unit type.
+   *
+   * @type {String}
+   */
+  get units() {
+    return this._units
+  }
 
-    /**
-     * Gets the {@link Scene}'s Real-space unit type.
-     *
-     * @type {String}
-     */
-    get units() {
-        return this._units;
+  /**
+   * Sets the number of Real-space units represented by each unit of the {@link Scene}'s World-space coordinate system.
+   *
+   * For example, if {@link Metrics#units} is ````"meters"````, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
+   *
+   * @emits ````"scale"```` event on change, with the value of this property.
+   * @type {Number}
+   */
+  set scale(value) {
+    value = value || 1
+    if (value <= 0) {
+      this.error('scale value should be larger than zero')
+      return
     }
+    this._scale = value
+    this.fire('scale', this._scale)
+  }
 
-    /**
-     * Sets the number of Real-space units represented by each unit of the {@link Scene}'s World-space coordinate system.
-     *
-     * For example, if {@link Metrics#units} is ````"meters"````, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
-     *
-     * @emits ````"scale"```` event on change, with the value of this property.
-     * @type {Number}
-     */
-    set scale(value) {
-        value = value || 1;
-        if (value <= 0) {
-            this.error("scale value should be larger than zero");
-            return;
-        }
-        this._scale = value;
-        this.fire("scale", this._scale);
-    }
+  /**
+   * Gets the number of Real-space units represented by each unit of the {@link Scene}'s World-space coordinate system.
+   *
+   * @type {Number}
+   */
+  get scale() {
+    return this._scale
+  }
 
-    /**
-     * Gets the number of Real-space units represented by each unit of the {@link Scene}'s World-space coordinate system.
-     *
-     * @type {Number}
-     */
-    get scale() {
-        return this._scale;
+  /**
+   * Sets the Real-space 3D origin, in Real-space units, at which this {@link Scene}'s World-space coordinate origin ````[0,0,0]```` sits.
+   *
+   * @emits "origin" event on change, with the value of this property.
+   * @type {Number[]}
+   */
+  set origin(value) {
+    if (!value) {
+      this._origin[0] = 0
+      this._origin[1] = 0
+      this._origin[2] = 0
+      return
     }
+    this._origin[0] = value[0]
+    this._origin[1] = value[1]
+    this._origin[2] = value[2]
+    this.fire('origin', this._origin)
+  }
 
-    /**
-     * Sets the Real-space 3D origin, in Real-space units, at which this {@link Scene}'s World-space coordinate origin ````[0,0,0]```` sits.
-     *
-     * @emits "origin" event on change, with the value of this property.
-     * @type {Number[]}
-     */
-    set origin(value) {
-        if (!value) {
-            this._origin[0] = 0;
-            this._origin[1] = 0;
-            this._origin[2] = 0;
-            return;
-        }
-        this._origin[0] = value[0];
-        this._origin[1] = value[1];
-        this._origin[2] = value[2];
-        this.fire("origin", this._origin);
-    }
+  /**
+   * Gets the 3D Real-space origin, in Real-space units, at which this {@link Scene}'s World-space coordinate origin ````[0,0,0]```` sits.
+   *
+   * @type {Number[]}
+   */
+  get origin() {
+    return this._origin
+  }
 
-    /**
-     * Gets the 3D Real-space origin, in Real-space units, at which this {@link Scene}'s World-space coordinate origin ````[0,0,0]```` sits.
-     *
-     * @type {Number[]}
-     */
-    get origin() {
-        return this._origin;
-    }
+  /**
+   * Converts a 3D position from World-space to Real-space.
+   *
+   * This is equivalent to ````realPos = #origin + (worldPos * #scale)````.
+   *
+   * @param {Number[]} worldPos World-space 3D position, in World coordinate system units.
+   * @param {Number[]} [realPos] Destination for Real-space 3D position.
+   * @returns {Number[]} Real-space 3D position, in units indicated by {@link Metrics#units}.
+   */
+  worldToRealPos(worldPos, realPos = math.vec3(3)) {
+    realPos[0] = this._origin[0] + this._scale * worldPos[0]
+    realPos[1] = this._origin[1] + this._scale * worldPos[1]
+    realPos[2] = this._origin[2] + this._scale * worldPos[2]
+  }
 
-    /**
-     * Converts a 3D position from World-space to Real-space.
-     *
-     * This is equivalent to ````realPos = #origin + (worldPos * #scale)````.
-     *
-     * @param {Number[]} worldPos World-space 3D position, in World coordinate system units.
-     * @param {Number[]} [realPos] Destination for Real-space 3D position.
-     * @returns {Number[]} Real-space 3D position, in units indicated by {@link Metrics#units}.
-     */
-    worldToRealPos(worldPos, realPos = math.vec3(3)) {
-        realPos[0] = this._origin[0] + (this._scale * worldPos[0]);
-        realPos[1] = this._origin[1] + (this._scale * worldPos[1]);
-        realPos[2] = this._origin[2] + (this._scale * worldPos[2]);
-    }
-
-    /**
-     * Converts a 3D position from Real-space to World-space.
-     *
-     * This is equivalent to ````worldPos = (worldPos - #origin) / #scale````.
-     *
-     * @param {Number[]} realPos Real-space 3D position.
-     * @param {Number[]} [worldPos] Destination for World-space 3D position.
-     * @returns {Number[]} World-space 3D position.
-     */
-    realToWorldPos(realPos, worldPos = math.vec3(3)) {
-        worldPos[0] = (realPos[0] - this._origin[0]) / this._scale;
-        worldPos[1] = (realPos[1] - this._origin[1]) / this._scale;
-        worldPos[2] = (realPos[2] - this._origin[2]) / this._scale;
-        return worldPos;
-    }
+  /**
+   * Converts a 3D position from Real-space to World-space.
+   *
+   * This is equivalent to ````worldPos = (worldPos - #origin) / #scale````.
+   *
+   * @param {Number[]} realPos Real-space 3D position.
+   * @param {Number[]} [worldPos] Destination for World-space 3D position.
+   * @returns {Number[]} World-space 3D position.
+   */
+  realToWorldPos(realPos, worldPos = math.vec3(3)) {
+    worldPos[0] = (realPos[0] - this._origin[0]) / this._scale
+    worldPos[1] = (realPos[1] - this._origin[1]) / this._scale
+    worldPos[2] = (realPos[2] - this._origin[2]) / this._scale
+    return worldPos
+  }
 }
 
-export {Metrics};
+export { Metrics }

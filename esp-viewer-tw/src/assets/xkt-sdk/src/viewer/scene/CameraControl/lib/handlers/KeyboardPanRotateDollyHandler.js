@@ -2,182 +2,177 @@
  * @private
  */
 class KeyboardPanRotateDollyHandler {
+  constructor(scene, controllers, configs, states, updates) {
+    this._scene = scene
+    const input = scene.input
 
-    constructor(scene, controllers, configs, states, updates) {
+    const keyDownMap = []
 
-        this._scene = scene;
-        const input = scene.input;
+    const canvas = scene.canvas.canvas
 
-        const keyDownMap = [];
+    let mouseMovedSinceLastKeyboardDolly = true
 
-        const canvas = scene.canvas.canvas;
+    this._onSceneMouseMove = input.on('mousemove', () => {
+      mouseMovedSinceLastKeyboardDolly = true
+    })
 
-        let mouseMovedSinceLastKeyboardDolly = true;
+    this._onSceneKeyDown = input.on('keydown', (keyCode) => {
+      if (!(configs.active && configs.pointerEnabled) || !scene.input.keyboardEnabled) {
+        return
+      }
+      if (!states.mouseover) {
+        return
+      }
+      keyDownMap[keyCode] = true
 
-        this._onSceneMouseMove = input.on("mousemove", () => {
-            mouseMovedSinceLastKeyboardDolly = true;
-        });
+      if (keyCode === input.KEY_SHIFT) {
+        canvas.style.cursor = 'move'
+      }
+    })
 
-        this._onSceneKeyDown = input.on("keydown", (keyCode) => {
-            if (!(configs.active && configs.pointerEnabled) || (!scene.input.keyboardEnabled)) {
-                return;
-            }
-            if (!states.mouseover) {
-                return;
-            }
-            keyDownMap[keyCode] = true;
+    this._onSceneKeyUp = input.on('keyup', (keyCode) => {
+      if (!(configs.active && configs.pointerEnabled) || !scene.input.keyboardEnabled) {
+        return
+      }
+      keyDownMap[keyCode] = false
 
-            if (keyCode === input.KEY_SHIFT) {
-                canvas.style.cursor = "move";
-            }
-        });
+      if (keyCode === input.KEY_SHIFT) {
+        canvas.style.cursor = null
+      }
 
-        this._onSceneKeyUp = input.on("keyup", (keyCode) => {
-            if (!(configs.active && configs.pointerEnabled) || (!scene.input.keyboardEnabled)) {
-                return;
-            }
-            keyDownMap[keyCode] = false;
+      if (controllers.pivotController.getPivoting()) {
+        controllers.pivotController.endPivot()
+      }
+    })
 
-            if (keyCode === input.KEY_SHIFT) {
-                canvas.style.cursor = null;
-            }
+    this._onTick = scene.on('tick', (e) => {
+      if (!(configs.active && configs.pointerEnabled) || !scene.input.keyboardEnabled) {
+        return
+      }
 
-            if (controllers.pivotController.getPivoting()) {
-                controllers.pivotController.endPivot()
-            }
-        });
+      if (!states.mouseover) {
+        return
+      }
 
-        this._onTick = scene.on("tick", (e) => {
+      const cameraControl = controllers.cameraControl
+      const elapsedSecs = e.deltaTime / 1000.0
 
-            if (!(configs.active && configs.pointerEnabled) || (!scene.input.keyboardEnabled)) {
-                return;
-            }
+      //-------------------------------------------------------------------------------------------------
+      // Keyboard rotation
+      //-------------------------------------------------------------------------------------------------
 
-            if (!states.mouseover) {
-                return;
-            }
+      if (!configs.planView) {
+        const rotateYPos = cameraControl._isKeyDownForAction(cameraControl.ROTATE_Y_POS, keyDownMap)
+        const rotateYNeg = cameraControl._isKeyDownForAction(cameraControl.ROTATE_Y_NEG, keyDownMap)
+        const rotateXPos = cameraControl._isKeyDownForAction(cameraControl.ROTATE_X_POS, keyDownMap)
+        const rotateXNeg = cameraControl._isKeyDownForAction(cameraControl.ROTATE_X_NEG, keyDownMap)
 
-            const cameraControl = controllers.cameraControl;
-            const elapsedSecs = (e.deltaTime / 1000.0);
+        const orbitDelta = elapsedSecs * configs.keyboardRotationRate
 
-            //-------------------------------------------------------------------------------------------------
-            // Keyboard rotation
-            //-------------------------------------------------------------------------------------------------
+        if (rotateYPos || rotateYNeg || rotateXPos || rotateXNeg) {
+          if (!configs.firstPerson && configs.followPointer) {
+            controllers.pivotController.startPivot()
+          }
 
-            if (!configs.planView) {
+          if (rotateYPos) {
+            updates.rotateDeltaY += orbitDelta
+          } else if (rotateYNeg) {
+            updates.rotateDeltaY -= orbitDelta
+          }
 
-                const rotateYPos = cameraControl._isKeyDownForAction(cameraControl.ROTATE_Y_POS, keyDownMap);
-                const rotateYNeg = cameraControl._isKeyDownForAction(cameraControl.ROTATE_Y_NEG, keyDownMap);
-                const rotateXPos = cameraControl._isKeyDownForAction(cameraControl.ROTATE_X_POS, keyDownMap);
-                const rotateXNeg = cameraControl._isKeyDownForAction(cameraControl.ROTATE_X_NEG, keyDownMap);
+          if (rotateXPos) {
+            updates.rotateDeltaX += orbitDelta
+          } else if (rotateXNeg) {
+            updates.rotateDeltaX -= orbitDelta
+          }
 
-                const orbitDelta = elapsedSecs * configs.keyboardRotationRate;
+          if (!configs.firstPerson && configs.followPointer) {
+            controllers.pivotController.startPivot()
+          }
+        }
+      }
 
-                if (rotateYPos || rotateYNeg || rotateXPos || rotateXNeg) {
+      //-------------------------------------------------------------------------------------------------
+      // Keyboard panning
+      //-------------------------------------------------------------------------------------------------
 
-                    if ((!configs.firstPerson) && configs.followPointer) {
-                        controllers.pivotController.startPivot();
-                    }
+      if (!keyDownMap[input.KEY_CTRL] && !keyDownMap[input.KEY_ALT]) {
+        const dollyBackwards = cameraControl._isKeyDownForAction(
+          cameraControl.DOLLY_BACKWARDS,
+          keyDownMap
+        )
+        const dollyForwards = cameraControl._isKeyDownForAction(
+          cameraControl.DOLLY_FORWARDS,
+          keyDownMap
+        )
 
-                    if (rotateYPos) {
-                        updates.rotateDeltaY += orbitDelta;
+        if (dollyBackwards || dollyForwards) {
+          const dollyDelta = elapsedSecs * configs.keyboardDollyRate
 
-                    } else if (rotateYNeg) {
-                        updates.rotateDeltaY -= orbitDelta;
-                    }
+          if (!configs.firstPerson && configs.followPointer) {
+            controllers.pivotController.startPivot()
+          }
+          if (dollyForwards) {
+            updates.dollyDelta -= dollyDelta
+          } else if (dollyBackwards) {
+            updates.dollyDelta += dollyDelta
+          }
 
-                    if (rotateXPos) {
-                        updates.rotateDeltaX += orbitDelta;
+          if (mouseMovedSinceLastKeyboardDolly) {
+            states.followPointerDirty = true
+            mouseMovedSinceLastKeyboardDolly = false
+          }
+        }
+      }
 
-                    } else if (rotateXNeg) {
-                        updates.rotateDeltaX -= orbitDelta;
-                    }
+      const panForwards = cameraControl._isKeyDownForAction(cameraControl.PAN_FORWARDS, keyDownMap)
+      const panBackwards = cameraControl._isKeyDownForAction(
+        cameraControl.PAN_BACKWARDS,
+        keyDownMap
+      )
+      const panLeft = cameraControl._isKeyDownForAction(cameraControl.PAN_LEFT, keyDownMap)
+      const panRight = cameraControl._isKeyDownForAction(cameraControl.PAN_RIGHT, keyDownMap)
+      const panUp = cameraControl._isKeyDownForAction(cameraControl.PAN_UP, keyDownMap)
+      const panDown = cameraControl._isKeyDownForAction(cameraControl.PAN_DOWN, keyDownMap)
 
-                    if ((!configs.firstPerson) && configs.followPointer) {
-                        controllers.pivotController.startPivot();
-                    }
-                }
-            }
+      const panDelta =
+        (keyDownMap[input.KEY_ALT] ? 0.3 : 1.0) * elapsedSecs * configs.keyboardPanRate // ALT for slower pan rate
 
-            //-------------------------------------------------------------------------------------------------
-            // Keyboard panning
-            //-------------------------------------------------------------------------------------------------
+      if (panForwards || panBackwards || panLeft || panRight || panUp || panDown) {
+        if (!configs.firstPerson && configs.followPointer) {
+          controllers.pivotController.startPivot()
+        }
 
-            if (!keyDownMap[input.KEY_CTRL] && !keyDownMap[input.KEY_ALT]) {
+        if (panDown) {
+          updates.panDeltaY += panDelta
+        } else if (panUp) {
+          updates.panDeltaY += -panDelta
+        }
 
-                const dollyBackwards = cameraControl._isKeyDownForAction(cameraControl.DOLLY_BACKWARDS, keyDownMap);
-                const dollyForwards = cameraControl._isKeyDownForAction(cameraControl.DOLLY_FORWARDS, keyDownMap);
+        if (panRight) {
+          updates.panDeltaX += -panDelta
+        } else if (panLeft) {
+          updates.panDeltaX += panDelta
+        }
 
-                if (dollyBackwards || dollyForwards) {
+        if (panBackwards) {
+          updates.panDeltaZ += panDelta
+        } else if (panForwards) {
+          updates.panDeltaZ += -panDelta
+        }
+      }
+    })
+  }
 
-                    const dollyDelta = elapsedSecs * configs.keyboardDollyRate;
+  reset() {}
 
-                    if ((!configs.firstPerson) && configs.followPointer) {
-                        controllers.pivotController.startPivot();
-                    }
-                    if (dollyForwards) {
-                        updates.dollyDelta -= dollyDelta;
-                    } else if (dollyBackwards) {
-                        updates.dollyDelta += dollyDelta;
-                    }
+  destroy() {
+    this._scene.off(this._onTick)
 
-                    if (mouseMovedSinceLastKeyboardDolly) {
-                        states.followPointerDirty = true;
-                        mouseMovedSinceLastKeyboardDolly = false;
-                    }
-                }
-            }
-
-            const panForwards = cameraControl._isKeyDownForAction(cameraControl.PAN_FORWARDS, keyDownMap);
-            const panBackwards = cameraControl._isKeyDownForAction(cameraControl.PAN_BACKWARDS, keyDownMap);
-            const panLeft = cameraControl._isKeyDownForAction(cameraControl.PAN_LEFT, keyDownMap);
-            const panRight = cameraControl._isKeyDownForAction(cameraControl.PAN_RIGHT, keyDownMap);
-            const panUp = cameraControl._isKeyDownForAction(cameraControl.PAN_UP, keyDownMap);
-            const panDown = cameraControl._isKeyDownForAction(cameraControl.PAN_DOWN, keyDownMap);
-
-            const panDelta = (keyDownMap[input.KEY_ALT] ? 0.3 : 1.0) * elapsedSecs * configs.keyboardPanRate; // ALT for slower pan rate
-
-            if (panForwards || panBackwards || panLeft || panRight || panUp || panDown) {
-
-                if ((!configs.firstPerson) && configs.followPointer) {
-                    controllers.pivotController.startPivot();
-                }
-
-                if (panDown) {
-                    updates.panDeltaY += panDelta;
-
-                } else if (panUp) {
-                    updates.panDeltaY += -panDelta;
-                }
-
-                if (panRight) {
-                    updates.panDeltaX += -panDelta;
-
-                } else if (panLeft) {
-                    updates.panDeltaX += panDelta;
-                }
-
-                if (panBackwards) {
-                    updates.panDeltaZ += panDelta;
-
-                } else if (panForwards) {
-                    updates.panDeltaZ += -panDelta;
-                }
-            }
-        });
-    }
-
-    reset() {
-    }
-
-    destroy() {
-
-        this._scene.off(this._onTick);
-
-        this._scene.input.off(this._onSceneMouseMove);
-        this._scene.input.off(this._onSceneKeyDown);
-        this._scene.input.off(this._onSceneKeyUp);
-    }
+    this._scene.input.off(this._onSceneMouseMove)
+    this._scene.input.off(this._onSceneKeyDown)
+    this._scene.input.off(this._onSceneKeyUp)
+  }
 }
 
-export {KeyboardPanRotateDollyHandler};
+export { KeyboardPanRotateDollyHandler }

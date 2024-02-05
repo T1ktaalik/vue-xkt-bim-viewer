@@ -1,1 +1,1 @@
-export * from "./WebIFCLoaderPlugin.js";
+export * from './WebIFCLoaderPlugin.js'

@@ -1,5 +1,5 @@
-import {Component} from '../Component.js';
-import {stats} from '../stats.js';
+import { Component } from '../Component.js'
+import { stats } from '../stats.js'
 
 /**
  * @desc Defines a shape for one or more {@link Mesh}es.
@@ -8,26 +8,25 @@ import {stats} from '../stats.js';
  * * {@link VBOGeometry} is a subclass that stores its data solely in GPU memory. Use VBOGeometry when you need a lower memory footprint and don't need to keep the geometry data in browser memory.
  */
 class Geometry extends Component {
+  /** @private */
+  get type() {
+    return 'Geometry'
+  }
 
-    /** @private */
-    get type() {
-        return "Geometry";
-    }
+  /** @private */
+  get isGeometry() {
+    return true
+  }
 
-    /** @private */
-    get isGeometry() {
-        return true;
-    }
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
+    stats.memory.meshes++
+  }
 
-    constructor(owner, cfg = {}) {
-        super(owner, cfg);
-        stats.memory.meshes++;
-    }
-
-    destroy() {
-        super.destroy();
-        stats.memory.meshes--;
-    }
+  destroy() {
+    super.destroy()
+    stats.memory.meshes--
+  }
 }
 
-export {Geometry};
+export { Geometry }

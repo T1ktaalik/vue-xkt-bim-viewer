@@ -1,6 +1,6 @@
-import {Map} from "../utils/Map.js";
+import { Map } from '../utils/Map.js'
 
-const ids = new Map({});
+const ids = new Map({})
 
 /**
  * @desc Represents a chunk of state changes applied by the {@link Scene}'s renderer while it renders a frame.
@@ -12,29 +12,27 @@ const ids = new Map({});
  * @private
  */
 class RenderState {
-
-    constructor(cfg) {
-
-        /**
+  constructor(cfg) {
+    /**
          The RenderState's ID, unique within the renderer.
          @property id
          @type {Number}
          @final
          */
-        this.id = ids.addItem({});
-        for (const key in cfg) {
-            if (cfg.hasOwnProperty(key)) {
-                this[key] = cfg[key];
-            }
-        }
+    this.id = ids.addItem({})
+    for (const key in cfg) {
+      if (cfg.hasOwnProperty(key)) {
+        this[key] = cfg[key]
+      }
     }
+  }
 
-    /**
+  /**
      Destroys this RenderState.
      */
-    destroy() {
-        ids.removeItem(this.id);
-    }
+  destroy() {
+    ids.removeItem(this.id)
+  }
 }
 
-export {RenderState};
+export { RenderState }

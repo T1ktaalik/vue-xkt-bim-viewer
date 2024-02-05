@@ -1,2 +1,2 @@
-export * from "./CameraPath.js";
-export * from "./CameraPathAnimation.js";
+export * from './CameraPath.js'
+export * from './CameraPathAnimation.js'

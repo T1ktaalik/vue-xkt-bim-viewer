@@ -60,32 +60,30 @@
  @param [cfg.resolution=[1000,1000]] {Uint16Array} Resolution of the texture map for this Shadow.
  @param [cfg.intensity=1.0] {Number} Intensity of this Shadow.
  */
-import {Component} from '../Component.js';
-import {math} from '../math/math.js';
+import { Component } from '../Component.js'
+import { math } from '../math/math.js'
 
 class Shadow extends Component {
-
-    /**
+  /**
      @private
      */
-    get type() {
-        return "Shadow";
+  get type() {
+    return 'Shadow'
+  }
+
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
+
+    this._state = {
+      resolution: math.vec3([1000, 1000]),
+      intensity: 1.0
     }
 
-    constructor(owner, cfg={}) {
+    this.resolution = cfg.resolution
+    this.intensity = cfg.intensity
+  }
 
-        super(owner, cfg);
-
-        this._state = {
-            resolution: math.vec3([1000, 1000]),
-            intensity: 1.0
-        };
-
-        this.resolution = cfg.resolution;
-        this.intensity = cfg.intensity;
-    }
-
-    /**
+  /**
      The resolution of the texture map for this Shadow.
 
      This will be either World- or View-space, depending on the value of {@link Shadow/space}.
@@ -96,18 +94,17 @@ class Shadow extends Component {
      @default [1000, 1000]
      @type Uint16Array
      */
-    set resolution(value) {
+  set resolution(value) {
+    this._state.resolution.set(value || [1000.0, 1000.0])
 
-        this._state.resolution.set(value || [1000.0, 1000.0]);
+    this.glRedraw()
+  }
 
-        this.glRedraw();
-    }
+  get resolution() {
+    return this._state.resolution
+  }
 
-    get resolution() {
-        return this._state.resolution;
-    }
-
-    /**
+  /**
      The intensity of this Shadow.
 
      Fires a {@link Shadow/intensity:event} event on change.
@@ -116,23 +113,22 @@ class Shadow extends Component {
      @default 1.0
      @type {Number}
      */
-    set intensity(value) {
+  set intensity(value) {
+    value = value !== undefined ? value : 1.0
 
-        value = value !== undefined ? value : 1.0;
+    this._state.intensity = value
 
-        this._state.intensity = value;
+    this.glRedraw()
+  }
 
-        this.glRedraw();
-    }
+  get intensity() {
+    return this._state.intensity
+  }
 
-    get intensity() {
-        return this._state.intensity;
-    }
-
-    destroy() {
-        super.destroy();
-        //this._state.destroy();
-    }
+  destroy() {
+    super.destroy()
+    //this._state.destroy();
+  }
 }
 
-export {Shadow};
+export { Shadow }

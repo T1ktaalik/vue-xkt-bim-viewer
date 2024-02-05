@@ -1,1 +1,1 @@
-export * from "./Mesh.js";
+export * from './Mesh.js'

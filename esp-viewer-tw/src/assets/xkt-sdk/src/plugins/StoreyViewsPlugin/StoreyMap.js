@@ -4,54 +4,52 @@
  * These are created by a {@link StoreyViewsPlugin}.
  */
 class StoreyMap {
+  /**
+   * @private
+   */
+  constructor(storeyId, imageData, format, width, height, padding) {
+    /**
+     * ID of the IfcBuildingStorey.
+     *
+     * This matches IDs of the IfcBuildingStorey's {@link MetaObject} and {@link Entity}.
+     *
+     * @property storeyId
+     * @type {String}
+     */
+    this.storeyId = storeyId
 
     /**
-     * @private
+     * Base64-encoded plan view image.
+     *
+     * @property imageData
+     * @type {String}
      */
-    constructor(storeyId, imageData, format, width, height, padding) {
+    this.imageData = imageData
 
-        /**
-         * ID of the IfcBuildingStorey.
-         *
-         * This matches IDs of the IfcBuildingStorey's {@link MetaObject} and {@link Entity}.
-         *
-         * @property storeyId
-         * @type {String}
-         */
-        this.storeyId = storeyId;
+    /**
+     * The image format - "png" or "jpeg".
+     *
+     * @property format
+     * @type {String}
+     */
+    this.format = format
 
-        /**
-         * Base64-encoded plan view image.
-         *
-         * @property imageData
-         * @type {String}
-         */
-        this.imageData = imageData;
+    /**
+     * Width of the image, in pixels.
+     *
+     * @property width
+     * @type {Number}
+     */
+    this.width = width
 
-        /**
-         * The image format - "png" or "jpeg".
-         *
-         * @property format
-         * @type {String}
-         */
-        this.format = format;
-
-        /**
-         * Width of the image, in pixels.
-         *
-         * @property width
-         * @type {Number}
-         */
-        this.width = width;
-
-        /**
-         * Height of the image, in pixels.
-         *
-         * @property height
-         * @type {Number}
-         */
-        this.height = height;
-    }
+    /**
+     * Height of the image, in pixels.
+     *
+     * @property height
+     * @type {Number}
+     */
+    this.height = height
+  }
 }
 
-export {StoreyMap};
+export { StoreyMap }

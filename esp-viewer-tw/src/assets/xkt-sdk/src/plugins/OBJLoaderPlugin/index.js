@@ -1,1 +1,1 @@
-export * from "./OBJLoaderPlugin.js";
+export * from './OBJLoaderPlugin.js'

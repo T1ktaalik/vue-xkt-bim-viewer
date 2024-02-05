@@ -1,66 +1,62 @@
-import {Program} from "./../Program.js";
-import {ArrayBuf} from "./../ArrayBuf.js";
-import {math} from "../../math/math.js";
-import {WEBGL_INFO} from "../../webglInfo.js";
+import { Program } from './../Program.js'
+import { ArrayBuf } from './../ArrayBuf.js'
+import { math } from '../../math/math.js'
+import { WEBGL_INFO } from '../../webglInfo.js'
 
-const blurStdDev = 4;
-const blurDepthCutoff = 0.01;
-const KERNEL_RADIUS = 16;
+const blurStdDev = 4
+const blurDepthCutoff = 0.01
+const KERNEL_RADIUS = 16
 
-const sampleOffsetsVert = new Float32Array(createSampleOffsets(KERNEL_RADIUS + 1, [0, 1]));
-const sampleOffsetsHor = new Float32Array(createSampleOffsets(KERNEL_RADIUS + 1, [1, 0]));
-const sampleWeights = new Float32Array(createSampleWeights(KERNEL_RADIUS + 1, blurStdDev));
+const sampleOffsetsVert = new Float32Array(createSampleOffsets(KERNEL_RADIUS + 1, [0, 1]))
+const sampleOffsetsHor = new Float32Array(createSampleOffsets(KERNEL_RADIUS + 1, [1, 0]))
+const sampleWeights = new Float32Array(createSampleWeights(KERNEL_RADIUS + 1, blurStdDev))
 
-const tempVec2a = new Float32Array(2);
+const tempVec2a = new Float32Array(2)
 
 /**
  * SAO implementation inspired from previous SAO work in THREE.js by ludobaka / ludobaka.github.io and bhouston
  * @private
  */
 class SAODepthLimitedBlurRenderer {
+  constructor(scene) {
+    this._scene = scene
 
-    constructor(scene) {
+    // The program
 
-        this._scene = scene;
+    this._program = null
+    this._programError = false
 
-        // The program
+    // Variable locations
 
-        this._program = null;
-        this._programError = false;
+    this._aPosition = null
+    this._aUV = null
 
-        // Variable locations
+    this._uDepthTexture = 'uDepthTexture'
+    this._uOcclusionTexture = 'uOcclusionTexture'
 
-        this._aPosition = null;
-        this._aUV = null;
+    this._uViewport = null
+    this._uCameraNear = null
+    this._uCameraFar = null
+    this._uCameraProjectionMatrix = null
+    this._uCameraInverseProjectionMatrix = null
 
-        this._uDepthTexture = "uDepthTexture";
-        this._uOcclusionTexture = "uOcclusionTexture";
+    // VBOs
 
-        this._uViewport = null;
-        this._uCameraNear = null;
-        this._uCameraFar = null;
-        this._uCameraProjectionMatrix = null;
-        this._uCameraInverseProjectionMatrix = null;
+    this._uvBuf = null
+    this._positionsBuf = null
+    this._indicesBuf = null
 
-        // VBOs
+    this.init()
+  }
 
-        this._uvBuf = null;
-        this._positionsBuf = null;
-        this._indicesBuf = null;
+  init() {
+    // Create program & VBOs, locate attributes and uniforms
 
-        this.init();
-    }
+    const gl = this._scene.canvas.gl
 
-    init() {
-
-        // Create program & VBOs, locate attributes and uniforms
-
-        const gl = this._scene.canvas.gl;
-
-        this._program = new Program(gl, {
-
-            vertex: [
-                `#version 300 es
+    this._program = new Program(gl, {
+      vertex: [
+        `#version 300 es
                 precision highp float;
                 precision highp int;
                     
@@ -73,10 +69,11 @@ class SAODepthLimitedBlurRenderer {
                     vUV = aUV;
                     vInvSize = 1.0 / uViewport;
                     gl_Position = vec4(aPosition, 1.0);
-                }`],
+                }`
+      ],
 
-            fragment: [
-                `#version 300 es
+      fragment: [
+        `#version 300 es
                 precision highp float;
                 precision highp int;
                     
@@ -190,135 +187,151 @@ class SAODepthLimitedBlurRenderer {
 
                     outColor = packFloatToRGBA(occlusionSum / weightSum);
                 }`
-            ]
-        });
+      ]
+    })
 
-        if (this._program.errors) {
-            console.error(this._program.errors.join("\n"));
-            this._programError = true;
-            return;
-        }
-
-        const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0]);
-        const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
-
-        // Mitigation: if Uint8Array is used, the geometry is corrupted on OSX when using Chrome with data-textures
-        const indices = new Uint32Array([0, 1, 2, 0, 2, 3]);
-
-        this._positionsBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
-        this._uvBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
-        this._indicesBuf = new ArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
-
-        this._program.bind();
-
-        this._uViewport = this._program.getLocation("uViewport");
-
-        this._uCameraNear = this._program.getLocation("uCameraNear");
-        this._uCameraFar = this._program.getLocation("uCameraFar");
-
-        this._uDepthCutoff = this._program.getLocation("uDepthCutoff");
-
-        this._uSampleOffsets = gl.getUniformLocation(this._program.handle, "uSampleOffsets");
-        this._uSampleWeights = gl.getUniformLocation(this._program.handle, "uSampleWeights");
-
-        this._aPosition = this._program.getAttribute("aPosition");
-        this._aUV = this._program.getAttribute("aUV");
+    if (this._program.errors) {
+      console.error(this._program.errors.join('\n'))
+      this._programError = true
+      return
     }
 
-    render(depthRenderBuffer, occlusionRenderBuffer, direction) {
+    const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0])
+    const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0])
 
-        if (this._programError) {
-            return;
-        }
+    // Mitigation: if Uint8Array is used, the geometry is corrupted on OSX when using Chrome with data-textures
+    const indices = new Uint32Array([0, 1, 2, 0, 2, 3])
 
-        if (!this._getInverseProjectMat) { // HACK: scene.camera not defined until render time
-            this._getInverseProjectMat = (() => {
-                let projMatDirty = true;
-                this._scene.camera.on("projMatrix", function () {
-                    projMatDirty = true;
-                });
-                const inverseProjectMat = math.mat4();
-                return () => {
-                    if (projMatDirty) {
-                        math.inverseMat4(scene.camera.projMatrix, inverseProjectMat);
-                    }
-                    return inverseProjectMat;
-                }
-            })();
-        }
+    this._positionsBuf = new ArrayBuf(
+      gl,
+      gl.ARRAY_BUFFER,
+      positions,
+      positions.length,
+      3,
+      gl.STATIC_DRAW
+    )
+    this._uvBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW)
+    this._indicesBuf = new ArrayBuf(
+      gl,
+      gl.ELEMENT_ARRAY_BUFFER,
+      indices,
+      indices.length,
+      1,
+      gl.STATIC_DRAW
+    )
 
-        const gl = this._scene.canvas.gl;
-        const program = this._program;
-        const scene = this._scene;
-        const viewportWidth = gl.drawingBufferWidth;
-        const viewportHeight = gl.drawingBufferHeight;
-        const projectState = scene.camera.project._state;
-        const near = projectState.near;
-        const far = projectState.far;
+    this._program.bind()
 
-        gl.viewport(0, 0, viewportWidth, viewportHeight);
-        gl.clearColor(0, 0, 0, 1);
-        gl.enable(gl.DEPTH_TEST);
-        gl.disable(gl.BLEND);
-        gl.frontFace(gl.CCW);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    this._uViewport = this._program.getLocation('uViewport')
 
-        program.bind();
+    this._uCameraNear = this._program.getLocation('uCameraNear')
+    this._uCameraFar = this._program.getLocation('uCameraFar')
 
-        tempVec2a[0] = viewportWidth;
-        tempVec2a[1] = viewportHeight;
+    this._uDepthCutoff = this._program.getLocation('uDepthCutoff')
 
-        gl.uniform2fv(this._uViewport, tempVec2a);
-        gl.uniform1f(this._uCameraNear, near);
-        gl.uniform1f(this._uCameraFar, far);
+    this._uSampleOffsets = gl.getUniformLocation(this._program.handle, 'uSampleOffsets')
+    this._uSampleWeights = gl.getUniformLocation(this._program.handle, 'uSampleWeights')
 
-        gl.uniform1f(this._uDepthCutoff, blurDepthCutoff);
+    this._aPosition = this._program.getAttribute('aPosition')
+    this._aUV = this._program.getAttribute('aUV')
+  }
 
-        if (direction === 0) {// Horizontal
-            gl.uniform2fv(this._uSampleOffsets, sampleOffsetsHor);
-        } else { // Vertical
-            gl.uniform2fv(this._uSampleOffsets, sampleOffsetsVert);
-        }
-
-        gl.uniform1fv(this._uSampleWeights, sampleWeights);
-
-        const depthTexture = depthRenderBuffer.getDepthTexture();
-        const occlusionTexture = occlusionRenderBuffer.getTexture();
-
-        program.bindTexture(this._uDepthTexture, depthTexture, 0); // TODO: use FrameCtx.textureUnit
-        program.bindTexture(this._uOcclusionTexture, occlusionTexture, 1);
-
-        this._aUV.bindArrayBuffer(this._uvBuf);
-        this._aPosition.bindArrayBuffer(this._positionsBuf);
-        this._indicesBuf.bind();
-
-        gl.drawElements(gl.TRIANGLES, this._indicesBuf.numItems, this._indicesBuf.itemType, 0);
+  render(depthRenderBuffer, occlusionRenderBuffer, direction) {
+    if (this._programError) {
+      return
     }
 
-    destroy() {
-        this._program.destroy();
+    if (!this._getInverseProjectMat) {
+      // HACK: scene.camera not defined until render time
+      this._getInverseProjectMat = (() => {
+        let projMatDirty = true
+        this._scene.camera.on('projMatrix', function () {
+          projMatDirty = true
+        })
+        const inverseProjectMat = math.mat4()
+        return () => {
+          if (projMatDirty) {
+            math.inverseMat4(scene.camera.projMatrix, inverseProjectMat)
+          }
+          return inverseProjectMat
+        }
+      })()
     }
+
+    const gl = this._scene.canvas.gl
+    const program = this._program
+    const scene = this._scene
+    const viewportWidth = gl.drawingBufferWidth
+    const viewportHeight = gl.drawingBufferHeight
+    const projectState = scene.camera.project._state
+    const near = projectState.near
+    const far = projectState.far
+
+    gl.viewport(0, 0, viewportWidth, viewportHeight)
+    gl.clearColor(0, 0, 0, 1)
+    gl.enable(gl.DEPTH_TEST)
+    gl.disable(gl.BLEND)
+    gl.frontFace(gl.CCW)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+    program.bind()
+
+    tempVec2a[0] = viewportWidth
+    tempVec2a[1] = viewportHeight
+
+    gl.uniform2fv(this._uViewport, tempVec2a)
+    gl.uniform1f(this._uCameraNear, near)
+    gl.uniform1f(this._uCameraFar, far)
+
+    gl.uniform1f(this._uDepthCutoff, blurDepthCutoff)
+
+    if (direction === 0) {
+      // Horizontal
+      gl.uniform2fv(this._uSampleOffsets, sampleOffsetsHor)
+    } else {
+      // Vertical
+      gl.uniform2fv(this._uSampleOffsets, sampleOffsetsVert)
+    }
+
+    gl.uniform1fv(this._uSampleWeights, sampleWeights)
+
+    const depthTexture = depthRenderBuffer.getDepthTexture()
+    const occlusionTexture = occlusionRenderBuffer.getTexture()
+
+    program.bindTexture(this._uDepthTexture, depthTexture, 0) // TODO: use FrameCtx.textureUnit
+    program.bindTexture(this._uOcclusionTexture, occlusionTexture, 1)
+
+    this._aUV.bindArrayBuffer(this._uvBuf)
+    this._aPosition.bindArrayBuffer(this._positionsBuf)
+    this._indicesBuf.bind()
+
+    gl.drawElements(gl.TRIANGLES, this._indicesBuf.numItems, this._indicesBuf.itemType, 0)
+  }
+
+  destroy() {
+    this._program.destroy()
+  }
 }
 
 function createSampleWeights(kernelRadius, stdDev) {
-    const weights = [];
-    for (let i = 0; i <= kernelRadius; i++) {
-        weights.push(gaussian(i, stdDev));
-    }
-    return weights; // TODO: Optimize
+  const weights = []
+  for (let i = 0; i <= kernelRadius; i++) {
+    weights.push(gaussian(i, stdDev))
+  }
+  return weights // TODO: Optimize
 }
 
 function gaussian(x, stdDev) {
-    return Math.exp(-(x * x) / (2.0 * (stdDev * stdDev))) / (Math.sqrt(2.0 * Math.PI) * stdDev);
+  return Math.exp(-(x * x) / (2.0 * (stdDev * stdDev))) / (Math.sqrt(2.0 * Math.PI) * stdDev)
 }
 
 function createSampleOffsets(kernelRadius, uvIncrement) {
-    const offsets = [];
-    for (let i = 0; i <= kernelRadius; i++) {
-        offsets.push(uvIncrement[0] * i);
-        offsets.push(uvIncrement[1] * i);
-    }
-    return offsets;
+  const offsets = []
+  for (let i = 0; i <= kernelRadius; i++) {
+    offsets.push(uvIncrement[0] * i)
+    offsets.push(uvIncrement[1] * i)
+  }
+  return offsets
 }
 
-export {SAODepthLimitedBlurRenderer};
+export { SAODepthLimitedBlurRenderer }

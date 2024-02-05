@@ -1,1 +1,1 @@
-export * from "./PointerLens.js";
+export * from './PointerLens.js'

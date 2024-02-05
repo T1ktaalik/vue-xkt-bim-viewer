@@ -9,93 +9,81 @@
  * @abstract
  */
 class TreeViewNode {
+  /**
+   * Globally unique node ID.
+   *
+   * @type {String}
+   * @abstract
+   */
+  get nodeId() {}
 
-    /**
-     * Globally unique node ID.
-     *
-     * @type {String}
-     * @abstract
-     */
-    get nodeId() {
-    }
+  /**
+   * Title of the TreeViewNode.
+   *
+   * @type {String}
+   * @abstract
+   */
+  get title() {}
 
-    /**
-     * Title of the TreeViewNode.
-     *
-     * @type {String}
-     * @abstract
-     */
-    get title() {
-    }
+  /** Type of the corresponding {@link MetaObject}.
+   *
+   * @type {String}
+   * @abstract
+   */
+  get type() {}
 
-    /** Type of the corresponding {@link MetaObject}.
-     *
-     * @type {String}
-     * @abstract
-     */
-    get type() {
-    }
+  /**
+   * ID of the corresponding {@link MetaObject}.
+   *
+   * This is only defined if the TreeViewNode represents an object.
+   *
+   * @type {String}
+   * @abstract
+   */
+  get objectId() {}
 
-    /**
-     * ID of the corresponding {@link MetaObject}.
-     *
-     * This is only defined if the TreeViewNode represents an object.
-     *
-     * @type {String}
-     * @abstract
-     */
-    get objectId() {
-    }
+  /**
+   * The child TreeViewNodes.
+   *
+   * @type {Array}
+   * @abstract
+   */
+  get children() {}
 
-    /**
-     * The child TreeViewNodes.
-     *
-     * @type {Array}
-     * @abstract
-     */
-    get children() {
-    }
+  /** The parent TreeViewNode.
+   *
+   * @type {TreeViewNode}
+   * @abstract
+   */
+  get parent() {}
 
-    /** The parent TreeViewNode.
-     *
-     * @type {TreeViewNode}
-     * @abstract
-     */
-    get parent() {
-    }
+  /** The number of {@link Entity}s within the subtree of this TreeViewNode.
+   *
+   * @type {Number}
+   * @abstract
+   */
+  get numEntities() {}
 
-    /** The number of {@link Entity}s within the subtree of this TreeViewNode.
-     *
-     * @type {Number}
-     * @abstract
-     */
-    get numEntities() {
+  /** The number of {@link Entity}s that are currently visible within the subtree of this TreeViewNode.
+   *
+   * @type {Number}
+   * @abstract
+   */
+  get numVisibleEntities() {}
 
-    }
+  /** Whether or not the TreeViewNode is currently checked.
+   *
+   * @type {Boolean}
+   * @abstract
+   */
+  get checked() {}
 
-    /** The number of {@link Entity}s that are currently visible within the subtree of this TreeViewNode.
-     *
-     * @type {Number}
-     * @abstract
-     */
-    get numVisibleEntities() {
-    }
-
-    /** Whether or not the TreeViewNode is currently checked.
-     *
-     * @type {Boolean}
-     * @abstract
-     */
-    get checked() {
-    }
-
-    /** Whether or not the TreeViewNode is currently xrayed.
-     *
-     * @type {Boolean}
-     * @abstract
-     */
-    get xrayed() {
-    }
+  /** Whether or not the TreeViewNode is currently xrayed.
+   *
+   * @type {Boolean}
+   * @abstract
+   */
+  get xrayed() {}
 }
 
-export {TreeViewNode};
+export { TreeViewNode }

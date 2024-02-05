@@ -1,5 +1,5 @@
-import {utils} from '../../utils.js';
-import {K3D} from '../../libs/k3d.js';
+import { utils } from '../../utils.js'
+import { K3D } from '../../libs/k3d.js'
 
 /**
  * @desc Loads {@link Geometry} from 3DS.
@@ -55,49 +55,51 @@ import {K3D} from '../../libs/k3d.js';
  * @returns {Object} Configuration to pass into a {@link Geometry} constructor, containing geometry arrays loaded from the OBJ file.
  */
 function load3DSGeometry(scene, cfg = {}) {
+  return new Promise(function (resolve, reject) {
+    if (!cfg.src) {
+      console.error('load3DSGeometry: Parameter expected: src')
+      reject()
+    }
 
-    return new Promise(function (resolve, reject) {
+    var spinner = scene.canvas.spinner
+    spinner.processes++
 
-        if (!cfg.src) {
-            console.error("load3DSGeometry: Parameter expected: src");
-            reject();
+    utils.loadArraybuffer(
+      cfg.src,
+      function (data) {
+        if (!data.byteLength) {
+          console.error('load3DSGeometry: no data loaded')
+          spinner.processes--
+          reject()
         }
 
-        var spinner = scene.canvas.spinner;
-        spinner.processes++;
+        var m = K3D.parse.from3DS(data) // done !
 
-        utils.loadArraybuffer(cfg.src, function (data) {
+        var mesh = m.edit.objects[0].mesh
+        var positions = mesh.vertices
+        var uv = mesh.uvt
+        var indices = mesh.indices
 
-                if (!data.byteLength) {
-                    console.error("load3DSGeometry: no data loaded");
-                    spinner.processes--;
-                    reject();
-                }
+        spinner.processes--
 
-                var m = K3D.parse.from3DS(data);	// done !
+        resolve(
+          utils.apply(cfg, {
+            primitive: 'triangles',
+            positions: positions,
+            normals: null,
+            uv: uv,
+            indices: indices
+          })
+        )
+      },
 
-                var mesh = m.edit.objects[0].mesh;
-                var positions = mesh.vertices;
-                var uv = mesh.uvt;
-                var indices = mesh.indices;
-
-                spinner.processes--;
-
-                resolve(utils.apply(cfg, {
-                    primitive: "triangles",
-                    positions: positions,
-                    normals: null,
-                    uv: uv,
-                    indices: indices
-                }));
-            },
-
-            function (msg) {
-                console.error("load3DSGeometry: " + msg);
-                spinner.processes--;
-                reject();
-            });
-    });
+      function (msg) {
+        console.error('load3DSGeometry: ' + msg)
+        spinner.processes--
+        reject()
+      }
+    )
+  })
 }
 
-export {load3DSGeometry};
+export { load3DSGeometry }

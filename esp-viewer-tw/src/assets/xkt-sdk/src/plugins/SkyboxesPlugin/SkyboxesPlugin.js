@@ -1,5 +1,5 @@
-import {Plugin} from "../../viewer/Plugin.js";
-import {Skybox} from "../../viewer/scene/skybox/Skybox.js"
+import { Plugin } from '../../viewer/Plugin.js'
+import { Skybox } from '../../viewer/scene/skybox/Skybox.js'
 
 /**
  * {@link Viewer} plugin that manages skyboxes
@@ -57,24 +57,23 @@ import {Skybox} from "../../viewer/scene/skybox/Skybox.js"
  * @class SkyboxesPlugin
  */
 class SkyboxesPlugin extends Plugin {
+  constructor(viewer) {
+    super('skyboxes', viewer)
+    this.skyboxes = {}
+  }
 
-    constructor(viewer) {
-        super("skyboxes", viewer);
-        this.skyboxes = {};
+  /**
+   * @private
+   */
+  send(name, value) {
+    switch (name) {
+      case 'clear':
+        this.clear()
+        break
     }
+  }
 
-    /**
-     * @private
-     */
-    send(name, value) {
-        switch (name) {
-            case "clear":
-                this.clear();
-                break;
-        }
-    }
-
-    /**
+  /**
      Creates a skybox.
 
      @param {String} id Unique ID to assign to the skybox.
@@ -82,53 +81,53 @@ class SkyboxesPlugin extends Plugin {
      @param {Boolean} [params.active=true] Whether the skybox plane is initially active. Only skyboxes while this is true.
      @returns {Skybox} The new skybox.
      */
-    createSkybox(id, params) {
-        if (this.viewer.scene.components[id]) {
-            this.error("Component with this ID already exists: " + id);
-            return this;
-        }
-        var skybox = new Skybox(this.viewer.scene, {
-            id: id,
-            pos: params.pos,
-            dir: params.dir,
-            active: true || params.active
-        });
-        this.skyboxes[id] = skybox;
-        return skybox;
+  createSkybox(id, params) {
+    if (this.viewer.scene.components[id]) {
+      this.error('Component with this ID already exists: ' + id)
+      return this
     }
+    var skybox = new Skybox(this.viewer.scene, {
+      id: id,
+      pos: params.pos,
+      dir: params.dir,
+      active: true || params.active
+    })
+    this.skyboxes[id] = skybox
+    return skybox
+  }
 
-    /**
+  /**
      Destroys a skybox.
      @param id
      */
-    destroySkybox(id) {
-        var skybox = this.skyboxes[id];
-        if (!skybox) {
-            this.error("Skybox not found: " + id);
-            return;
-        }
-        skybox.destroy();
+  destroySkybox(id) {
+    var skybox = this.skyboxes[id]
+    if (!skybox) {
+      this.error('Skybox not found: ' + id)
+      return
     }
+    skybox.destroy()
+  }
 
-    /**
+  /**
      Destroys all skyboxes.
      */
-    clear() {
-        var ids = Object.keys(this.viewer.scene.skyboxes);
-        for (var i = 0, len = ids.length; i < len; i++) {
-            this.destroySkybox(ids[i]);
-        }
+  clear() {
+    var ids = Object.keys(this.viewer.scene.skyboxes)
+    for (var i = 0, len = ids.length; i < len; i++) {
+      this.destroySkybox(ids[i])
     }
+  }
 
-    /**
-     * Destroys this plugin.
-     *
-     * Clears skyboxes from the Viewer first.
-     */
-    destroy() {
-        this.clear();
-        super.clear();
-    }
+  /**
+   * Destroys this plugin.
+   *
+   * Clears skyboxes from the Viewer first.
+   */
+  destroy() {
+    this.clear()
+    super.clear()
+  }
 }
 
-export {SkyboxesPlugin}
+export { SkyboxesPlugin }

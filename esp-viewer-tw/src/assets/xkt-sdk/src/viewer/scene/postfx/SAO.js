@@ -1,5 +1,5 @@
-import {Component} from '../Component.js';
-import {WEBGL_INFO} from "../webglInfo.js";
+import { Component } from '../Component.js'
+import { WEBGL_INFO } from '../webglInfo.js'
 
 /**
  * @desc Configures Scalable Ambient Obscurance (SAO) for a {@link Scene}.
@@ -170,374 +170,372 @@ import {WEBGL_INFO} from "../webglInfo.js";
  * [[Run this example](https://xeokit.github.io/xeokit-sdk/examples/#techniques_nonInteractiveQuality)]
  */
 class SAO extends Component {
+  /** @private */
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
 
-    /** @private */
-    constructor(owner, cfg = {}) {
+    this._supported = WEBGL_INFO.SUPPORTED_EXTENSIONS['OES_standard_derivatives'] // For computing normals in SAO fragment shader
 
-        super(owner, cfg);
+    this.enabled = cfg.enabled
+    this.kernelRadius = cfg.kernelRadius
+    this.intensity = cfg.intensity
+    this.bias = cfg.bias
+    this.scale = cfg.scale
+    this.minResolution = cfg.minResolution
+    this.numSamples = cfg.numSamples
+    this.blur = cfg.blur
+    this.blendCutoff = cfg.blendCutoff
+    this.blendFactor = cfg.blendFactor
+  }
 
-        this._supported = WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_standard_derivatives"]; // For computing normals in SAO fragment shader
+  /**
+   * Gets whether or not SAO is supported by this browser and GPU.
+   *
+   * Even when enabled, SAO will only work if supported.
+   *
+   * @type {Boolean}
+   */
+  get supported() {
+    return this._supported
+  }
 
-        this.enabled = cfg.enabled;
-        this.kernelRadius = cfg.kernelRadius;
-        this.intensity = cfg.intensity;
-        this.bias = cfg.bias;
-        this.scale = cfg.scale;
-        this.minResolution = cfg.minResolution;
-        this.numSamples = cfg.numSamples;
-        this.blur = cfg.blur;
-        this.blendCutoff = cfg.blendCutoff;
-        this.blendFactor = cfg.blendFactor;
+  /**
+   * Sets whether SAO is enabled for the {@link Scene}.
+   *
+   * Even when enabled, SAO will only work if supported.
+   *
+   * Default value is ````false````.
+   *
+   * @type {Boolean}
+   */
+  set enabled(value) {
+    value = !!value
+    if (this._enabled === value) {
+      return
     }
+    this._enabled = value
+    this.glRedraw()
+  }
 
-    /**
-     * Gets whether or not SAO is supported by this browser and GPU.
-     *
-     * Even when enabled, SAO will only work if supported.
-     *
-     * @type {Boolean}
-     */
-    get supported() {
-        return this._supported;
-    }
+  /**
+   * Gets whether SAO is enabled for the {@link Scene}.
+   *
+   * Even when enabled, SAO will only apply if supported.
+   *
+   * Default value is ````false````.
+   *
+   * @type {Boolean}
+   */
+  get enabled() {
+    return this._enabled
+  }
 
-    /**
-     * Sets whether SAO is enabled for the {@link Scene}.
-     *
-     * Even when enabled, SAO will only work if supported.
-     *
-     * Default value is ````false````.
-     *
-     * @type {Boolean}
-     */
-    set enabled(value) {
-        value = !!value;
-        if (this._enabled === value) {
-            return;
-        }
-        this._enabled = value;
-        this.glRedraw();
+  /**
+   * Returns true if SAO is currently possible, where it is supported, enabled, and the current scene state is compatible.
+   * Called internally by renderer logic.
+   * @private
+   * @returns {Boolean}
+   */
+  get possible() {
+    if (!this._supported) {
+      return false
     }
+    if (!this._enabled) {
+      return false
+    }
+    const projection = this.scene.camera.projection
+    if (projection === 'customProjection') {
+      return false
+    }
+    if (projection === 'frustum') {
+      return false
+    }
+    return true
+  }
 
-    /**
-     * Gets whether SAO is enabled for the {@link Scene}.
-     *
-     * Even when enabled, SAO will only apply if supported.
-     *
-     * Default value is ````false````.
-     *
-     * @type {Boolean}
-     */
-    get enabled() {
-        return this._enabled;
-    }
+  /**
+   * @private
+   * @returns {boolean|*}
+   */
+  get active() {
+    return this._active
+  }
 
-    /**
-     * Returns true if SAO is currently possible, where it is supported, enabled, and the current scene state is compatible.
-     * Called internally by renderer logic.
-     * @private
-     * @returns {Boolean}
-     */
-    get possible() {
-        if (!this._supported) {
-            return false;
-        }
-        if (!this._enabled) {
-            return false;
-        }
-        const projection = this.scene.camera.projection;
-        if (projection === "customProjection") {
-            return false;
-        }
-        if (projection === "frustum") {
-            return false;
-        }
-        return true;
+  /**
+   * Sets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
+   *
+   * Default value is ````100.0````.
+   *
+   * @type {Number}
+   */
+  set kernelRadius(value) {
+    if (value === undefined || value === null) {
+      value = 100.0
     }
+    if (this._kernelRadius === value) {
+      return
+    }
+    this._kernelRadius = value
+    this.glRedraw()
+  }
 
-    /**
-     * @private
-     * @returns {boolean|*}
-     */
-    get active() {
-        return this._active;
-    }
+  /**
+   * Gets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
+   *
+   * Default value is ````100.0````.
+   *
+   * @type {Number}
+   */
+  get kernelRadius() {
+    return this._kernelRadius
+  }
 
-    /**
-     * Sets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
-     *
-     * Default value is ````100.0````.
-     *
-     * @type {Number}
-     */
-    set kernelRadius(value) {
-        if (value === undefined || value === null) {
-            value = 100.0;
-        }
-        if (this._kernelRadius === value) {
-            return;
-        }
-        this._kernelRadius = value;
-        this.glRedraw();
+  /**
+   * Sets the degree of darkening (ambient obscurance) produced by the SAO effect.
+   *
+   * Default value is ````0.15````.
+   *
+   * @type {Number}
+   */
+  set intensity(value) {
+    if (value === undefined || value === null) {
+      value = 0.15
     }
+    if (this._intensity === value) {
+      return
+    }
+    this._intensity = value
+    this.glRedraw()
+  }
 
-    /**
-     * Gets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
-     *
-     * Default value is ````100.0````.
-     *
-     * @type {Number}
-     */
-    get kernelRadius() {
-        return this._kernelRadius;
-    }
+  /**
+   * Gets the degree of darkening (ambient obscurance) produced by the SAO effect.
+   *
+   * Default value is ````0.15````.
+   *
+   * @type {Number}
+   */
+  get intensity() {
+    return this._intensity
+  }
 
-    /**
-     * Sets the degree of darkening (ambient obscurance) produced by the SAO effect.
-     *
-     * Default value is ````0.15````.
-     *
-     * @type {Number}
-     */
-    set intensity(value) {
-        if (value === undefined || value === null) {
-            value = 0.15;
-        }
-        if (this._intensity === value) {
-            return;
-        }
-        this._intensity = value;
-        this.glRedraw();
+  /**
+   * Sets the SAO bias.
+   *
+   * Default value is ````0.5````.
+   *
+   * @type {Number}
+   */
+  set bias(value) {
+    if (value === undefined || value === null) {
+      value = 0.5
     }
+    if (this._bias === value) {
+      return
+    }
+    this._bias = value
+    this.glRedraw()
+  }
 
-    /**
-     * Gets the degree of darkening (ambient obscurance) produced by the SAO effect.
-     *
-     * Default value is ````0.15````.
-     *
-     * @type {Number}
-     */
-    get intensity() {
-        return this._intensity;
-    }
+  /**
+   * Gets the SAO bias.
+   *
+   * Default value is ````0.5````.
+   *
+   * @type {Number}
+   */
+  get bias() {
+    return this._bias
+  }
 
-    /**
-     * Sets the SAO bias.
-     *
-     * Default value is ````0.5````.
-     *
-     * @type {Number}
-     */
-    set bias(value) {
-        if (value === undefined || value === null) {
-            value = 0.5;
-        }
-        if (this._bias === value) {
-            return;
-        }
-        this._bias = value;
-        this.glRedraw();
+  /**
+   * Sets the SAO occlusion scale.
+   *
+   * Default value is ````1.0````.
+   *
+   * @type {Number}
+   */
+  set scale(value) {
+    if (value === undefined || value === null) {
+      value = 1.0
     }
+    if (this._scale === value) {
+      return
+    }
+    this._scale = value
+    this.glRedraw()
+  }
 
-    /**
-     * Gets the SAO bias.
-     *
-     * Default value is ````0.5````.
-     *
-     * @type {Number}
-     */
-    get bias() {
-        return this._bias;
-    }
+  /**
+   * Gets the SAO occlusion scale.
+   *
+   * Default value is ````1.0````.
+   *
+   * @type {Number}
+   */
+  get scale() {
+    return this._scale
+  }
 
-    /**
-     * Sets the SAO occlusion scale.
-     *
-     * Default value is ````1.0````.
-     *
-     * @type {Number}
-     */
-    set scale(value) {
-        if (value === undefined || value === null) {
-            value = 1.0;
-        }
-        if (this._scale === value) {
-            return;
-        }
-        this._scale = value;
-        this.glRedraw();
+  /**
+   * Sets the SAO minimum resolution.
+   *
+   * Default value is ````0.0````.
+   *
+   * @type {Number}
+   */
+  set minResolution(value) {
+    if (value === undefined || value === null) {
+      value = 0.0
     }
+    if (this._minResolution === value) {
+      return
+    }
+    this._minResolution = value
+    this.glRedraw()
+  }
 
-    /**
-     * Gets the SAO occlusion scale.
-     *
-     * Default value is ````1.0````.
-     *
-     * @type {Number}
-     */
-    get scale() {
-        return this._scale;
-    }
+  /**
+   * Gets the SAO minimum resolution.
+   *
+   * Default value is ````0.0````.
+   *
+   * @type {Number}
+   */
+  get minResolution() {
+    return this._minResolution
+  }
 
-    /**
-     * Sets the SAO minimum resolution.
-     *
-     * Default value is ````0.0````.
-     *
-     * @type {Number}
-     */
-    set minResolution(value) {
-        if (value === undefined || value === null) {
-            value = 0.0;
-        }
-        if (this._minResolution === value) {
-            return;
-        }
-        this._minResolution = value;
-        this.glRedraw();
+  /**
+   * Sets the number of SAO samples.
+   *
+   * Default value is ````10````.
+   *
+   * Update this sparingly, since it causes a shader recompile.
+   *
+   * @type {Number}
+   */
+  set numSamples(value) {
+    if (value === undefined || value === null) {
+      value = 10
     }
+    if (this._numSamples === value) {
+      return
+    }
+    this._numSamples = value
+    this.glRedraw()
+  }
 
-    /**
-     * Gets the SAO minimum resolution.
-     *
-     * Default value is ````0.0````.
-     *
-     * @type {Number}
-     */
-    get minResolution() {
-        return this._minResolution;
-    }
+  /**
+   * Gets the number of SAO samples.
+   *
+   * Default value is ````10````.
+   *
+   * @type {Number}
+   */
+  get numSamples() {
+    return this._numSamples
+  }
 
-    /**
-     * Sets the number of SAO samples.
-     *
-     * Default value is ````10````.
-     *
-     * Update this sparingly, since it causes a shader recompile.
-     *
-     * @type {Number}
-     */
-    set numSamples(value) {
-        if (value === undefined || value === null) {
-            value = 10;
-        }
-        if (this._numSamples === value) {
-            return;
-        }
-        this._numSamples = value;
-        this.glRedraw();
+  /**
+   * Sets whether Guassian blur is enabled.
+   *
+   * Default value is ````true````.
+   *
+   * @type {Boolean}
+   */
+  set blur(value) {
+    value = value !== false
+    if (this._blur === value) {
+      return
     }
+    this._blur = value
+    this.glRedraw()
+  }
 
-    /**
-     * Gets the number of SAO samples.
-     *
-     * Default value is ````10````.
-     *
-     * @type {Number}
-     */
-    get numSamples() {
-        return this._numSamples;
-    }
+  /**
+   * Gets whether Guassian blur is enabled.
+   *
+   * Default value is ````true````.
+   *
+   * @type {Boolean}
+   */
+  get blur() {
+    return this._blur
+  }
 
-    /**
-     * Sets whether Guassian blur is enabled.
-     *
-     * Default value is ````true````.
-     *
-     * @type {Boolean}
-     */
-    set blur(value) {
-        value = (value !== false);
-        if (this._blur === value) {
-            return;
-        }
-        this._blur = value;
-        this.glRedraw();
+  /**
+   * Sets the SAO blend cutoff.
+   *
+   * Default value is ````0.3````.
+   *
+   * Normally you don't need to alter this.
+   *
+   * @type {Number}
+   */
+  set blendCutoff(value) {
+    if (value === undefined || value === null) {
+      value = 0.3
     }
+    if (this._blendCutoff === value) {
+      return
+    }
+    this._blendCutoff = value
+    this.glRedraw()
+  }
 
-    /**
-     * Gets whether Guassian blur is enabled.
-     *
-     * Default value is ````true````.
-     *
-     * @type {Boolean}
-     */
-    get blur() {
-        return this._blur;
-    }
+  /**
+   * Gets the SAO blend cutoff.
+   *
+   * Default value is ````0.3````.
+   *
+   * Normally you don't need to alter this.
+   *
+   * @type {Number}
+   */
+  get blendCutoff() {
+    return this._blendCutoff
+  }
 
-    /**
-     * Sets the SAO blend cutoff.
-     *
-     * Default value is ````0.3````.
-     *
-     * Normally you don't need to alter this.
-     *
-     * @type {Number}
-     */
-    set blendCutoff(value) {
-        if (value === undefined || value === null) {
-            value = 0.3;
-        }
-        if (this._blendCutoff === value) {
-            return;
-        }
-        this._blendCutoff = value;
-        this.glRedraw();
+  /**
+   * Sets the SAO blend factor.
+   *
+   * Default value is ````1.0````.
+   *
+   * Normally you don't need to alter this.
+   *
+   * @type {Number}
+   */
+  set blendFactor(value) {
+    if (value === undefined || value === null) {
+      value = 1.0
     }
+    if (this._blendFactor === value) {
+      return
+    }
+    this._blendFactor = value
+    this.glRedraw()
+  }
 
-    /**
-     * Gets the SAO blend cutoff.
-     *
-     * Default value is ````0.3````.
-     *
-     * Normally you don't need to alter this.
-     *
-     * @type {Number}
-     */
-    get blendCutoff() {
-        return this._blendCutoff;
-    }
+  /**
+   * Gets the SAO blend scale.
+   *
+   * Default value is ````1.0````.
+   *
+   * Normally you don't need to alter this.
+   *
+   * @type {Number}
+   */
+  get blendFactor() {
+    return this._blendFactor
+  }
 
-    /**
-     * Sets the SAO blend factor.
-     *
-     * Default value is ````1.0````.
-     *
-     * Normally you don't need to alter this.
-     *
-     * @type {Number}
-     */
-    set blendFactor(value) {
-        if (value === undefined || value === null) {
-            value = 1.0;
-        }
-        if (this._blendFactor === value) {
-            return;
-        }
-        this._blendFactor = value;
-        this.glRedraw();
-    }
-
-    /**
-     * Gets the SAO blend scale.
-     *
-     * Default value is ````1.0````.
-     *
-     * Normally you don't need to alter this.
-     *
-     * @type {Number}
-     */
-    get blendFactor() {
-        return this._blendFactor;
-    }
-
-    /**
-     * Destroys this component.
-     */
-    destroy() {
-        super.destroy();
-    }
+  /**
+   * Destroys this component.
+   */
+  destroy() {
+    super.destroy()
+  }
 }
 
-export {SAO};
+export { SAO }

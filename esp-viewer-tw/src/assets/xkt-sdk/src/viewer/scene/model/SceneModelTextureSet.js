@@ -7,53 +7,50 @@
  * * Referenced by {@link SceneModelMesh#textureSet}
  */
 export class SceneModelTextureSet {
+  /**
+   * @private
+   */
+  constructor(cfg) {
+    /**
+     * Unique ID of this SceneModelTextureSet.
+     *
+     * The SceneModelTextureSet is registered against this ID in {@link SceneModel#textureSets}.
+     */
+    this.id = cfg.id
 
     /**
-     * @private
+     * The color texture.
+     * @type {SceneModelTexture|*}
      */
-    constructor(cfg) {
-
-        /**
-         * Unique ID of this SceneModelTextureSet.
-         *
-         * The SceneModelTextureSet is registered against this ID in {@link SceneModel#textureSets}.
-         */
-        this.id = cfg.id;
-
-        /**
-         * The color texture.
-         * @type {SceneModelTexture|*}
-         */
-        this.colorTexture = cfg.colorTexture;
-
-        /**
-         * The metallic-roughness texture.
-         * @type {SceneModelTexture|*}
-         */
-        this.metallicRoughnessTexture = cfg.metallicRoughnessTexture;
-
-        /**
-         * The normal map texture.
-         * @type {SceneModelTexture|*}
-         */
-        this.normalsTexture = cfg.normalsTexture;
-
-        /**
-         * The emissive color texture.
-         * @type {SceneModelTexture|*}
-         */
-        this.emissiveTexture = cfg.emissiveTexture;
-
-        /**
-         * The ambient occlusion texture.
-         * @type {SceneModelTexture|*}
-         */
-        this.occlusionTexture = cfg.occlusionTexture;
-    }
+    this.colorTexture = cfg.colorTexture
 
     /**
-     * @private
+     * The metallic-roughness texture.
+     * @type {SceneModelTexture|*}
      */
-    destroy() {
-    }
+    this.metallicRoughnessTexture = cfg.metallicRoughnessTexture
+
+    /**
+     * The normal map texture.
+     * @type {SceneModelTexture|*}
+     */
+    this.normalsTexture = cfg.normalsTexture
+
+    /**
+     * The emissive color texture.
+     * @type {SceneModelTexture|*}
+     */
+    this.emissiveTexture = cfg.emissiveTexture
+
+    /**
+     * The ambient occlusion texture.
+     * @type {SceneModelTexture|*}
+     */
+    this.occlusionTexture = cfg.occlusionTexture
+  }
+
+  /**
+   * @private
+   */
+  destroy() {}
 }

@@ -1,6 +1,6 @@
-import {Material} from './Material.js';
-import {RenderState} from '../webgl/RenderState.js';
-import {math} from '../math/math.js';
+import { Material } from './Material.js'
+import { RenderState } from '../webgl/RenderState.js'
+import { math } from '../math/math.js'
 
 /**
  * @desc Configures the normal rendered appearance of {@link Mesh}es using the non-realistic but GPU-efficient <a href="https://en.wikipedia.org/wiki/Lambertian_reflectance">Lambertian</a> flat shading model for calculating reflectance.
@@ -66,313 +66,321 @@ import {math} from '../math/math.js';
  *
  */
 class LambertMaterial extends Material {
-
-    /**
+  /**
      @private
      */
-    get type() {
-        return "LambertMaterial";
+  get type() {
+    return 'LambertMaterial'
+  }
+
+  /**
+   * @constructor
+   * @param {Component} owner Owner component. When destroyed, the owner will destroy this component as well.
+   * @param {*} [cfg] The LambertMaterial configuration
+   * @param {String} [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+   * @param {String:Object} [cfg.meta=null]  Metadata to attach to this LambertMaterial.
+   * @param {Number[]} [cfg.ambient=[1.0, 1.0, 1.0 ]] LambertMaterial ambient color.
+   * @param {Number[]} [cfg.color=[ 1.0, 1.0, 1.0 ]] LambertMaterial diffuse color.
+   * @param {Number[]} [cfg.emissive=[ 0.0, 0.0, 0.0 ]] LambertMaterial emissive color.
+   * @param {Number} [cfg.alpha=1]Scalar in range 0-1 that controls alpha, where 0 is completely transparent and 1 is completely opaque.
+   * @param {Number} [cfg.reflectivity=1]Scalar in range 0-1 that controls how much {@link ReflectionMap} is reflected.
+   * @param {Number} [cfg.lineWidth=1] Scalar that controls the width of {@link Geometry} lines.
+   * @param {Number} [cfg.pointSize=1] Scalar that controls the size of points for {@link Geometry} with {@link Geometry#primitive} set to "points".
+   * @param {Boolean} [cfg.backfaces=false] Whether to render {@link Geometry} backfaces.
+   * @param {Boolean} [cfg.frontface="ccw"] The winding order for {@link Geometry} front faces - "cw" for clockwise, or "ccw" for counter-clockwise.
+   */
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
+
+    this._state = new RenderState({
+      type: 'LambertMaterial',
+      ambient: math.vec3([1.0, 1.0, 1.0]),
+      color: math.vec3([1.0, 1.0, 1.0]),
+      emissive: math.vec3([0.0, 0.0, 0.0]),
+      alpha: null,
+      alphaMode: 0, // 2 ("blend") when transparent, so renderer knows when to add to transparency bin
+      lineWidth: null,
+      pointSize: null,
+      backfaces: null,
+      frontface: null, // Boolean for speed; true == "ccw", false == "cw"
+      hash: '/lam;'
+    })
+
+    this.ambient = cfg.ambient
+    this.color = cfg.color
+    this.emissive = cfg.emissive
+    this.alpha = cfg.alpha
+    this.lineWidth = cfg.lineWidth
+    this.pointSize = cfg.pointSize
+    this.backfaces = cfg.backfaces
+    this.frontface = cfg.frontface
+  }
+
+  /**
+   * Sets the LambertMaterial's ambient color.
+   *
+   * Default value is ````[0.3, 0.3, 0.3]````.
+   *
+   * @type {Number[]}
+   */
+  set ambient(value) {
+    let ambient = this._state.ambient
+    if (!ambient) {
+      ambient = this._state.ambient = new Float32Array(3)
+    } else if (
+      value &&
+      ambient[0] === value[0] &&
+      ambient[1] === value[1] &&
+      ambient[2] === value[2]
+    ) {
+      return
     }
-
-    /**
-     * @constructor
-     * @param {Component} owner Owner component. When destroyed, the owner will destroy this component as well.
-     * @param {*} [cfg] The LambertMaterial configuration
-     * @param {String} [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
-     * @param {String:Object} [cfg.meta=null]  Metadata to attach to this LambertMaterial.
-     * @param {Number[]} [cfg.ambient=[1.0, 1.0, 1.0 ]] LambertMaterial ambient color.
-     * @param {Number[]} [cfg.color=[ 1.0, 1.0, 1.0 ]] LambertMaterial diffuse color.
-     * @param {Number[]} [cfg.emissive=[ 0.0, 0.0, 0.0 ]] LambertMaterial emissive color.
-     * @param {Number} [cfg.alpha=1]Scalar in range 0-1 that controls alpha, where 0 is completely transparent and 1 is completely opaque.
-     * @param {Number} [cfg.reflectivity=1]Scalar in range 0-1 that controls how much {@link ReflectionMap} is reflected.
-     * @param {Number} [cfg.lineWidth=1] Scalar that controls the width of {@link Geometry} lines.
-     * @param {Number} [cfg.pointSize=1] Scalar that controls the size of points for {@link Geometry} with {@link Geometry#primitive} set to "points".
-     * @param {Boolean} [cfg.backfaces=false] Whether to render {@link Geometry} backfaces.
-     * @param {Boolean} [cfg.frontface="ccw"] The winding order for {@link Geometry} front faces - "cw" for clockwise, or "ccw" for counter-clockwise.
-     */
-    constructor(owner, cfg = {}) {
-
-        super(owner, cfg);
-
-        this._state = new RenderState({
-            type: "LambertMaterial",
-            ambient: math.vec3([1.0, 1.0, 1.0]),
-            color: math.vec3([1.0, 1.0, 1.0]),
-            emissive: math.vec3([0.0, 0.0, 0.0]),
-            alpha: null,
-            alphaMode: 0, // 2 ("blend") when transparent, so renderer knows when to add to transparency bin
-            lineWidth: null,
-            pointSize: null,
-            backfaces: null,
-            frontface: null, // Boolean for speed; true == "ccw", false == "cw"
-            hash: "/lam;"
-        });
-
-        this.ambient = cfg.ambient;
-        this.color = cfg.color;
-        this.emissive = cfg.emissive;
-        this.alpha = cfg.alpha;
-        this.lineWidth = cfg.lineWidth;
-        this.pointSize = cfg.pointSize;
-        this.backfaces = cfg.backfaces;
-        this.frontface = cfg.frontface;
+    if (value) {
+      ambient[0] = value[0]
+      ambient[1] = value[1]
+      ambient[2] = value[2]
+    } else {
+      ambient[0] = 0.2
+      ambient[1] = 0.2
+      ambient[2] = 0.2
     }
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the LambertMaterial's ambient color.
-     *
-     * Default value is ````[0.3, 0.3, 0.3]````.
-     *
-     * @type {Number[]}
-     */
-    set ambient(value) {
-        let ambient = this._state.ambient;
-        if (!ambient) {
-            ambient = this._state.ambient = new Float32Array(3);
-        } else if (value && ambient[0] === value[0] && ambient[1] === value[1] && ambient[2] === value[2]) {
-            return;
-        }
-        if (value) {
-            ambient[0] = value[0];
-            ambient[1] = value[1];
-            ambient[2] = value[2];
-        } else {
-            ambient[0] = .2;
-            ambient[1] = .2;
-            ambient[2] = .2;
-        }
-        this.glRedraw();
-    }
+  /**
+   * Gets the LambertMaterial's ambient color.
+   *
+   * Default value is ````[0.3, 0.3, 0.3]````.
+   *
+   * @type {Number[]}
+   */
+  get ambient() {
+    return this._state.ambient
+  }
 
-    /**
-     * Gets the LambertMaterial's ambient color.
-     *
-     * Default value is ````[0.3, 0.3, 0.3]````.
-     *
-     * @type {Number[]}
-     */
-    get ambient() {
-        return this._state.ambient;
+  /**
+   * Sets the LambertMaterial's diffuse color.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @type {Number[]}
+   */
+  set color(value) {
+    let color = this._state.color
+    if (!color) {
+      color = this._state.color = new Float32Array(3)
+    } else if (value && color[0] === value[0] && color[1] === value[1] && color[2] === value[2]) {
+      return
     }
+    if (value) {
+      color[0] = value[0]
+      color[1] = value[1]
+      color[2] = value[2]
+    } else {
+      color[0] = 1
+      color[1] = 1
+      color[2] = 1
+    }
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the LambertMaterial's diffuse color.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @type {Number[]}
-     */
-    set color(value) {
-        let color = this._state.color;
-        if (!color) {
-            color = this._state.color = new Float32Array(3);
-        } else if (value && color[0] === value[0] && color[1] === value[1] && color[2] === value[2]) {
-            return;
-        }
-        if (value) {
-            color[0] = value[0];
-            color[1] = value[1];
-            color[2] = value[2];
-        } else {
-            color[0] = 1;
-            color[1] = 1;
-            color[2] = 1;
-        }
-        this.glRedraw();
-    }
+  /**
+   * Gets the LambertMaterial's diffuse color.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @type {Number[]}
+   */
+  get color() {
+    return this._state.color
+  }
 
-    /**
-     * Gets the LambertMaterial's diffuse color.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @type {Number[]}
-     */
-    get color() {
-        return this._state.color;
+  /**
+   * Sets the LambertMaterial's emissive color.
+   *
+   * Default value is ````[0.0, 0.0, 0.0]````.
+   *
+   * @type {Number[]}
+   */
+  set emissive(value) {
+    let emissive = this._state.emissive
+    if (!emissive) {
+      emissive = this._state.emissive = new Float32Array(3)
+    } else if (
+      value &&
+      emissive[0] === value[0] &&
+      emissive[1] === value[1] &&
+      emissive[2] === value[2]
+    ) {
+      return
     }
+    if (value) {
+      emissive[0] = value[0]
+      emissive[1] = value[1]
+      emissive[2] = value[2]
+    } else {
+      emissive[0] = 0
+      emissive[1] = 0
+      emissive[2] = 0
+    }
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the LambertMaterial's emissive color.
-     *
-     * Default value is ````[0.0, 0.0, 0.0]````.
-     *
-     * @type {Number[]}
-     */
-    set emissive(value) {
-        let emissive = this._state.emissive;
-        if (!emissive) {
-            emissive = this._state.emissive = new Float32Array(3);
-        } else if (value && emissive[0] === value[0] && emissive[1] === value[1] && emissive[2] === value[2]) {
-            return;
-        }
-        if (value) {
-            emissive[0] = value[0];
-            emissive[1] = value[1];
-            emissive[2] = value[2];
-        } else {
-            emissive[0] = 0;
-            emissive[1] = 0;
-            emissive[2] = 0;
-        }
-        this.glRedraw();
-    }
+  /**
+   * Gets the LambertMaterial's emissive color.
+   *
+   * Default value is ````[0.0, 0.0, 0.0]````.
+   *
+   * @type {Number[]}
+   */
+  get emissive() {
+    return this._state.emissive
+  }
 
-    /**
-     * Gets the LambertMaterial's emissive color.
-     *
-     * Default value is ````[0.0, 0.0, 0.0]````.
-     *
-     * @type {Number[]}
-     */
-    get emissive() {
-        return this._state.emissive;
+  /**
+   * Sets factor in the range ````[0..1]```` indicating how transparent the LambertMaterial is.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default value is ````1.0````
+   *
+   * @type {Number}
+   */
+  set alpha(value) {
+    value = value !== undefined && value !== null ? value : 1.0
+    if (this._state.alpha === value) {
+      return
     }
+    this._state.alpha = value
+    this._state.alphaMode = value < 1.0 ? 2 /* blend */ : 0
+    /* opaque */
+    this.glRedraw()
+  }
 
-    /**
-     * Sets factor in the range ````[0..1]```` indicating how transparent the LambertMaterial is.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default value is ````1.0````
-     *
-     * @type {Number}
-     */
-    set alpha(value) {
-        value = (value !== undefined && value !== null) ? value : 1.0;
-        if (this._state.alpha === value) {
-            return;
-        }
-        this._state.alpha = value;
-        this._state.alphaMode = value < 1.0 ? 2 /* blend */ : 0
-        /* opaque */
-        this.glRedraw();
-    }
+  /**
+   * Gets factor in the range ````[0..1]```` indicating how transparent the LambertMaterial is.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default value is ````1.0````
+   *
+   * @type {Number}
+   */
+  get alpha() {
+    return this._state.alpha
+  }
 
-    /**
-     * Gets factor in the range ````[0..1]```` indicating how transparent the LambertMaterial is.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default value is ````1.0````
-     *
-     * @type {Number}
-     */
-    get alpha() {
-        return this._state.alpha;
-    }
+  /**
+   * Sets the LambertMaterial's line width.
+   *
+   * This is not supported by WebGL implementations based on DirectX [2019].
+   *
+   * Default value is ````1.0````.
+   *
+   * @type {Number}
+   */
+  set lineWidth(value) {
+    this._state.lineWidth = value || 1.0
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the LambertMaterial's line width.
-     *
-     * This is not supported by WebGL implementations based on DirectX [2019].
-     *
-     * Default value is ````1.0````.
-     *
-     * @type {Number}
-     */
-    set lineWidth(value) {
-        this._state.lineWidth = value || 1.0;
-        this.glRedraw();
-    }
+  /**
+   * Gets the LambertMaterial's line width.
+   *
+   * This is not supported by WebGL implementations based on DirectX [2019].
+   *
+   * Default value is ````1.0````.
+   *
+   * @type {Number}
+   */
+  get lineWidth() {
+    return this._state.lineWidth
+  }
 
-    /**
-     * Gets the LambertMaterial's line width.
-     *
-     * This is not supported by WebGL implementations based on DirectX [2019].
-     *
-     * Default value is ````1.0````.
-     *
-     * @type {Number}
-     */
-    get lineWidth() {
-        return this._state.lineWidth;
-    }
+  /**
+   * Sets the LambertMaterial's point size.
+   *
+   * Default value is ````1.0````.
+   *
+   * @type {Number}
+   */
+  set pointSize(value) {
+    this._state.pointSize = value || 1.0
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the LambertMaterial's point size.
-     *
-     * Default value is ````1.0````.
-     *
-     * @type {Number}
-     */
-    set pointSize(value) {
-        this._state.pointSize = value || 1.0;
-        this.glRedraw();
-    }
+  /**
+   * Gets the LambertMaterial's point size.
+   *
+   * Default value is ````1.0````.
+   *
+   * @type {Number}
+   */
+  get pointSize() {
+    return this._state.pointSize
+  }
 
-    /**
-     * Gets the LambertMaterial's point size.
-     *
-     * Default value is ````1.0````.
-     *
-     * @type {Number}
-     */
-    get pointSize() {
-        return this._state.pointSize;
+  /**
+   * Sets whether backfaces are visible on attached {@link Mesh}es.
+   *
+   * @type {Boolean}
+   */
+  set backfaces(value) {
+    value = !!value
+    if (this._state.backfaces === value) {
+      return
     }
+    this._state.backfaces = value
+    this.glRedraw()
+  }
 
-    /**
-     * Sets whether backfaces are visible on attached {@link Mesh}es.
-     *
-     * @type {Boolean}
-     */
-    set backfaces(value) {
-        value = !!value;
-        if (this._state.backfaces === value) {
-            return;
-        }
-        this._state.backfaces = value;
-        this.glRedraw();
-    }
+  /**
+   * Gets whether backfaces are visible on attached {@link Mesh}es.
+   *
+   * @type {Boolean}
+   */
+  get backfaces() {
+    return this._state.backfaces
+  }
 
-    /**
-     * Gets whether backfaces are visible on attached {@link Mesh}es.
-     *
-     * @type {Boolean}
-     */
-    get backfaces() {
-        return this._state.backfaces;
+  /**
+   * Sets the winding direction of front faces of {@link Geometry} of attached {@link Mesh}es.
+   *
+   * Default value is ````"ccw"````.
+   *
+   * @type {String}
+   */
+  set frontface(value) {
+    value = value !== 'cw'
+    if (this._state.frontface === value) {
+      return
     }
+    this._state.frontface = value
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the winding direction of front faces of {@link Geometry} of attached {@link Mesh}es.
-     *
-     * Default value is ````"ccw"````.
-     *
-     * @type {String}
-     */
-    set frontface(value) {
-        value = value !== "cw";
-        if (this._state.frontface === value) {
-            return;
-        }
-        this._state.frontface = value;
-        this.glRedraw();
-    }
+  /**
+   * Gets the winding direction of front faces of {@link Geometry} of attached {@link Mesh}es.
+   *
+   * Default value is ````"ccw"````.
+   *
+   * @type {String}
+   */
+  get frontface() {
+    return this._state.frontface ? 'ccw' : 'cw'
+  }
 
-    /**
-     * Gets the winding direction of front faces of {@link Geometry} of attached {@link Mesh}es.
-     *
-     * Default value is ````"ccw"````.
-     *
-     * @type {String}
-     */
-    get frontface() {
-        return this._state.frontface ? "ccw" : "cw";
-    }
+  _getState() {
+    return this._state
+  }
 
-    _getState() {
-        return this._state;
-    }
-
-    /**
-     * Destroys this LambertMaterial.
-     */
-    destroy() {
-        super.destroy();
-        this._state.destroy();
-    }
+  /**
+   * Destroys this LambertMaterial.
+   */
+  destroy() {
+    super.destroy()
+    this._state.destroy()
+  }
 }
 
-export {LambertMaterial};
+export { LambertMaterial }

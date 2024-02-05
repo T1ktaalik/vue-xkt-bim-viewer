@@ -35,12 +35,11 @@ const hideEdgesMinDrawCount = 5 // FastNavPlugin enables dynamic edges when xeok
 const scaleCanvasResolutionMinDrawCount = 1000 // FastNavPlugin switches to low-res canvas when xeokit's per-frame draw count rises above this
 
 function createExplorerTemplate(cfg) {
-  const $ = cheerio.load(`<div></div>`)
 
   const explorerTemplate =
     `<div class="xeokit-tabs"> 
     <div class="xeokit-tab xeokit-modelsTab">
-        <a class="xeokit-i18n xeokit-tab-btn" href="#" data-xeokit-i18n="modelsExplorer.title">Models</a>
+        <a class="xeokit-i18n xeokit-tab-btn hover:tw-text-red-600" href="#" data-xeokit-i18n="modelsExplorer.title">Models</a>
         <div class="xeokit-tab-content">
             <div class="xeokit-btn-group">
                 <button type="button" class="xeokit-i18n xeokit-loadAllModels xeokit-btn disabled" data-xeokit-i18n="modelsExplorer.loadAll" data-xeokit-i18ntip="modelsExplorer.loadAllTip" data-tippy-content="Load all models">Load all</button>

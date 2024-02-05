@@ -1,2 +1,2 @@
-export * from "./MarqueePicker.js";
-export * from "./MarqueePickerMouseControl.js";
+export * from './MarqueePicker.js'
+export * from './MarqueePickerMouseControl.js'

@@ -1,4 +1,4 @@
-import {Component} from '../Component.js';
+import { Component } from '../Component.js'
 
 /**
  * @desc A dynamic light source within a {@link Scene}.
@@ -6,24 +6,23 @@ import {Component} from '../Component.js';
  * These are registered by {@link Light#id} in {@link Scene#lights}.
  */
 class Light extends Component {
-
-    /**
+  /**
      @private
      */
-    get type() {
-        return "Light";
-    }
+  get type() {
+    return 'Light'
+  }
 
-    /**
-     * @private
-     */
-    get isLight() {
-        return true;
-    }
+  /**
+   * @private
+   */
+  get isLight() {
+    return true
+  }
 
-    constructor(owner, cfg = {}) {
-        super(owner, cfg);
-    }
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
+  }
 }
 
-export {Light};
+export { Light }

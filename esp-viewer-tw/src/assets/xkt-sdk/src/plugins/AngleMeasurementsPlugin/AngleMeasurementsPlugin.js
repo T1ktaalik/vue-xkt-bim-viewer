@@ -1,6 +1,6 @@
-import {Plugin} from "../../viewer/Plugin.js";
-import {AngleMeasurement} from "./AngleMeasurement.js";
-import {AngleMeasurementsMouseControl} from "./AngleMeasurementsMouseControl.js";
+import { Plugin } from '../../viewer/Plugin.js'
+import { AngleMeasurement } from './AngleMeasurement.js'
+import { AngleMeasurementsMouseControl } from './AngleMeasurementsMouseControl.js'
 
 /**
  * {@link Viewer} plugin for measuring angles.
@@ -205,202 +205,196 @@ import {AngleMeasurementsMouseControl} from "./AngleMeasurementsMouseControl.js"
  * ````
  */
 export class AngleMeasurementsPlugin extends Plugin {
+  /**
+   * @constructor
+   * @param {Viewer} viewer The Viewer.
+   * @param {Object} [cfg]  Plugin configuration.
+   * @param {String} [cfg.id="AngleMeasurements"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+   * @param {HTMLElement} [cfg.container] Container DOM element for markers and labels. Defaults to ````document.body````.
+   * @param {string} [cfg.defaultColor=null] The default color of the dots, wire and label.
+   * @param {boolean} [cfg.defaultLabelsVisible=true] The default value of {@link AngleMeasurement.labelsVisible}.
+   * @param {number} [cfg.zIndex] If set, the wires, dots and labels will have this zIndex (+1 for dots and +2 for labels).
+   * @param {PointerCircle} [cfg.pointerLens] A PointerLens to help the user position the pointer. This can be shared with other plugins.
+   */
+  constructor(viewer, cfg = {}) {
+    super('AngleMeasurements', viewer)
 
-    /**
-     * @constructor
-     * @param {Viewer} viewer The Viewer.
-     * @param {Object} [cfg]  Plugin configuration.
-     * @param {String} [cfg.id="AngleMeasurements"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {HTMLElement} [cfg.container] Container DOM element for markers and labels. Defaults to ````document.body````.
-     * @param {string} [cfg.defaultColor=null] The default color of the dots, wire and label.
-     * @param {boolean} [cfg.defaultLabelsVisible=true] The default value of {@link AngleMeasurement.labelsVisible}.
-     * @param {number} [cfg.zIndex] If set, the wires, dots and labels will have this zIndex (+1 for dots and +2 for labels).
-     * @param {PointerCircle} [cfg.pointerLens] A PointerLens to help the user position the pointer. This can be shared with other plugins.
-     */
-    constructor(viewer, cfg = {}) {
+    this._container = cfg.container || document.body
 
-        super("AngleMeasurements", viewer);
+    this._defaultControl = null
 
-        this._container = cfg.container || document.body;
+    this._measurements = {}
 
-        this._defaultControl = null;
+    this.defaultColor = cfg.defaultColor !== undefined ? cfg.defaultColor : '#00BBFF'
+    this.defaultLabelsVisible = cfg.defaultLabelsVisible !== false
+    this.zIndex = cfg.zIndex || 10000
 
-        this._measurements = {};
-
-        this.defaultColor = cfg.defaultColor !== undefined ? cfg.defaultColor : "#00BBFF";
-        this.defaultLabelsVisible = cfg.defaultLabelsVisible !== false;
-        this.zIndex = cfg.zIndex || 10000;
-
-        this._onMouseOver = (event, measurement) => {
-            this.fire("mouseOver", {
-                plugin: this,
-                angleMeasurement: measurement,
-                measurement,
-                event
-            });
-        }
-
-        this._onMouseLeave = (event, measurement) => {
-            this.fire("mouseLeave", {
-                plugin: this,
-                angleMeasurement: measurement,
-                measurement,
-                event
-            });
-        };
-
-        this._onContextMenu = (event, measurement) => {
-            this.fire("contextMenu", {
-                plugin: this,
-                angleMeasurement: measurement,
-                measurement,
-                event
-            });
-        };
+    this._onMouseOver = (event, measurement) => {
+      this.fire('mouseOver', {
+        plugin: this,
+        angleMeasurement: measurement,
+        measurement,
+        event
+      })
     }
 
-    /**
-     * Gets the plugin's HTML container element, if any.
-     * @returns {*|HTMLElement|HTMLElement}
-     */
-    getContainerElement() {
-        return this._container;
+    this._onMouseLeave = (event, measurement) => {
+      this.fire('mouseLeave', {
+        plugin: this,
+        angleMeasurement: measurement,
+        measurement,
+        event
+      })
     }
 
-
-    /**
-     * @private
-     */
-    send(name, value) {
-
+    this._onContextMenu = (event, measurement) => {
+      this.fire('contextMenu', {
+        plugin: this,
+        angleMeasurement: measurement,
+        measurement,
+        event
+      })
     }
+  }
 
-    /**
-     * Gets the default {@link AngleMeasurementsMouseControl}.
-     *
-     * @type {AngleMeasurementsMouseControl}
-     * @deprecated
-     */
-    get control() {
-        if (!this._defaultControl) {
-            this._defaultControl = new AngleMeasurementsMouseControl(this, {});
-        }
-        return this._defaultControl;
+  /**
+   * Gets the plugin's HTML container element, if any.
+   * @returns {*|HTMLElement|HTMLElement}
+   */
+  getContainerElement() {
+    return this._container
+  }
+
+  /**
+   * @private
+   */
+  send(name, value) {}
+
+  /**
+   * Gets the default {@link AngleMeasurementsMouseControl}.
+   *
+   * @type {AngleMeasurementsMouseControl}
+   * @deprecated
+   */
+  get control() {
+    if (!this._defaultControl) {
+      this._defaultControl = new AngleMeasurementsMouseControl(this, {})
     }
+    return this._defaultControl
+  }
 
-    /**
-     * Gets the existing {@link AngleMeasurement}s, each mapped to its {@link AngleMeasurement#id}.
-     *
-     * @type {{String:AngleMeasurement}}
-     */
-    get measurements() {
-        return this._measurements;
+  /**
+   * Gets the existing {@link AngleMeasurement}s, each mapped to its {@link AngleMeasurement#id}.
+   *
+   * @type {{String:AngleMeasurement}}
+   */
+  get measurements() {
+    return this._measurements
+  }
+
+  /**
+   * Creates an {@link AngleMeasurement}.
+   *
+   * The AngleMeasurement is then registered by {@link AngleMeasurement#id} in {@link AngleMeasurementsPlugin#measurements}.
+   *
+   * @param {Object} params {@link AngleMeasurement} configuration.
+   * @param {String} params.id Unique ID to assign to {@link AngleMeasurement#id}. The AngleMeasurement will be registered by this in {@link AngleMeasurementsPlugin#measurements} and {@link Scene.components}. Must be unique among all components in the {@link Viewer}.
+   * @param {Number[]} params.origin.worldPos Origin World-space 3D position.
+   * @param {Entity} params.origin.entity Origin Entity.
+   * @param {Number[]} params.corner.worldPos Corner World-space 3D position.
+   * @param {Entity} params.corner.entity Corner Entity.
+   * @param {Number[]} params.target.worldPos Target World-space 3D position.
+   * @param {Entity} params.target.entity Target Entity.
+   * @param {Boolean} [params.visible=true] Whether to initially show the {@link AngleMeasurement}.
+   * @returns {AngleMeasurement} The new {@link AngleMeasurement}.
+   */
+  createMeasurement(params = {}) {
+    if (this.viewer.scene.components[params.id]) {
+      this.error('Viewer scene component with this ID already exists: ' + params.id)
+      delete params.id
     }
+    const origin = params.origin
+    const corner = params.corner
+    const target = params.target
+    const measurement = new AngleMeasurement(this, {
+      id: params.id,
+      plugin: this,
+      container: this._container,
+      origin: {
+        entity: origin.entity,
+        worldPos: origin.worldPos
+      },
+      corner: {
+        entity: corner.entity,
+        worldPos: corner.worldPos
+      },
+      target: {
+        entity: target.entity,
+        worldPos: target.worldPos
+      },
 
-    /**
-     * Creates an {@link AngleMeasurement}.
-     *
-     * The AngleMeasurement is then registered by {@link AngleMeasurement#id} in {@link AngleMeasurementsPlugin#measurements}.
-     *
-     * @param {Object} params {@link AngleMeasurement} configuration.
-     * @param {String} params.id Unique ID to assign to {@link AngleMeasurement#id}. The AngleMeasurement will be registered by this in {@link AngleMeasurementsPlugin#measurements} and {@link Scene.components}. Must be unique among all components in the {@link Viewer}.
-     * @param {Number[]} params.origin.worldPos Origin World-space 3D position.
-     * @param {Entity} params.origin.entity Origin Entity.
-     * @param {Number[]} params.corner.worldPos Corner World-space 3D position.
-     * @param {Entity} params.corner.entity Corner Entity.
-     * @param {Number[]} params.target.worldPos Target World-space 3D position.
-     * @param {Entity} params.target.entity Target Entity.
-     * @param {Boolean} [params.visible=true] Whether to initially show the {@link AngleMeasurement}.
-     * @returns {AngleMeasurement} The new {@link AngleMeasurement}.
-     */
-    createMeasurement(params = {}) {
-        if (this.viewer.scene.components[params.id]) {
-            this.error("Viewer scene component with this ID already exists: " + params.id);
-            delete params.id;
-        }
-        const origin = params.origin;
-        const corner = params.corner;
-        const target = params.target;
-        const measurement = new AngleMeasurement(this, {
-            id: params.id,
-            plugin: this,
-            container: this._container,
-            origin: {
-                entity: origin.entity,
-                worldPos: origin.worldPos
-            },
-            corner: {
-                entity: corner.entity,
-                worldPos: corner.worldPos
-            },
-            target: {
-                entity: target.entity,
-                worldPos: target.worldPos
-            },
+      visible: params.visible,
+      originVisible: true,
+      originWireVisible: true,
+      cornerVisible: true,
+      targetWireVisible: true,
+      targetVisible: true,
+      onMouseOver: this._onMouseOver,
+      onMouseLeave: this._onMouseLeave,
+      onContextMenu: this._onContextMenu
+    })
+    this._measurements[measurement.id] = measurement
+    measurement.on('destroyed', () => {
+      delete this._measurements[measurement.id]
+    })
+    measurement.clickable = true
+    this.fire('measurementCreated', measurement)
+    return measurement
+  }
 
-            visible: params.visible,
-            originVisible: true,
-            originWireVisible: true,
-            cornerVisible: true,
-            targetWireVisible: true,
-            targetVisible: true,
-            onMouseOver: this._onMouseOver,
-            onMouseLeave: this._onMouseLeave,
-            onContextMenu: this._onContextMenu
-        });
-        this._measurements[measurement.id] = measurement;
-        measurement.on("destroyed", () => {
-            delete this._measurements[measurement.id];
-        });
-        measurement.clickable = true;
-        this.fire("measurementCreated", measurement);
-        return measurement;
+  /**
+   * Destroys a {@link AngleMeasurement}.
+   *
+   * @param {String} id ID of AngleMeasurement to destroy.
+   */
+  destroyMeasurement(id) {
+    const measurement = this._measurements[id]
+    if (!measurement) {
+      this.log('AngleMeasurement not found: ' + id)
+      return
     }
+    measurement.destroy()
+    this.fire('measurementDestroyed', measurement)
+  }
 
-    /**
-     * Destroys a {@link AngleMeasurement}.
-     *
-     * @param {String} id ID of AngleMeasurement to destroy.
-     */
-    destroyMeasurement(id) {
-        const measurement = this._measurements[id];
-        if (!measurement) {
-            this.log("AngleMeasurement not found: " + id);
-            return;
-        }
-        measurement.destroy();
-        this.fire("measurementDestroyed", measurement);
+  /**
+   * Shows all or hides the angle label of each {@link AngleMeasurement}.
+   *
+   * @param {Boolean} labelsShown Whether or not to show the labels.
+   */
+  setLabelsShown(labelsShown) {
+    for (const [key, measurement] of Object.entries(this.measurements)) {
+      measurement.labelShown = labelsShown
     }
+  }
 
-    /**
-     * Shows all or hides the angle label of each {@link AngleMeasurement}.
-     *
-     * @param {Boolean} labelsShown Whether or not to show the labels.
-     */
-    setLabelsShown(labelsShown) {
-        for (const [key, measurement] of Object.entries(this.measurements)) {
-            measurement.labelShown = labelsShown;
-        }
+  /**
+   * Destroys all {@link AngleMeasurement}s.
+   */
+  clear() {
+    const ids = Object.keys(this._measurements)
+    for (var i = 0, len = ids.length; i < len; i++) {
+      this.destroyMeasurement(ids[i])
     }
+  }
 
-    /**
-     * Destroys all {@link AngleMeasurement}s.
-     */
-    clear() {
-        const ids = Object.keys(this._measurements);
-        for (var i = 0, len = ids.length; i < len; i++) {
-            this.destroyMeasurement(ids[i]);
-        }
-    }
-
-    /**
-     * Destroys this AngleMeasurementsPlugin.
-     *
-     * Destroys all {@link AngleMeasurement}s first.
-     */
-    destroy() {
-        this.clear();
-        super.destroy();
-    }
+  /**
+   * Destroys this AngleMeasurementsPlugin.
+   *
+   * Destroys all {@link AngleMeasurement}s first.
+   */
+  destroy() {
+    this.clear()
+    super.destroy()
+  }
 }
-

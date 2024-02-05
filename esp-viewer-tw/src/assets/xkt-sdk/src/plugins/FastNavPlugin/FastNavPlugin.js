@@ -1,4 +1,4 @@
-import {Plugin} from "../../viewer/Plugin.js";
+import { Plugin } from '../../viewer/Plugin.js'
 
 /**
  * {@link Viewer} plugin that makes interaction smoother with large models, by temporarily switching
@@ -91,339 +91,340 @@ import {Plugin} from "../../viewer/Plugin.js";
  * @class FastNavPlugin
  */
 class FastNavPlugin extends Plugin {
+  /**
+   * @constructor
+   * @param {Viewer} viewer The Viewer.
+   * @param {Object} cfg FastNavPlugin configuration.
+   * @param {String} [cfg.id="FastNav"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+   * @param {Boolean} [cfg.hideColorTexture=true] Whether to temporarily hide color textures whenever we interact with the Viewer.
+   * @param {Boolean} [cfg.hidePBR=true] Whether to temporarily hide physically-based rendering (PBR) whenever we interact with the Viewer.
+   * @param {Boolean} [cfg.hideSAO=true] Whether to temporarily hide scalable ambient occlusion (SAO) whenever we interact with the Viewer.
+   * @param {Boolean} [cfg.hideEdges=true] Whether to temporarily hide edges whenever we interact with the Viewer.
+   * @param {Boolean} [cfg.hideTransparentObjects=false] Whether to temporarily hide transparent objects whenever we interact with the Viewer.
+   * @param {Number} [cfg.scaleCanvasResolution=false] Whether to temporarily down-scale the canvas resolution whenever we interact with the Viewer.
+   * @param {Number} [cfg.scaleCanvasResolutionFactor=0.6] The factor by which we downscale the canvas resolution whenever we interact with the Viewer.
+   * @param {Boolean} [cfg.delayBeforeRestore=true] Whether to temporarily have a delay before restoring normal rendering after we stop interacting with the Viewer.
+   * @param {Number} [cfg.delayBeforeRestoreSeconds=0.5] Delay in seconds before restoring normal rendering after we stop interacting with the Viewer.
+   */
+  constructor(viewer, cfg = {}) {
+    super('FastNav', viewer)
 
-    /**
-     * @constructor
-     * @param {Viewer} viewer The Viewer.
-     * @param {Object} cfg FastNavPlugin configuration.
-     * @param {String} [cfg.id="FastNav"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {Boolean} [cfg.hideColorTexture=true] Whether to temporarily hide color textures whenever we interact with the Viewer.
-     * @param {Boolean} [cfg.hidePBR=true] Whether to temporarily hide physically-based rendering (PBR) whenever we interact with the Viewer.
-     * @param {Boolean} [cfg.hideSAO=true] Whether to temporarily hide scalable ambient occlusion (SAO) whenever we interact with the Viewer.
-     * @param {Boolean} [cfg.hideEdges=true] Whether to temporarily hide edges whenever we interact with the Viewer.
-     * @param {Boolean} [cfg.hideTransparentObjects=false] Whether to temporarily hide transparent objects whenever we interact with the Viewer.
-     * @param {Number} [cfg.scaleCanvasResolution=false] Whether to temporarily down-scale the canvas resolution whenever we interact with the Viewer.
-     * @param {Number} [cfg.scaleCanvasResolutionFactor=0.6] The factor by which we downscale the canvas resolution whenever we interact with the Viewer.
-     * @param {Boolean} [cfg.delayBeforeRestore=true] Whether to temporarily have a delay before restoring normal rendering after we stop interacting with the Viewer.
-     * @param {Number} [cfg.delayBeforeRestoreSeconds=0.5] Delay in seconds before restoring normal rendering after we stop interacting with the Viewer.
-     */
-    constructor(viewer, cfg = {}) {
+    this._hideColorTexture = cfg.hideColorTexture !== false
+    this._hidePBR = cfg.hidePBR !== false
+    this._hideSAO = cfg.hideSAO !== false
+    this._hideEdges = cfg.hideEdges !== false
+    this._hideTransparentObjects = !!cfg.hideTransparentObjects
+    this._scaleCanvasResolution = !!cfg.scaleCanvasResolution
+    this._scaleCanvasResolutionFactor = cfg.scaleCanvasResolutionFactor || 0.6
+    this._delayBeforeRestore = cfg.delayBeforeRestore !== false
+    this._delayBeforeRestoreSeconds = cfg.delayBeforeRestoreSeconds || 0.5
 
-        super("FastNav", viewer);
+    let timer = this._delayBeforeRestoreSeconds * 1000
+    let fastMode = false
 
-        this._hideColorTexture = cfg.hideColorTexture !== false;
-        this._hidePBR = cfg.hidePBR !== false;
-        this._hideSAO = cfg.hideSAO !== false;
-        this._hideEdges = cfg.hideEdges !== false;
-        this._hideTransparentObjects = !!cfg.hideTransparentObjects;
-        this._scaleCanvasResolution = !!cfg.scaleCanvasResolution;
-        this._scaleCanvasResolutionFactor = cfg.scaleCanvasResolutionFactor || 0.6;
-        this._delayBeforeRestore = (cfg.delayBeforeRestore !== false);
-        this._delayBeforeRestoreSeconds = cfg.delayBeforeRestoreSeconds || 0.5;
-
-        let timer = this._delayBeforeRestoreSeconds * 1000;
-        let fastMode = false;
-
-        const switchToLowQuality = () => {
-            timer = (this._delayBeforeRestoreSeconds * 1000);
-            if (!fastMode) {
-                viewer.scene._renderer.setColorTextureEnabled(!this._hideColorTexture);
-                viewer.scene._renderer.setPBREnabled(!this._hidePBR);
-                viewer.scene._renderer.setSAOEnabled(!this._hideSAO);
-                viewer.scene._renderer.setTransparentEnabled(!this._hideTransparentObjects);
-                viewer.scene._renderer.setEdgesEnabled(!this._hideEdges);
-                if (this._scaleCanvasResolution) {
-                    viewer.scene.canvas.resolutionScale = this._scaleCanvasResolutionFactor;
-                } else {
-                    viewer.scene.canvas.resolutionScale = 1;
-                }
-                fastMode = true;
-            }
-        };
-
-        const switchToHighQuality = () => {
-            viewer.scene.canvas.resolutionScale = 1;
-            viewer.scene._renderer.setEdgesEnabled(true);
-            viewer.scene._renderer.setColorTextureEnabled(true);
-            viewer.scene._renderer.setPBREnabled(true);
-            viewer.scene._renderer.setSAOEnabled(true);
-            viewer.scene._renderer.setTransparentEnabled(true);
-            fastMode = false;
-        };
-
-        this._onCanvasBoundary = viewer.scene.canvas.on("boundary", switchToLowQuality);
-        this._onCameraMatrix = viewer.scene.camera.on("matrix", switchToLowQuality);
-
-        this._onSceneTick = viewer.scene.on("tick", (tickEvent) => {
-            if (!fastMode) {
-                return;
-            }
-            timer -= tickEvent.deltaTime;
-            if ((!this._delayBeforeRestore) || timer <= 0) {
-                switchToHighQuality();
-            }
-        });
-
-        let down = false;
-
-        this._onSceneMouseDown = viewer.scene.input.on("mousedown", () => {
-            down = true;
-        });
-
-        this._onSceneMouseUp = viewer.scene.input.on("mouseup", () => {
-            down = false;
-        });
-
-        this._onSceneMouseMove = viewer.scene.input.on("mousemove", () => {
-            if (!down) {
-                return;
-            }
-            switchToLowQuality();
-        });
-    }
-
-    /**
-     * Gets whether to temporarily hide color textures whenever we interact with the Viewer.
-     *
-     * Default is ````true````.
-     *
-     * @return {Boolean} ````true```` if hiding color textures.
-     */
-    get hideColorTexture() {
-        return this._hideColorTexture;
-    }
-
-    /**
-     * Sets whether to temporarily hide color textures whenever we interact with the Viewer.
-     *
-     * Default is ````true````.
-     *
-     * @param {Boolean} hideColorTexture ````true```` to hide color textures.
-     */
-    set hideColorTexture(hideColorTexture) {
-        this._hideColorTexture = hideColorTexture;
-    }
-    
-    /**
-     * Gets whether to temporarily hide physically-based rendering (PBR) whenever we interact with the Viewer.
-     *
-     * Default is ````true````.
-     *
-     * @return {Boolean} ````true```` if hiding PBR.
-     */
-    get hidePBR() {
-        return this._hidePBR;
-    }
-
-    /**
-     * Sets whether to temporarily hide physically-based rendering (PBR) whenever we interact with the Viewer.
-     *
-     * Default is ````true````.
-     *
-     * @param {Boolean} hidePBR ````true```` to hide PBR.
-     */
-    set hidePBR(hidePBR) {
-        this._hidePBR = hidePBR;
-    }
-
-    /**
-     * Gets whether to temporarily hide scalable ambient shadows (SAO) whenever we interact with the Viewer.
-     *
-     * Default is ````true````.
-     *
-     * @return {Boolean} ````true```` if hiding SAO.
-     */
-    get hideSAO() {
-        return this._hideSAO;
-    }
-
-    /**
-     * Sets whether to temporarily hide scalable ambient shadows (SAO) whenever we interact with the Viewer.
-     *
-     * Default is ````true````.
-     *
-     * @param {Boolean} hideSAO ````true```` to hide SAO.
-     */
-    set hideSAO(hideSAO) {
-        this._hideSAO = hideSAO;
-    }
-
-    /**
-     * Gets whether to temporarily hide edges whenever we interact with the Viewer.
-     *
-     * Default is ````true````.
-     *
-     * @return {Boolean}  ````true```` if hiding edges.
-     */
-    get hideEdges() {
-        return this._hideEdges;
-    }
-
-    /**
-     * Sets whether to temporarily hide edges whenever we interact with the Viewer.
-     *
-     * Default is ````true````.
-     *
-     * @param {Boolean} hideEdges ````true```` to hide edges.
-     */
-    set hideEdges(hideEdges) {
-        this._hideEdges = hideEdges;
-    }
-
-    /**
-     * Gets whether to temporarily hide transparent objects whenever we interact with the Viewer.
-     *
-     * Does not hide X-rayed, selected, highlighted objects.
-     *
-     * Default is ````false````.
-     *
-     * @return {Boolean} ````true```` if hiding transparent objects.
-     */
-    get hideTransparentObjects() {
-        return this._hideTransparentObjects
-    }
-
-    /**
-     * Sets whether to temporarily hide transparent objects whenever we interact with the Viewer.
-     *
-     * Does not hide X-rayed, selected, highlighted objects.
-     *
-     * Default is ````false````.
-     *
-     * @param {Boolean} hideTransparentObjects ````true```` to hide transparent objects.
-     */
-    set hideTransparentObjects(hideTransparentObjects) {
-        this._hideTransparentObjects = (hideTransparentObjects !== false);
-    }
-
-    /**
-     * Gets whether to temporarily scale the canvas resolution whenever we interact with the Viewer.
-     *
-     * Default is ````false````.
-     *
-     * The scaling factor is configured via {@link FastNavPlugin#scaleCanvasResolutionFactor}.
-     *
-     * @return {Boolean} ````true```` if scaling the canvas resolution.
-     */
-    get scaleCanvasResolution() {
-        return this._scaleCanvasResolution;
-    }
-
-    /**
-     * Sets whether to temporarily scale the canvas resolution whenever we interact with the Viewer.
-     *
-     * Default is ````false````.
-     *
-     * The scaling factor is configured via {@link FastNavPlugin#scaleCanvasResolutionFactor}.
-     *
-     * @param {Boolean} scaleCanvasResolution ````true```` to scale the canvas resolution.
-     */
-    set scaleCanvasResolution(scaleCanvasResolution) {
-        this._scaleCanvasResolution = scaleCanvasResolution;
-    }
-
-    /**
-     * Gets the factor by which we temporarily scale the canvas resolution when we interact with the viewer.
-     *
-     * Default is ````0.6````.
-     *
-     * Enable canvas resolution scaling by setting {@link FastNavPlugin#scaleCanvasResolution} ````true````.
-     *
-     * @return {Number} Factor by which we scale the canvas resolution.
-     */
-    get scaleCanvasResolutionFactor() {
-        return this._scaleCanvasResolutionFactor;
-    }
-
-    /**
-     * Sets the factor by which we temporarily scale the canvas resolution when we interact with the viewer.
-     *
-     * Accepted range is ````[0.0 .. 1.0]````.
-     *
-     * Default is ````0.6````.
-     *
-     * Enable canvas resolution scaling by setting {@link FastNavPlugin#scaleCanvasResolution} ````true````.
-     *
-     * @param {Number} scaleCanvasResolutionFactor Factor by which we scale the canvas resolution.
-     */
-    set scaleCanvasResolutionFactor(scaleCanvasResolutionFactor) {
-        this._scaleCanvasResolutionFactor = scaleCanvasResolutionFactor || 0.6;
-    }
-
-    /**
-     * Gets whether to have a delay before restoring normal rendering after we stop interacting with the Viewer.
-     *
-     * The delay duration is configured via {@link FastNavPlugin#delayBeforeRestoreSeconds}.
-     *
-     * Default is ````true````.
-     *
-     * @return {Boolean} Whether to have a delay.
-     */
-    get delayBeforeRestore() {
-        return this._delayBeforeRestore;
-    }
-
-    /**
-     * Sets whether to have a delay before restoring normal rendering after we stop interacting with the Viewer.
-     *
-     * The delay duration is configured via {@link FastNavPlugin#delayBeforeRestoreSeconds}.
-     *
-     * Default is ````true````.
-     *
-     * @param {Boolean} delayBeforeRestore Whether to have a delay.
-     */
-    set delayBeforeRestore(delayBeforeRestore) {
-        this._delayBeforeRestore = delayBeforeRestore;
-    }
-
-    /**
-     * Gets the delay before restoring normal rendering after we stop interacting with the Viewer.
-     *
-     * The delay is enabled when {@link FastNavPlugin#delayBeforeRestore} is ````true````.
-     *
-     * Default is ````0.5```` seconds.
-     *
-     * @return {Number} Delay in seconds.
-     */
-    get delayBeforeRestoreSeconds() {
-        return this._delayBeforeRestoreSeconds;
-    }
-
-    /**
-     * Sets the delay before restoring normal rendering after we stop interacting with the Viewer.
-     *
-     * The delay is enabled when {@link FastNavPlugin#delayBeforeRestore} is ````true````.
-     *
-     * Default is ````0.5```` seconds.
-     *
-     * @param {Number} delayBeforeRestoreSeconds Delay in seconds.
-     */
-    set delayBeforeRestoreSeconds(delayBeforeRestoreSeconds) {
-        this._delayBeforeRestoreSeconds = delayBeforeRestoreSeconds !== null && delayBeforeRestoreSeconds !== undefined ? delayBeforeRestoreSeconds : 0.5;
-    }
-
-    /**
-     * @private
-     */
-    send(name, value) {
-        switch (name) {
-            case "clear":
-                break;
+    const switchToLowQuality = () => {
+      timer = this._delayBeforeRestoreSeconds * 1000
+      if (!fastMode) {
+        viewer.scene._renderer.setColorTextureEnabled(!this._hideColorTexture)
+        viewer.scene._renderer.setPBREnabled(!this._hidePBR)
+        viewer.scene._renderer.setSAOEnabled(!this._hideSAO)
+        viewer.scene._renderer.setTransparentEnabled(!this._hideTransparentObjects)
+        viewer.scene._renderer.setEdgesEnabled(!this._hideEdges)
+        if (this._scaleCanvasResolution) {
+          viewer.scene.canvas.resolutionScale = this._scaleCanvasResolutionFactor
+        } else {
+          viewer.scene.canvas.resolutionScale = 1
         }
+        fastMode = true
+      }
     }
 
-    /**
-     * Destroys this plugin.
-     */
-    destroy() {
-        this.viewer.scene.camera.off(this._onCameraMatrix);
-        this.viewer.scene.canvas.off(this._onCanvasBoundary);
-        this.viewer.scene.input.off(this._onSceneMouseDown);
-        this.viewer.scene.input.off(this._onSceneMouseUp);
-        this.viewer.scene.input.off(this._onSceneMouseMove);
-        this.viewer.scene.off(this._onSceneTick);
-        super.destroy();
+    const switchToHighQuality = () => {
+      viewer.scene.canvas.resolutionScale = 1
+      viewer.scene._renderer.setEdgesEnabled(true)
+      viewer.scene._renderer.setColorTextureEnabled(true)
+      viewer.scene._renderer.setPBREnabled(true)
+      viewer.scene._renderer.setSAOEnabled(true)
+      viewer.scene._renderer.setTransparentEnabled(true)
+      fastMode = false
     }
+
+    this._onCanvasBoundary = viewer.scene.canvas.on('boundary', switchToLowQuality)
+    this._onCameraMatrix = viewer.scene.camera.on('matrix', switchToLowQuality)
+
+    this._onSceneTick = viewer.scene.on('tick', (tickEvent) => {
+      if (!fastMode) {
+        return
+      }
+      timer -= tickEvent.deltaTime
+      if (!this._delayBeforeRestore || timer <= 0) {
+        switchToHighQuality()
+      }
+    })
+
+    let down = false
+
+    this._onSceneMouseDown = viewer.scene.input.on('mousedown', () => {
+      down = true
+    })
+
+    this._onSceneMouseUp = viewer.scene.input.on('mouseup', () => {
+      down = false
+    })
+
+    this._onSceneMouseMove = viewer.scene.input.on('mousemove', () => {
+      if (!down) {
+        return
+      }
+      switchToLowQuality()
+    })
+  }
+
+  /**
+   * Gets whether to temporarily hide color textures whenever we interact with the Viewer.
+   *
+   * Default is ````true````.
+   *
+   * @return {Boolean} ````true```` if hiding color textures.
+   */
+  get hideColorTexture() {
+    return this._hideColorTexture
+  }
+
+  /**
+   * Sets whether to temporarily hide color textures whenever we interact with the Viewer.
+   *
+   * Default is ````true````.
+   *
+   * @param {Boolean} hideColorTexture ````true```` to hide color textures.
+   */
+  set hideColorTexture(hideColorTexture) {
+    this._hideColorTexture = hideColorTexture
+  }
+
+  /**
+   * Gets whether to temporarily hide physically-based rendering (PBR) whenever we interact with the Viewer.
+   *
+   * Default is ````true````.
+   *
+   * @return {Boolean} ````true```` if hiding PBR.
+   */
+  get hidePBR() {
+    return this._hidePBR
+  }
+
+  /**
+   * Sets whether to temporarily hide physically-based rendering (PBR) whenever we interact with the Viewer.
+   *
+   * Default is ````true````.
+   *
+   * @param {Boolean} hidePBR ````true```` to hide PBR.
+   */
+  set hidePBR(hidePBR) {
+    this._hidePBR = hidePBR
+  }
+
+  /**
+   * Gets whether to temporarily hide scalable ambient shadows (SAO) whenever we interact with the Viewer.
+   *
+   * Default is ````true````.
+   *
+   * @return {Boolean} ````true```` if hiding SAO.
+   */
+  get hideSAO() {
+    return this._hideSAO
+  }
+
+  /**
+   * Sets whether to temporarily hide scalable ambient shadows (SAO) whenever we interact with the Viewer.
+   *
+   * Default is ````true````.
+   *
+   * @param {Boolean} hideSAO ````true```` to hide SAO.
+   */
+  set hideSAO(hideSAO) {
+    this._hideSAO = hideSAO
+  }
+
+  /**
+   * Gets whether to temporarily hide edges whenever we interact with the Viewer.
+   *
+   * Default is ````true````.
+   *
+   * @return {Boolean}  ````true```` if hiding edges.
+   */
+  get hideEdges() {
+    return this._hideEdges
+  }
+
+  /**
+   * Sets whether to temporarily hide edges whenever we interact with the Viewer.
+   *
+   * Default is ````true````.
+   *
+   * @param {Boolean} hideEdges ````true```` to hide edges.
+   */
+  set hideEdges(hideEdges) {
+    this._hideEdges = hideEdges
+  }
+
+  /**
+   * Gets whether to temporarily hide transparent objects whenever we interact with the Viewer.
+   *
+   * Does not hide X-rayed, selected, highlighted objects.
+   *
+   * Default is ````false````.
+   *
+   * @return {Boolean} ````true```` if hiding transparent objects.
+   */
+  get hideTransparentObjects() {
+    return this._hideTransparentObjects
+  }
+
+  /**
+   * Sets whether to temporarily hide transparent objects whenever we interact with the Viewer.
+   *
+   * Does not hide X-rayed, selected, highlighted objects.
+   *
+   * Default is ````false````.
+   *
+   * @param {Boolean} hideTransparentObjects ````true```` to hide transparent objects.
+   */
+  set hideTransparentObjects(hideTransparentObjects) {
+    this._hideTransparentObjects = hideTransparentObjects !== false
+  }
+
+  /**
+   * Gets whether to temporarily scale the canvas resolution whenever we interact with the Viewer.
+   *
+   * Default is ````false````.
+   *
+   * The scaling factor is configured via {@link FastNavPlugin#scaleCanvasResolutionFactor}.
+   *
+   * @return {Boolean} ````true```` if scaling the canvas resolution.
+   */
+  get scaleCanvasResolution() {
+    return this._scaleCanvasResolution
+  }
+
+  /**
+   * Sets whether to temporarily scale the canvas resolution whenever we interact with the Viewer.
+   *
+   * Default is ````false````.
+   *
+   * The scaling factor is configured via {@link FastNavPlugin#scaleCanvasResolutionFactor}.
+   *
+   * @param {Boolean} scaleCanvasResolution ````true```` to scale the canvas resolution.
+   */
+  set scaleCanvasResolution(scaleCanvasResolution) {
+    this._scaleCanvasResolution = scaleCanvasResolution
+  }
+
+  /**
+   * Gets the factor by which we temporarily scale the canvas resolution when we interact with the viewer.
+   *
+   * Default is ````0.6````.
+   *
+   * Enable canvas resolution scaling by setting {@link FastNavPlugin#scaleCanvasResolution} ````true````.
+   *
+   * @return {Number} Factor by which we scale the canvas resolution.
+   */
+  get scaleCanvasResolutionFactor() {
+    return this._scaleCanvasResolutionFactor
+  }
+
+  /**
+   * Sets the factor by which we temporarily scale the canvas resolution when we interact with the viewer.
+   *
+   * Accepted range is ````[0.0 .. 1.0]````.
+   *
+   * Default is ````0.6````.
+   *
+   * Enable canvas resolution scaling by setting {@link FastNavPlugin#scaleCanvasResolution} ````true````.
+   *
+   * @param {Number} scaleCanvasResolutionFactor Factor by which we scale the canvas resolution.
+   */
+  set scaleCanvasResolutionFactor(scaleCanvasResolutionFactor) {
+    this._scaleCanvasResolutionFactor = scaleCanvasResolutionFactor || 0.6
+  }
+
+  /**
+   * Gets whether to have a delay before restoring normal rendering after we stop interacting with the Viewer.
+   *
+   * The delay duration is configured via {@link FastNavPlugin#delayBeforeRestoreSeconds}.
+   *
+   * Default is ````true````.
+   *
+   * @return {Boolean} Whether to have a delay.
+   */
+  get delayBeforeRestore() {
+    return this._delayBeforeRestore
+  }
+
+  /**
+   * Sets whether to have a delay before restoring normal rendering after we stop interacting with the Viewer.
+   *
+   * The delay duration is configured via {@link FastNavPlugin#delayBeforeRestoreSeconds}.
+   *
+   * Default is ````true````.
+   *
+   * @param {Boolean} delayBeforeRestore Whether to have a delay.
+   */
+  set delayBeforeRestore(delayBeforeRestore) {
+    this._delayBeforeRestore = delayBeforeRestore
+  }
+
+  /**
+   * Gets the delay before restoring normal rendering after we stop interacting with the Viewer.
+   *
+   * The delay is enabled when {@link FastNavPlugin#delayBeforeRestore} is ````true````.
+   *
+   * Default is ````0.5```` seconds.
+   *
+   * @return {Number} Delay in seconds.
+   */
+  get delayBeforeRestoreSeconds() {
+    return this._delayBeforeRestoreSeconds
+  }
+
+  /**
+   * Sets the delay before restoring normal rendering after we stop interacting with the Viewer.
+   *
+   * The delay is enabled when {@link FastNavPlugin#delayBeforeRestore} is ````true````.
+   *
+   * Default is ````0.5```` seconds.
+   *
+   * @param {Number} delayBeforeRestoreSeconds Delay in seconds.
+   */
+  set delayBeforeRestoreSeconds(delayBeforeRestoreSeconds) {
+    this._delayBeforeRestoreSeconds =
+      delayBeforeRestoreSeconds !== null && delayBeforeRestoreSeconds !== undefined
+        ? delayBeforeRestoreSeconds
+        : 0.5
+  }
+
+  /**
+   * @private
+   */
+  send(name, value) {
+    switch (name) {
+      case 'clear':
+        break
+    }
+  }
+
+  /**
+   * Destroys this plugin.
+   */
+  destroy() {
+    this.viewer.scene.camera.off(this._onCameraMatrix)
+    this.viewer.scene.canvas.off(this._onCanvasBoundary)
+    this.viewer.scene.input.off(this._onSceneMouseDown)
+    this.viewer.scene.input.off(this._onSceneMouseUp)
+    this.viewer.scene.input.off(this._onSceneMouseMove)
+    this.viewer.scene.off(this._onSceneTick)
+    super.destroy()
+  }
 }
 
-export {FastNavPlugin};
+export { FastNavPlugin }

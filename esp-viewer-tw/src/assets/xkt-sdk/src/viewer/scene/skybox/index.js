@@ -1,1 +1,1 @@
-export * from "./Skybox.js";
+export * from './Skybox.js'

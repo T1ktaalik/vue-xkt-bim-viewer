@@ -1,6 +1,6 @@
-import {math} from "./scene/math/math.js";
+import { math } from './scene/math/math.js'
 
-let maxDataTextureHeight = 1 << 16;
+let maxDataTextureHeight = 1 << 16
 let maxGeometryBatchSize = 5000000
 
 /**
@@ -43,85 +43,81 @@ let maxGeometryBatchSize = 5000000
  * ````
  */
 export class Configs {
+  /**
+   * Creates a Configs.
+   */
+  constructor() {}
 
-    /**
-     * Creates a Configs.
-     */
-    constructor() {
+  /**
+   * Sets whether double precision mode is enabled for Viewers.
+   *
+   * When double precision mode is enabled (default), Viewers will accurately render models that contain
+   * double-precision coordinates, without jittering.
+   *
+   * Internally, double precision incurs extra performance and memory overhead, so if we're certain that
+   * we're not going to render models that rely on double-precision coordinates, then it's a good idea to disable
+   * it, especially on low-power devices.
+   *
+   * This should only be set once, before creating any Viewers.
+   *
+   * @returns {Boolean}
+   */
+  set doublePrecisionEnabled(doublePrecision) {
+    math.setDoublePrecisionEnabled(doublePrecision)
+  }
 
+  /**
+   * Gets whether double precision mode is enabled for all Viewers.
+   *
+   * @returns {Boolean}
+   */
+  get doublePrecisionEnabled() {
+    return math.getDoublePrecisionEnabled()
+  }
+
+  /**
+   * Sets the maximum data texture height.
+   *
+   * Should be a multiple of 1024. Default is 4096, which is the maximum allowed value.
+   */
+  set maxDataTextureHeight(value) {
+    value = Math.ceil(value / 1024) * 1024
+    if (value > 4096) {
+      value = 4096
+    } else if (value < 1024) {
+      value = 1024
     }
+    maxDataTextureHeight = value
+  }
 
-    /**
-     * Sets whether double precision mode is enabled for Viewers.
-     *
-     * When double precision mode is enabled (default), Viewers will accurately render models that contain
-     * double-precision coordinates, without jittering.
-     *
-     * Internally, double precision incurs extra performance and memory overhead, so if we're certain that
-     * we're not going to render models that rely on double-precision coordinates, then it's a good idea to disable
-     * it, especially on low-power devices.
-     *
-     * This should only be set once, before creating any Viewers.
-     *
-     * @returns {Boolean}
-     */
-    set doublePrecisionEnabled(doublePrecision) {
-        math.setDoublePrecisionEnabled(doublePrecision);
-    }
+  /**
+   * Sets maximum data texture height.
+   * @returns {*|number}
+   */
+  get maxDataTextureHeight() {
+    return maxDataTextureHeight
+  }
 
-    /**
-     * Gets whether double precision mode is enabled for all Viewers.
-     *
-     * @returns {Boolean}
-     */
-    get doublePrecisionEnabled() {
-        return math.getDoublePrecisionEnabled();
+  /**
+   * Sets the maximum batched geometry VBO size.
+   *
+   * Default value is 5000000, which is the maximum size.
+   *
+   * Minimum size is 100000.
+   */
+  set maxGeometryBatchSize(value) {
+    if (value < 100000) {
+      value = 100000
+    } else if (value > 5000000) {
+      value = 5000000
     }
+    maxGeometryBatchSize = value
+  }
 
-    /**
-     * Sets the maximum data texture height.
-     *
-     * Should be a multiple of 1024. Default is 4096, which is the maximum allowed value.
-     */
-    set maxDataTextureHeight(value) {
-        value = Math.ceil(value / 1024) * 1024;
-        if (value > 4096) {
-            value = 4096;
-        } else if (value < 1024) {
-            value = 1024;
-        }
-        maxDataTextureHeight = value;
-    }
-
-    /**
-     * Sets maximum data texture height.
-     * @returns {*|number}
-     */
-    get maxDataTextureHeight() {
-        return maxDataTextureHeight;
-    }
-
-    /**
-     * Sets the maximum batched geometry VBO size.
-     *
-     * Default value is 5000000, which is the maximum size.
-     *
-     * Minimum size is 100000.
-     */
-    set maxGeometryBatchSize(value) {
-        if (value < 100000) {
-            value = 100000;
-        } else if (value > 5000000) {
-            value = 5000000;
-        }
-        maxGeometryBatchSize = value;
-    }
-
-    /**
-     * Gets the maximum batched geometry VBO size.
-     */
-    get maxGeometryBatchSize() {
-        return maxGeometryBatchSize;
-    }
+  /**
+   * Gets the maximum batched geometry VBO size.
+   */
+  get maxGeometryBatchSize() {
+    return maxGeometryBatchSize
+  }
 }
-

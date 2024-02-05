@@ -1,1 +1,1 @@
-export * from "./SkyboxesPlugin.js";
+export * from './SkyboxesPlugin.js'

@@ -1,1 +1,1 @@
-export * from "./ContextMenuModified.js";
+export * from './ContextMenuModified.js'

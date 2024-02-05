@@ -1,5 +1,5 @@
-import {math} from '../math/math.js';
-import {Light} from './Light.js';
+import { math } from '../math/math.js'
+import { Light } from './Light.js'
 
 /**
  * @desc An ambient light source of fixed color and intensity that illuminates all {@link Mesh}es equally.
@@ -88,88 +88,86 @@ import {Light} from './Light.js';
  *````
  */
 class AmbientLight extends Light {
-
-    /**
+  /**
      @private
      */
-    get type() {
-        return "AmbientLight";
+  get type() {
+    return 'AmbientLight'
+  }
+
+  /**
+   * @param {Component} owner Owner component. When destroyed, the owner will destroy this AmbientLight as well.
+   * @param {*} [cfg] AmbientLight configuration
+   * @param {String} [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+   * @param {Number[]} [cfg.color=[0.7, 0.7, 0.8]]  The color of this AmbientLight.
+   * @param {Number} [cfg.intensity=[1.0]]  The intensity of this AmbientLight, as a factor in range ````[0..1]````.
+   */
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
+    this._state = {
+      type: 'ambient',
+      color: math.vec3([0.7, 0.7, 0.7]),
+      intensity: 1.0
     }
+    this.color = cfg.color
+    this.intensity = cfg.intensity
+    this.scene._lightCreated(this)
+  }
 
-    /**
-     * @param {Component} owner Owner component. When destroyed, the owner will destroy this AmbientLight as well.
-     * @param {*} [cfg] AmbientLight configuration
-     * @param {String} [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
-     * @param {Number[]} [cfg.color=[0.7, 0.7, 0.8]]  The color of this AmbientLight.
-     * @param {Number} [cfg.intensity=[1.0]]  The intensity of this AmbientLight, as a factor in range ````[0..1]````.
-     */
-    constructor(owner, cfg = {}) {
-        super(owner, cfg);
-        this._state = {
-            type: "ambient",
-            color: math.vec3([0.7, 0.7, 0.7]),
-            intensity: 1.0
-        };
-        this.color = cfg.color;
-        this.intensity = cfg.intensity;
-        this.scene._lightCreated(this);
-    }
+  /**
+   * Sets the RGB color of this AmbientLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @param {Number[]} color The AmbientLight's RGB color.
+   */
+  set color(color) {
+    this._state.color.set(color || [0.7, 0.7, 0.8])
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the RGB color of this AmbientLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @param {Number[]} color The AmbientLight's RGB color.
-     */
-    set color(color) {
-        this._state.color.set(color || [0.7, 0.7, 0.8]);
-        this.glRedraw();
-    }
+  /**
+   * Gets the RGB color of this AmbientLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @returns {Number[]} The AmbientLight's RGB color.
+   */
+  get color() {
+    return this._state.color
+  }
 
-    /**
-     * Gets the RGB color of this AmbientLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @returns {Number[]} The AmbientLight's RGB color.
-     */
-    get color() {
-        return this._state.color;
-    }
+  /**
+   * Sets the intensity of this AmbientLight.
+   *
+   * Default value is ````1.0```` for maximum intensity.
+   *
+   * @param {Number} intensity The AmbientLight's intensity.
+   */
+  set intensity(intensity) {
+    this._state.intensity = intensity !== undefined ? intensity : 1.0
+    this.glRedraw()
+  }
 
-    /**
-     * Sets the intensity of this AmbientLight.
-     *
-     * Default value is ````1.0```` for maximum intensity.
-     *
-     * @param {Number} intensity The AmbientLight's intensity.
-     */
-    set intensity(intensity) {
-        this._state.intensity = intensity !== undefined ? intensity : 1.0;
-        this.glRedraw();
-    }
+  /**
+   * Gets the intensity of this AmbientLight.
+   *
+   * Default value is ````1.0```` for maximum intensity.
+   *
+   * @returns {Number} The AmbientLight's intensity.
+   */
+  get intensity() {
+    return this._state.intensity
+  }
 
-    /**
-     * Gets the intensity of this AmbientLight.
-     *
-     * Default value is ````1.0```` for maximum intensity.
-     *
-     * @returns {Number} The AmbientLight's intensity.
-     */
-    get intensity() {
-        return this._state.intensity;
-    }
+  /**
+   * Destroys this AmbientLight.
+   */
+  destroy() {
+    super.destroy()
 
-    /**
-     * Destroys this AmbientLight.
-     */
-    destroy() {
-
-        super.destroy();
-
-        this.scene._lightDestroyed(this);
-    }
+    this.scene._lightDestroyed(this)
+  }
 }
 
-export {AmbientLight};
+export { AmbientLight }

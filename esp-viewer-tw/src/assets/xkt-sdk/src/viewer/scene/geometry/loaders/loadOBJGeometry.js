@@ -1,5 +1,5 @@
-import {utils} from '../../utils.js';
-import {K3D} from '../../libs/k3d.js';
+import { utils } from '../../utils.js'
+import { K3D } from '../../libs/k3d.js'
 
 /**
  * @desc Loads {@link Geometry} from OBJ.
@@ -40,7 +40,7 @@ import {K3D} from '../../libs/k3d.js';
  *              baseColor: [1, 1, 1],
  *              metallic: 1.0,
  *              roughness: 1.0,
- * 
+ *
  *              baseColorMap: new Texture(viewer.scene, {
  *                  src: "models/obj/fireHydrant/fire_hydrant_Base_Color.png",
  *                  encoding: "sRGB"
@@ -57,7 +57,7 @@ import {K3D} from '../../libs/k3d.js';
  *              occlusionMap: new Texture(viewer.scene, {
  *                  src: "models/obj/fireHydrant/fire_hydrant_Mixed_AO.png"
  *              }),
- * 
+ *
  *              specularF0: 0.7
  *          })
  *      });
@@ -73,58 +73,60 @@ import {K3D} from '../../libs/k3d.js';
  * @returns {Object} Configuration to pass into a {@link Geometry} constructor, containing geometry arrays loaded from the OBJ file.
  */
 function loadOBJGeometry(scene, cfg = {}) {
+  return new Promise(function (resolve, reject) {
+    if (!cfg.src) {
+      console.error('loadOBJGeometry: Parameter expected: src')
+      reject()
+    }
 
-    return new Promise(function (resolve, reject) {
+    var spinner = scene.canvas.spinner
+    spinner.processes++
 
-        if (!cfg.src) {
-            console.error("loadOBJGeometry: Parameter expected: src");
-            reject();
+    utils.loadArraybuffer(
+      cfg.src,
+      function (data) {
+        if (!data.byteLength) {
+          console.error('loadOBJGeometry: no data loaded')
+          spinner.processes--
+          reject()
         }
 
-        var spinner = scene.canvas.spinner;
-        spinner.processes++;
+        var m = K3D.parse.fromOBJ(data) // done !
 
-        utils.loadArraybuffer(cfg.src, function (data) {
+        // unwrap simply duplicates some values, so they can be indexed with indices [0,1,2,3 ... ]
+        // In some rendering engines, you can have only one index value for vertices, UVs, normals ...,
+        // so "unwrapping" is a simple solution.
 
-                if (!data.byteLength) {
-                    console.error("loadOBJGeometry: no data loaded");
-                    spinner.processes--;
-                    reject();
-                }
+        var positions = K3D.edit.unwrap(m.i_verts, m.c_verts, 3)
+        var normals = K3D.edit.unwrap(m.i_norms, m.c_norms, 3)
+        var uv = K3D.edit.unwrap(m.i_uvt, m.c_uvt, 2)
+        var indices = new Int32Array(m.i_verts.length)
 
-                var m = K3D.parse.fromOBJ(data);	// done !
+        for (var i = 0; i < m.i_verts.length; i++) {
+          indices[i] = i
+        }
 
-                // unwrap simply duplicates some values, so they can be indexed with indices [0,1,2,3 ... ]
-                // In some rendering engines, you can have only one index value for vertices, UVs, normals ...,
-                // so "unwrapping" is a simple solution.
+        spinner.processes--
 
-                var positions = K3D.edit.unwrap(m.i_verts, m.c_verts, 3);
-                var normals = K3D.edit.unwrap(m.i_norms, m.c_norms, 3);
-                var uv = K3D.edit.unwrap(m.i_uvt, m.c_uvt, 2);
-                var indices = new Int32Array(m.i_verts.length);
+        resolve(
+          utils.apply(cfg, {
+            primitive: 'triangles',
+            positions: positions,
+            normals: normals.length > 0 ? normals : null,
+            autoNormals: normals.length === 0,
+            uv: uv,
+            indices: indices
+          })
+        )
+      },
 
-                for (var i = 0; i < m.i_verts.length; i++) {
-                    indices[i] = i;
-                }
-
-                spinner.processes--;
-
-                resolve(utils.apply(cfg, {
-                    primitive: "triangles",
-                    positions: positions,
-                    normals: normals.length > 0 ? normals : null,
-                    autoNormals: normals.length === 0,
-                    uv: uv,
-                    indices: indices
-                }));
-            },
-
-            function (msg) {
-                console.error("loadOBJGeometry: " + msg);
-                spinner.processes--;
-                reject();
-            });
-    });
+      function (msg) {
+        console.error('loadOBJGeometry: ' + msg)
+        spinner.processes--
+        reject()
+      }
+    )
+  })
 }
 
-export {loadOBJGeometry};
+export { loadOBJGeometry }

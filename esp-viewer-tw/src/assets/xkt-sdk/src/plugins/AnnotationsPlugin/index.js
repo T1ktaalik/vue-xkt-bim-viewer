@@ -1,1 +1,1 @@
-export * from "./AnnotationsPlugin.js";
+export * from './AnnotationsPlugin.js'

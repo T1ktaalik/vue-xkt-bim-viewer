@@ -9,9 +9,7 @@
  * @type {{String:Object}}
  */
 const IFCObjectDefaults = {
+  DEFAULT: {}
+}
 
-    DEFAULT: {
-    }
-};
-
-export {IFCObjectDefaults}
+export { IFCObjectDefaults }

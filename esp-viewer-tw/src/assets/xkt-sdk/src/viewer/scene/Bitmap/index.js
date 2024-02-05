@@ -1,1 +1,1 @@
-export * from "./Bitmap.js";
+export * from './Bitmap.js'

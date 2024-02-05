@@ -1,155 +1,152 @@
-import {Program} from "./../Program.js";
-import {ArrayBuf} from "./../ArrayBuf.js";
-import {math} from "../../math/math.js";
-import {WEBGL_INFO} from "../../webglInfo.js";
+import { Program } from './../Program.js'
+import { ArrayBuf } from './../ArrayBuf.js'
+import { math } from '../../math/math.js'
+import { WEBGL_INFO } from '../../webglInfo.js'
 
-const tempVec2 = math.vec2();
+const tempVec2 = math.vec2()
 
 /**
  * SAO implementation inspired from previous SAO work in THREE.js by ludobaka / ludobaka.github.io and bhouston
  * @private
  */
 class SAOOcclusionRenderer {
+  constructor(scene) {
+    this._scene = scene
 
-    constructor(scene) {
+    this._numSamples = null
 
-        this._scene = scene;
+    // The program
 
-        this._numSamples = null;
+    this._program = null
+    this._programError = false
 
-        // The program
+    // Variable locations
 
-        this._program = null;
-        this._programError = false;
+    this._aPosition = null
+    this._aUV = null
 
-        // Variable locations
+    this._uDepthTexture = 'uDepthTexture'
 
-        this._aPosition = null;
-        this._aUV = null;
+    this._uCameraNear = null
+    this._uCameraFar = null
+    this._uCameraProjectionMatrix = null
+    this._uCameraInverseProjectionMatrix = null
 
-        this._uDepthTexture = "uDepthTexture";
+    this._uScale = null
+    this._uIntensity = null
+    this._uBias = null
+    this._uKernelRadius = null
+    this._uMinResolution = null
+    this._uRandomSeed = null
 
-        this._uCameraNear = null;
-        this._uCameraFar = null;
-        this._uCameraProjectionMatrix = null;
-        this._uCameraInverseProjectionMatrix = null;
+    // VBOs
 
-        this._uScale = null;
-        this._uIntensity = null;
-        this._uBias = null;
-        this._uKernelRadius = null;
-        this._uMinResolution = null;
-        this._uRandomSeed = null;
+    this._uvBuf = null
+    this._positionsBuf = null
+    this._indicesBuf = null
+  }
 
-        // VBOs
+  render(depthRenderBuffer) {
+    this._build()
 
-        this._uvBuf = null;
-        this._positionsBuf = null;
-        this._indicesBuf = null;
+    if (this._programError) {
+      return
     }
 
-    render(depthRenderBuffer) {
-
-        this._build();
-
-        if (this._programError) {
-            return;
+    if (!this._getInverseProjectMat) {
+      // HACK: scene.camera not defined until render time
+      this._getInverseProjectMat = (() => {
+        let projMatDirty = true
+        this._scene.camera.on('projMatrix', function () {
+          projMatDirty = true
+        })
+        const inverseProjectMat = math.mat4()
+        return () => {
+          if (projMatDirty) {
+            math.inverseMat4(scene.camera.projMatrix, inverseProjectMat)
+          }
+          return inverseProjectMat
         }
-
-        if (!this._getInverseProjectMat) { // HACK: scene.camera not defined until render time
-            this._getInverseProjectMat = (() => {
-                let projMatDirty = true;
-                this._scene.camera.on("projMatrix", function () {
-                    projMatDirty = true;
-                });
-                const inverseProjectMat = math.mat4();
-                return () => {
-                    if (projMatDirty) {
-                        math.inverseMat4(scene.camera.projMatrix, inverseProjectMat);
-                    }
-                    return inverseProjectMat;
-                }
-            })();
-        }
-
-        const gl = this._scene.canvas.gl;
-        const program = this._program;
-        const scene = this._scene;
-        const sao = scene.sao;
-        const viewportWidth = gl.drawingBufferWidth;
-        const viewportHeight = gl.drawingBufferHeight;
-        const projectState = scene.camera.project._state;
-        const near = projectState.near;
-        const far = projectState.far;
-        const projectionMatrix = projectState.matrix;
-        const inverseProjectionMatrix = this._getInverseProjectMat();
-        const randomSeed = Math.random();
-        const perspective = (scene.camera.projection === "perspective");
-
-        tempVec2[0] = viewportWidth;
-        tempVec2[1] = viewportHeight;
-
-        gl.viewport(0, 0, viewportWidth, viewportHeight);
-        gl.clearColor(0, 0, 0, 1);
-        gl.disable(gl.DEPTH_TEST);
-        gl.disable(gl.BLEND);
-        gl.frontFace(gl.CCW);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-
-        program.bind();
-
-        gl.uniform1f(this._uCameraNear, near);
-        gl.uniform1f(this._uCameraFar, far);
-
-        gl.uniformMatrix4fv(this._uCameraProjectionMatrix, false, projectionMatrix);
-        gl.uniformMatrix4fv(this._uCameraInverseProjectionMatrix, false, inverseProjectionMatrix);
-
-        gl.uniform1i(this._uPerspective, perspective);
-
-        gl.uniform1f(this._uScale, sao.scale * (far / 5));
-        gl.uniform1f(this._uIntensity, sao.intensity);
-        gl.uniform1f(this._uBias, sao.bias);
-        gl.uniform1f(this._uKernelRadius, sao.kernelRadius);
-        gl.uniform1f(this._uMinResolution, sao.minResolution);
-        gl.uniform2fv(this._uViewport, tempVec2);
-        gl.uniform1f(this._uRandomSeed, randomSeed);
-
-        const depthTexture = depthRenderBuffer.getDepthTexture();
-
-        program.bindTexture(this._uDepthTexture, depthTexture, 0);
-
-        this._aUV.bindArrayBuffer(this._uvBuf);
-        this._aPosition.bindArrayBuffer(this._positionsBuf);
-        this._indicesBuf.bind();
-
-        gl.drawElements(gl.TRIANGLES, this._indicesBuf.numItems, this._indicesBuf.itemType, 0);
+      })()
     }
 
-    _build() {
+    const gl = this._scene.canvas.gl
+    const program = this._program
+    const scene = this._scene
+    const sao = scene.sao
+    const viewportWidth = gl.drawingBufferWidth
+    const viewportHeight = gl.drawingBufferHeight
+    const projectState = scene.camera.project._state
+    const near = projectState.near
+    const far = projectState.far
+    const projectionMatrix = projectState.matrix
+    const inverseProjectionMatrix = this._getInverseProjectMat()
+    const randomSeed = Math.random()
+    const perspective = scene.camera.projection === 'perspective'
 
-        let dirty = false;
+    tempVec2[0] = viewportWidth
+    tempVec2[1] = viewportHeight
 
-        const sao = this._scene.sao;
+    gl.viewport(0, 0, viewportWidth, viewportHeight)
+    gl.clearColor(0, 0, 0, 1)
+    gl.disable(gl.DEPTH_TEST)
+    gl.disable(gl.BLEND)
+    gl.frontFace(gl.CCW)
+    gl.clear(gl.COLOR_BUFFER_BIT)
 
-        if (sao.numSamples !== this._numSamples) {
-            this._numSamples = Math.floor(sao.numSamples);
-            dirty = true;
-        }
+    program.bind()
 
-        if (!dirty) {
-            return;
-        }
+    gl.uniform1f(this._uCameraNear, near)
+    gl.uniform1f(this._uCameraFar, far)
 
-        const gl = this._scene.canvas.gl;
+    gl.uniformMatrix4fv(this._uCameraProjectionMatrix, false, projectionMatrix)
+    gl.uniformMatrix4fv(this._uCameraInverseProjectionMatrix, false, inverseProjectionMatrix)
 
-        if (this._program) {
-            this._program.destroy();
-            this._program = null;
-        }
+    gl.uniform1i(this._uPerspective, perspective)
 
-        this._program = new Program(gl, {
+    gl.uniform1f(this._uScale, sao.scale * (far / 5))
+    gl.uniform1f(this._uIntensity, sao.intensity)
+    gl.uniform1f(this._uBias, sao.bias)
+    gl.uniform1f(this._uKernelRadius, sao.kernelRadius)
+    gl.uniform1f(this._uMinResolution, sao.minResolution)
+    gl.uniform2fv(this._uViewport, tempVec2)
+    gl.uniform1f(this._uRandomSeed, randomSeed)
 
-            vertex: [`#version 300 es
+    const depthTexture = depthRenderBuffer.getDepthTexture()
+
+    program.bindTexture(this._uDepthTexture, depthTexture, 0)
+
+    this._aUV.bindArrayBuffer(this._uvBuf)
+    this._aPosition.bindArrayBuffer(this._positionsBuf)
+    this._indicesBuf.bind()
+
+    gl.drawElements(gl.TRIANGLES, this._indicesBuf.numItems, this._indicesBuf.itemType, 0)
+  }
+
+  _build() {
+    let dirty = false
+
+    const sao = this._scene.sao
+
+    if (sao.numSamples !== this._numSamples) {
+      this._numSamples = Math.floor(sao.numSamples)
+      dirty = true
+    }
+
+    if (!dirty) {
+      return
+    }
+
+    const gl = this._scene.canvas.gl
+
+    if (this._program) {
+      this._program.destroy()
+      this._program = null
+    }
+
+    this._program = new Program(gl, {
+      vertex: [
+        `#version 300 es
                     precision highp float;
                     precision highp int;
                     
@@ -161,10 +158,11 @@ class SAOOcclusionRenderer {
                     void main () {
                         gl_Position = vec4(aPosition, 1.0);
                         vUV = aUV;
-                    }`],
+                    }`
+      ],
 
-            fragment: [
-                `#version 300 es      
+      fragment: [
+        `#version 300 es      
                 precision highp float;
                 precision highp int;           
                 
@@ -322,55 +320,70 @@ class SAOOcclusionRenderer {
                 	float ambientOcclusion = getAmbientOcclusion( viewPosition );
                 
                 	outColor = packFloatToRGBA(  1.0- ambientOcclusion );
-                }`]
-        });
+                }`
+      ]
+    })
 
-        if (this._program.errors) {
-            console.error(this._program.errors.join("\n"));
-            this._programError = true;
-            return;
-        }
-
-        const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0]);
-        const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
-        
-        // Mitigation: if Uint8Array is used, the geometry is corrupted on OSX when using Chrome with data-textures
-        const indices = new Uint32Array([0, 1, 2, 0, 2, 3]);
-
-        this._positionsBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
-        this._uvBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
-        this._indicesBuf = new ArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
-
-        this._program.bind();
-
-        this._uCameraNear = this._program.getLocation("uCameraNear");
-        this._uCameraFar = this._program.getLocation("uCameraFar");
-
-        this._uCameraProjectionMatrix = this._program.getLocation("uProjectMatrix");
-        this._uCameraInverseProjectionMatrix = this._program.getLocation("uInverseProjectMatrix");
-
-        this._uPerspective = this._program.getLocation("uPerspective");
-
-        this._uScale = this._program.getLocation("uScale");
-        this._uIntensity = this._program.getLocation("uIntensity");
-        this._uBias = this._program.getLocation("uBias");
-        this._uKernelRadius = this._program.getLocation("uKernelRadius");
-        this._uMinResolution = this._program.getLocation("uMinResolution");
-        this._uViewport = this._program.getLocation("uViewport");
-        this._uRandomSeed = this._program.getLocation("uRandomSeed");
-
-        this._aPosition = this._program.getAttribute("aPosition");
-        this._aUV = this._program.getAttribute("aUV");
-
-        this._dirty = false;
+    if (this._program.errors) {
+      console.error(this._program.errors.join('\n'))
+      this._programError = true
+      return
     }
 
-    destroy() {
-        if (this._program) {
-            this._program.destroy();
-            this._program = null;
-        }
+    const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0])
+    const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0])
+
+    // Mitigation: if Uint8Array is used, the geometry is corrupted on OSX when using Chrome with data-textures
+    const indices = new Uint32Array([0, 1, 2, 0, 2, 3])
+
+    this._positionsBuf = new ArrayBuf(
+      gl,
+      gl.ARRAY_BUFFER,
+      positions,
+      positions.length,
+      3,
+      gl.STATIC_DRAW
+    )
+    this._uvBuf = new ArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW)
+    this._indicesBuf = new ArrayBuf(
+      gl,
+      gl.ELEMENT_ARRAY_BUFFER,
+      indices,
+      indices.length,
+      1,
+      gl.STATIC_DRAW
+    )
+
+    this._program.bind()
+
+    this._uCameraNear = this._program.getLocation('uCameraNear')
+    this._uCameraFar = this._program.getLocation('uCameraFar')
+
+    this._uCameraProjectionMatrix = this._program.getLocation('uProjectMatrix')
+    this._uCameraInverseProjectionMatrix = this._program.getLocation('uInverseProjectMatrix')
+
+    this._uPerspective = this._program.getLocation('uPerspective')
+
+    this._uScale = this._program.getLocation('uScale')
+    this._uIntensity = this._program.getLocation('uIntensity')
+    this._uBias = this._program.getLocation('uBias')
+    this._uKernelRadius = this._program.getLocation('uKernelRadius')
+    this._uMinResolution = this._program.getLocation('uMinResolution')
+    this._uViewport = this._program.getLocation('uViewport')
+    this._uRandomSeed = this._program.getLocation('uRandomSeed')
+
+    this._aPosition = this._program.getAttribute('aPosition')
+    this._aUV = this._program.getAttribute('aUV')
+
+    this._dirty = false
+  }
+
+  destroy() {
+    if (this._program) {
+      this._program.destroy()
+      this._program = null
     }
+  }
 }
 
-export {SAOOcclusionRenderer};
+export { SAOOcclusionRenderer }

@@ -1,1 +1,1 @@
-export * from "./CityJSONLoaderPlugin.js";
+export * from './CityJSONLoaderPlugin.js'

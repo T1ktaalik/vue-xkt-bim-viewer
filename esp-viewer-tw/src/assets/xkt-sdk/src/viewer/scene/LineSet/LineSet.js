@@ -1,5 +1,5 @@
-import {Component} from '../Component.js';
-import {SceneModel} from "../model/SceneModel.js";
+import { Component } from '../Component.js'
+import { SceneModel } from '../model/SceneModel.js'
 
 /**
  * A set of 3D line segments.
@@ -54,110 +54,108 @@ import {SceneModel} from "../model/SceneModel.js";
  * ````
  */
 class LineSet extends Component {
+  /**
+   * Creates a new LineSet.
+   *
+   * Registers the LineSet in {@link Scene#lineSets}; causes Scene to fire a "lineSetCreated" event.
+   *
+   * @constructor
+   * @param {Component} [owner]  Owner component. When destroyed, the owner will destroy this ````LineSet```` as well.
+   * @param {*} [cfg]  ````LineSet```` configuration
+   * @param {String} [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
+   * @param {Number[]} cfg.positions World-space 3D vertex positions.
+   * @param {Number[]} [cfg.indices] Indices to connect ````positions```` into line segments. Note that these are separate line segments, not a polyline.
+   * @param {Number[]} [cfg.color=[0,0,0]] The color of this ````LineSet````. This is both emissive and diffuse.
+   * @param {Boolean} [cfg.visible=true] Indicates whether or not this ````LineSet```` is visible.
+   * @param {Number} [cfg.opacity=1.0] ````LineSet````'s initial opacity factor.
+   */
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
 
-    /**
-     * Creates a new LineSet.
-     *
-     * Registers the LineSet in {@link Scene#lineSets}; causes Scene to fire a "lineSetCreated" event.
-     *
-     * @constructor
-     * @param {Component} [owner]  Owner component. When destroyed, the owner will destroy this ````LineSet```` as well.
-     * @param {*} [cfg]  ````LineSet```` configuration
-     * @param {String} [cfg.id] Optional ID, unique among all components in the parent {@link Scene}, generated automatically when omitted.
-     * @param {Number[]} cfg.positions World-space 3D vertex positions.
-     * @param {Number[]} [cfg.indices] Indices to connect ````positions```` into line segments. Note that these are separate line segments, not a polyline.
-     * @param {Number[]} [cfg.color=[0,0,0]] The color of this ````LineSet````. This is both emissive and diffuse.
-     * @param {Boolean} [cfg.visible=true] Indicates whether or not this ````LineSet```` is visible.
-     * @param {Number} [cfg.opacity=1.0] ````LineSet````'s initial opacity factor.
-     */
-    constructor(owner, cfg = {}) {
+    this._positions = cfg.positions || []
 
-        super(owner, cfg);
-
-        this._positions = cfg.positions || [];
-
-        if (cfg.indices) {
-            this._indices = cfg.indices;
-        } else {
-            this._indices = [];
-            for (let i = 0, len = (this._positions.length / 3) - 1; i < len; i += 2) {
-                this._indices.push(i);
-                this._indices.push(i + 1);
-            }
-        }
-
-        this._sceneModel = new SceneModel(this, {
-            isModel: false // Don't register in Scene.models
-        });
-
-        this._sceneModel.createMesh({
-            id: "linesMesh",
-            primitive: "lines",
-            positions: this._positions,
-            indices: this._indices
-        })
-
-        this._sceneModel.createEntity({
-            meshIds: ["linesMesh"],
-            visible: cfg.visible,
-            clippable: cfg.clippable,
-               collidable: cfg.collidable
-        });
-
-        this._sceneModel.finalize();
-
-        this.scene._lineSetCreated(this);
+    if (cfg.indices) {
+      this._indices = cfg.indices
+    } else {
+      this._indices = []
+      for (let i = 0, len = this._positions.length / 3 - 1; i < len; i += 2) {
+        this._indices.push(i)
+        this._indices.push(i + 1)
+      }
     }
 
-    /**
-     * Sets if this ````LineSet```` is visible.
-     *
-     * Default value is ````true````.
-     *
-     * @param {Boolean} visible Set ````true```` to make this ````LineSet```` visible.
-     */
-    set visible(visible) {
-        this._sceneModel.visible = visible;
-    }
+    this._sceneModel = new SceneModel(this, {
+      isModel: false // Don't register in Scene.models
+    })
 
-    /**
-     * Gets if this ````LineSet```` is visible.
-     *
-     * Default value is ````true````.
-     *
-     * @returns {Boolean} Returns ````true```` if visible.
-     */
-    get visible() {
-        return this._sceneModel.visible;
-    }
+    this._sceneModel.createMesh({
+      id: 'linesMesh',
+      primitive: 'lines',
+      positions: this._positions,
+      indices: this._indices
+    })
 
-    /**
-     * Gets the 3D World-space vertex positions of the lines in this ````LineSet````.
-     *
-     * @returns {Number[]}
-     */
-    get positions() {
-        return this._positions;
-    }
+    this._sceneModel.createEntity({
+      meshIds: ['linesMesh'],
+      visible: cfg.visible,
+      clippable: cfg.clippable,
+      collidable: cfg.collidable
+    })
 
-    /**
-     * Gets the vertex indices of the lines in this ````LineSet````.
-     *
-     * @returns {Number[]}
-     */
-    get indices() {
-        return this._indices;
-    }
+    this._sceneModel.finalize()
 
-    /**
-     * Destroys this ````LineSet````.
-     *
-     * Removes the ```LineSet```` from {@link Scene#lineSets}; causes Scene to fire a "lineSetDestroyed" event.
-     */
-    destroy() {
-        super.destroy(); // destroyes _sceneModel
-        this.scene._lineSetDestroyed(this);
-    }
+    this.scene._lineSetCreated(this)
+  }
+
+  /**
+   * Sets if this ````LineSet```` is visible.
+   *
+   * Default value is ````true````.
+   *
+   * @param {Boolean} visible Set ````true```` to make this ````LineSet```` visible.
+   */
+  set visible(visible) {
+    this._sceneModel.visible = visible
+  }
+
+  /**
+   * Gets if this ````LineSet```` is visible.
+   *
+   * Default value is ````true````.
+   *
+   * @returns {Boolean} Returns ````true```` if visible.
+   */
+  get visible() {
+    return this._sceneModel.visible
+  }
+
+  /**
+   * Gets the 3D World-space vertex positions of the lines in this ````LineSet````.
+   *
+   * @returns {Number[]}
+   */
+  get positions() {
+    return this._positions
+  }
+
+  /**
+   * Gets the vertex indices of the lines in this ````LineSet````.
+   *
+   * @returns {Number[]}
+   */
+  get indices() {
+    return this._indices
+  }
+
+  /**
+   * Destroys this ````LineSet````.
+   *
+   * Removes the ```LineSet```` from {@link Scene#lineSets}; causes Scene to fire a "lineSetDestroyed" event.
+   */
+  destroy() {
+    super.destroy() // destroyes _sceneModel
+    this.scene._lineSetDestroyed(this)
+  }
 }
 
-export {LineSet};
+export { LineSet }

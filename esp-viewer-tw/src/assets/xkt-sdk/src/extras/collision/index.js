@@ -1,1 +1,1 @@
-export * from "./ObjectsKdTree3.js";
+export * from './ObjectsKdTree3.js'

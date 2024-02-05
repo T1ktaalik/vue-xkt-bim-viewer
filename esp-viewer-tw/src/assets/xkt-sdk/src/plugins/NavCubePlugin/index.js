@@ -1,1 +1,1 @@
-export * from "./NavCubePlugin.js";
+export * from './NavCubePlugin.js'

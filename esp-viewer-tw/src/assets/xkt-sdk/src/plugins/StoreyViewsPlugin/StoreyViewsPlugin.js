@@ -1,16 +1,16 @@
-import {Plugin} from "../../viewer/Plugin.js";
-import {Storey} from "./Storey.js";
-import {math} from "../../viewer/scene/math/math.js";
-import {ObjectsMemento} from "../../viewer/scene/mementos/ObjectsMemento.js";
-import {CameraMemento} from "../../viewer/scene/mementos/CameraMemento.js";
-import {StoreyMap} from "./StoreyMap.js";
-import {utils} from "../../viewer/scene/utils.js";
+import { Plugin } from '../../viewer/Plugin.js'
+import { Storey } from './Storey.js'
+import { math } from '../../viewer/scene/math/math.js'
+import { ObjectsMemento } from '../../viewer/scene/mementos/ObjectsMemento.js'
+import { CameraMemento } from '../../viewer/scene/mementos/CameraMemento.js'
+import { StoreyMap } from './StoreyMap.js'
+import { utils } from '../../viewer/scene/utils.js'
 
-const tempVec3a = math.vec3();
-const tempMat4 = math.mat4();
+const tempVec3a = math.vec3()
+const tempMat4 = math.mat4()
 
-const EMPTY_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
-
+const EMPTY_IMAGE =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
 
 /**
  * @desc A {@link Viewer} plugin that provides methods for visualizing IfcBuildingStoreys.
@@ -231,543 +231,568 @@ const EMPTY_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAA
  * ````
  */
 class StoreyViewsPlugin extends Plugin {
+  /**
+   * @constructor
+   *
+   * @param {Viewer} viewer The Viewer.
+   * @param {Object} cfg  Plugin configuration.
+   * @param {String} [cfg.id="StoreyViews"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+   * @param {Boolean} [cfg.fitStoreyMaps=false] If enabled, the elements of each floor map image will be proportionally resized to encompass the entire image. This leads to varying scales among different floor map images. If disabled, each floor map image will display the model's extents, ensuring a consistent scale across all images.
+   */
+  constructor(viewer, cfg = {}) {
+    super('StoreyViews', viewer)
+
+    this._objectsMemento = new ObjectsMemento()
+    this._cameraMemento = new CameraMemento()
 
     /**
-     * @constructor
+     * A {@link Storey} for each ````IfcBuildingStorey```.
      *
-     * @param {Viewer} viewer The Viewer.
-     * @param {Object} cfg  Plugin configuration.
-     * @param {String} [cfg.id="StoreyViews"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {Boolean} [cfg.fitStoreyMaps=false] If enabled, the elements of each floor map image will be proportionally resized to encompass the entire image. This leads to varying scales among different floor map images. If disabled, each floor map image will display the model's extents, ensuring a consistent scale across all images.
+     * There will be a {@link Storey} for every existing {@link MetaObject} whose {@link MetaObject#type} equals "IfcBuildingStorey".
+     *
+     * These are created and destroyed automatically as models are loaded and destroyed.
+     *
+     * @type {{String:Storey}}
      */
-    constructor(viewer, cfg = {}) {
-
-        super("StoreyViews", viewer);
-
-        this._objectsMemento = new ObjectsMemento();
-        this._cameraMemento = new CameraMemento();
-
-        /**
-         * A {@link Storey} for each ````IfcBuildingStorey```.
-         *
-         * There will be a {@link Storey} for every existing {@link MetaObject} whose {@link MetaObject#type} equals "IfcBuildingStorey".
-         *
-         * These are created and destroyed automatically as models are loaded and destroyed.
-         *
-         * @type {{String:Storey}}
-         */
-        this.storeys = {};
-
-        /**
-         * A set of {@link Storey}s for each {@link MetaModel}.
-         *
-         * These are created and destroyed automatically as models are loaded and destroyed.
-         *
-         * @type {{String: {String:Storey}}}
-         */
-        this.modelStoreys = {};
-
-        this._fitStoreyMaps = (!!cfg.fitStoreyMaps);
-
-        this._onModelLoaded = this.viewer.scene.on("modelLoaded", (modelId) => {
-            this._registerModelStoreys(modelId);
-            this.fire("storeys", this.storeys);
-        });
-    }
-
-    _registerModelStoreys(modelId) {
-        const viewer = this.viewer;
-        const scene = viewer.scene;
-        const metaScene = viewer.metaScene;
-        const metaModel = metaScene.metaModels[modelId];
-        const model = scene.models[modelId];
-        if (!metaModel || !metaModel.rootMetaObjects) {
-            return;
-        }
-        const rootMetaObjects = metaModel.rootMetaObjects;
-        for (let j = 0, lenj = rootMetaObjects.length; j < lenj; j++) {
-            const storeyIds = rootMetaObjects[j].getObjectIDsInSubtreeByType(["IfcBuildingStorey"]);
-            for (let i = 0, len = storeyIds.length; i < len; i++) {
-                const storeyId = storeyIds[i];
-                const metaObject = metaScene.metaObjects[storeyId];
-                const childObjectIds = metaObject.getObjectIDsInSubtree();
-                const storeyAABB = scene.getAABB(childObjectIds);
-                const numObjects = (Math.random() > 0.5) ? childObjectIds.length : 0;
-                const storey = new Storey(this, model.aabb, storeyAABB, modelId, storeyId, numObjects);
-                storey._onModelDestroyed = model.once("destroyed", () => {
-                    this._deregisterModelStoreys(modelId);
-                    this.fire("storeys", this.storeys);
-                });
-                this.storeys[storeyId] = storey;
-                if (!this.modelStoreys[modelId]) {
-                    this.modelStoreys[modelId] = {};
-                }
-                this.modelStoreys[modelId][storeyId] = storey;
-            }
-        }
-    }
-
-    _deregisterModelStoreys(modelId) {
-        const storeys = this.modelStoreys[modelId];
-        if (storeys) {
-            const scene = this.viewer.scene;
-            for (let storyObjectId in storeys) {
-                if (storeys.hasOwnProperty(storyObjectId)) {
-                    const storey = storeys[storyObjectId];
-                    const model = scene.models[storey.modelId];
-                    if (model) {
-                        model.off(storey._onModelDestroyed);
-                    }
-                    delete this.storeys[storyObjectId];
-                }
-            }
-            delete this.modelStoreys[modelId];
-        }
-    }
+    this.storeys = {}
 
     /**
-     * When true, the elements of each floor map image will be proportionally resized to encompass the entire image. This leads to varying scales among different
-     * floor map images. If false, each floor map image will display the model's extents, ensuring a consistent scale across all images.
-     * @returns {*|boolean}
+     * A set of {@link Storey}s for each {@link MetaModel}.
+     *
+     * These are created and destroyed automatically as models are loaded and destroyed.
+     *
+     * @type {{String: {String:Storey}}}
      */
-    get fitStoreyMaps() {
-        return this._fitStoreyMaps;
+    this.modelStoreys = {}
+
+    this._fitStoreyMaps = !!cfg.fitStoreyMaps
+
+    this._onModelLoaded = this.viewer.scene.on('modelLoaded', (modelId) => {
+      this._registerModelStoreys(modelId)
+      this.fire('storeys', this.storeys)
+    })
+  }
+
+  _registerModelStoreys(modelId) {
+    const viewer = this.viewer
+    const scene = viewer.scene
+    const metaScene = viewer.metaScene
+    const metaModel = metaScene.metaModels[modelId]
+    const model = scene.models[modelId]
+    if (!metaModel || !metaModel.rootMetaObjects) {
+      return
+    }
+    const rootMetaObjects = metaModel.rootMetaObjects
+    for (let j = 0, lenj = rootMetaObjects.length; j < lenj; j++) {
+      const storeyIds = rootMetaObjects[j].getObjectIDsInSubtreeByType(['IfcBuildingStorey'])
+      for (let i = 0, len = storeyIds.length; i < len; i++) {
+        const storeyId = storeyIds[i]
+        const metaObject = metaScene.metaObjects[storeyId]
+        const childObjectIds = metaObject.getObjectIDsInSubtree()
+        const storeyAABB = scene.getAABB(childObjectIds)
+        const numObjects = Math.random() > 0.5 ? childObjectIds.length : 0
+        const storey = new Storey(this, model.aabb, storeyAABB, modelId, storeyId, numObjects)
+        storey._onModelDestroyed = model.once('destroyed', () => {
+          this._deregisterModelStoreys(modelId)
+          this.fire('storeys', this.storeys)
+        })
+        this.storeys[storeyId] = storey
+        if (!this.modelStoreys[modelId]) {
+          this.modelStoreys[modelId] = {}
+        }
+        this.modelStoreys[modelId][storeyId] = storey
+      }
+    }
+  }
+
+  _deregisterModelStoreys(modelId) {
+    const storeys = this.modelStoreys[modelId]
+    if (storeys) {
+      const scene = this.viewer.scene
+      for (let storyObjectId in storeys) {
+        if (storeys.hasOwnProperty(storyObjectId)) {
+          const storey = storeys[storyObjectId]
+          const model = scene.models[storey.modelId]
+          if (model) {
+            model.off(storey._onModelDestroyed)
+          }
+          delete this.storeys[storyObjectId]
+        }
+      }
+      delete this.modelStoreys[modelId]
+    }
+  }
+
+  /**
+   * When true, the elements of each floor map image will be proportionally resized to encompass the entire image. This leads to varying scales among different
+   * floor map images. If false, each floor map image will display the model's extents, ensuring a consistent scale across all images.
+   * @returns {*|boolean}
+   */
+  get fitStoreyMaps() {
+    return this._fitStoreyMaps
+  }
+
+  /**
+   * Arranges the {@link Camera} for a 3D orthographic view of the {@link Entity}s within the given storey.
+   *
+   * See also: {@link CameraMemento}, which saves and restores the state of the {@link Scene}'s {@link Camera}
+   *
+   * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
+   * @param {*} [options] Options for arranging the Camera.
+   * @param {String} [options.projection] Projection type to transition the Camera to. Accepted values are "perspective" and "ortho".
+   * @param {Function} [options.done] Callback to fire when the Camera has arrived. When provided, causes an animated flight to the saved state. Otherwise jumps to the saved state.
+   */
+  gotoStoreyCamera(storeyId, options = {}) {
+    const storey = this.storeys[storeyId]
+
+    if (!storey) {
+      this.error('IfcBuildingStorey not found with this ID: ' + storeyId)
+      if (options.done) {
+        options.done()
+      }
+      return
     }
 
-    /**
-     * Arranges the {@link Camera} for a 3D orthographic view of the {@link Entity}s within the given storey.
-     *
-     * See also: {@link CameraMemento}, which saves and restores the state of the {@link Scene}'s {@link Camera}
-     *
-     * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
-     * @param {*} [options] Options for arranging the Camera.
-     * @param {String} [options.projection] Projection type to transition the Camera to. Accepted values are "perspective" and "ortho".
-     * @param {Function} [options.done] Callback to fire when the Camera has arrived. When provided, causes an animated flight to the saved state. Otherwise jumps to the saved state.
-     */
-    gotoStoreyCamera(storeyId, options = {}) {
+    const viewer = this.viewer
+    const scene = viewer.scene
+    const camera = scene.camera
+    const storeyAABB = storey.storeyAABB
 
-        const storey = this.storeys[storeyId];
+    if (
+      storeyAABB[3] < storeyAABB[0] ||
+      storeyAABB[4] < storeyAABB[1] ||
+      storeyAABB[5] < storeyAABB[2]
+    ) {
+      // Don't fly to an inverted boundary
+      if (options.done) {
+        options.done()
+      }
+      return
+    }
+    if (
+      storeyAABB[3] === storeyAABB[0] &&
+      storeyAABB[4] === storeyAABB[1] &&
+      storeyAABB[5] === storeyAABB[2]
+    ) {
+      // Don't fly to an empty boundary
+      if (options.done) {
+        options.done()
+      }
+      return
+    }
+    const look2 = math.getAABB3Center(storeyAABB)
+    const diag = math.getAABB3Diag(storeyAABB)
+    const fitFOV = 45 // fitFOV;
+    const sca = Math.abs(diag / Math.tan(fitFOV * math.DEGTORAD))
 
-        if (!storey) {
-            this.error("IfcBuildingStorey not found with this ID: " + storeyId);
-            if (options.done) {
-                options.done();
-            }
-            return;
+    const orthoScale2 = diag * 1.3
+
+    const eye2 = tempVec3a
+
+    eye2[0] = look2[0] + camera.worldUp[0] * sca
+    eye2[1] = look2[1] + camera.worldUp[1] * sca
+    eye2[2] = look2[2] + camera.worldUp[2] * sca
+
+    const up2 = camera.worldForward
+
+    if (options.done) {
+      viewer.cameraFlight.flyTo(
+        utils.apply(options, {
+          eye: eye2,
+          look: look2,
+          up: up2,
+          orthoScale: orthoScale2
+        }),
+        () => {
+          options.done()
         }
+      )
+    } else {
+      viewer.cameraFlight.jumpTo(
+        utils.apply(options, {
+          eye: eye2,
+          look: look2,
+          up: up2,
+          orthoScale: orthoScale2
+        })
+      )
 
-        const viewer = this.viewer;
-        const scene = viewer.scene;
-        const camera = scene.camera;
-        const storeyAABB = storey.storeyAABB;
+      viewer.camera.ortho.scale = orthoScale2
+    }
+  }
 
-        if (storeyAABB[3] < storeyAABB[0] || storeyAABB[4] < storeyAABB[1] || storeyAABB[5] < storeyAABB[2]) { // Don't fly to an inverted boundary
-            if (options.done) {
-                options.done();
-            }
-            return;
-        }
-        if (storeyAABB[3] === storeyAABB[0] && storeyAABB[4] === storeyAABB[1] && storeyAABB[5] === storeyAABB[2]) { // Don't fly to an empty boundary
-            if (options.done) {
-                options.done();
-            }
-            return;
-        }
-        const look2 = math.getAABB3Center(storeyAABB);
-        const diag = math.getAABB3Diag(storeyAABB);
-        const fitFOV = 45; // fitFOV;
-        const sca = Math.abs(diag / Math.tan(fitFOV * math.DEGTORAD));
+  /**
+   * Shows the {@link Entity}s within the given storey.
+   *
+   * Optionally hides all other Entitys.
+   *
+   * See also: {@link ObjectsMemento}, which saves and restores a memento of the visual state
+   * of the {@link Entity}'s that represent objects within a {@link Scene}.
+   *
+   * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
+   * @param {*} [options] Options for showing the Entitys within the storey.
+   * @param {Boolean} [options.hideOthers=false] When ````true````, hide all other {@link Entity}s.
+   */
+  showStoreyObjects(storeyId, options = {}) {
+    const storey = this.storeys[storeyId]
 
-        const orthoScale2 = diag * 1.3;
-
-        const eye2 = tempVec3a;
-
-        eye2[0] = look2[0] + (camera.worldUp[0] * sca);
-        eye2[1] = look2[1] + (camera.worldUp[1] * sca);
-        eye2[2] = look2[2] + (camera.worldUp[2] * sca);
-
-        const up2 = camera.worldForward;
-
-        if (options.done) {
-
-            viewer.cameraFlight.flyTo(utils.apply(options, {
-                eye: eye2,
-                look: look2,
-                up: up2,
-                orthoScale: orthoScale2
-            }), () => {
-                options.done();
-            });
-
-        } else {
-
-            viewer.cameraFlight.jumpTo(utils.apply(options, {
-                eye: eye2,
-                look: look2,
-                up: up2,
-                orthoScale: orthoScale2
-            }));
-
-            viewer.camera.ortho.scale = orthoScale2;
-        }
+    if (!storey) {
+      this.error('IfcBuildingStorey not found with this ID: ' + storeyId)
+      return
     }
 
-    /**
-     * Shows the {@link Entity}s within the given storey.
-     *
-     * Optionally hides all other Entitys.
-     *
-     * See also: {@link ObjectsMemento}, which saves and restores a memento of the visual state
-     * of the {@link Entity}'s that represent objects within a {@link Scene}.
-     *
-     * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
-     * @param {*} [options] Options for showing the Entitys within the storey.
-     * @param {Boolean} [options.hideOthers=false] When ````true````, hide all other {@link Entity}s.
-    */
-    showStoreyObjects(storeyId, options = {}) {
+    const viewer = this.viewer
+    const scene = viewer.scene
+    const metaScene = viewer.metaScene
+    const storeyMetaObject = metaScene.metaObjects[storeyId]
 
-        const storey = this.storeys[storeyId];
-
-        if (!storey) {
-            this.error("IfcBuildingStorey not found with this ID: " + storeyId);
-            return;
-        }
-
-        const viewer = this.viewer;
-        const scene = viewer.scene;
-        const metaScene = viewer.metaScene;
-        const storeyMetaObject = metaScene.metaObjects[storeyId];
-
-        if (!storeyMetaObject) {
-            return;
-        }
-
-        if (options.hideOthers) {
-            scene.setObjectsVisible(viewer.scene.visibleObjectIds, false);
-        }
-
-        this.withStoreyObjects(storeyId, (entity, metaObject) => {
-            if (entity) {
-                    entity.visible = true;
-            }
-        });
+    if (!storeyMetaObject) {
+      return
     }
 
-    /**
-     * Executes a callback on each of the objects within the given storey.
-     *
-     * ## Usage
-     *
-     * In the example below, we'll show all the {@link Entity}s, within the given ````IfcBuildingStorey````,
-     * that have {@link MetaObject}s with type ````IfcSpace````. Note that the callback will only be given
-     * an {@link Entity} when one exists for the given {@link MetaObject}.
-     *
-     * ````JavaScript
-     * myStoreyViewsPlugin.withStoreyObjects(storeyId, (entity, metaObject) => {
-     *      if (entity && metaObject && metaObject.type === "IfcSpace") {
-     *          entity.visible = true;
-     *      }
-     * });
-     * ````
-     *
-     * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
-     * @param {Function} callback The callback.
-     */
-    withStoreyObjects(storeyId, callback) {
-        const viewer = this.viewer;
-        const scene = viewer.scene;
-        const metaScene = viewer.metaScene;
-        const rootMetaObject = metaScene.metaObjects[storeyId];
-        if (!rootMetaObject) {
-            return;
-        }
-        const storeySubObjects = rootMetaObject.getObjectIDsInSubtree();
-        for (var i = 0, len = storeySubObjects.length; i < len; i++) {
-            const objectId = storeySubObjects[i];
-            const metaObject = metaScene.metaObjects[objectId];
-            const entity = scene.objects[objectId];
-            if (entity) {
-                callback(entity, metaObject);
-            }
-        }
+    if (options.hideOthers) {
+      scene.setObjectsVisible(viewer.scene.visibleObjectIds, false)
     }
 
-    /**
-     * Creates a 2D map of the given storey.
-     *
-     * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
-     * @param {*} [options] Options for creating the image.
-     * @param {Number} [options.width=300] Image width in pixels. Height will be automatically determined from this, if not given.
-     * @param {Number} [options.height=300] Image height in pixels, as an alternative to width. Width will be automatically determined from this, if not given.
-     * @param {String} [options.format="png"] Image format. Accepted values are "png" and "jpeg".
-     * @returns {StoreyMap} The StoreyMap.
-     */
-    createStoreyMap(storeyId, options = {}) {
+    this.withStoreyObjects(storeyId, (entity, metaObject) => {
+      if (entity) {
+        entity.visible = true
+      }
+    })
+  }
 
-        const storey = this.storeys[storeyId];
-        if (!storey) {
-            this.error("IfcBuildingStorey not found with this ID: " + storeyId);
-            return EMPTY_IMAGE;
-        }
+  /**
+   * Executes a callback on each of the objects within the given storey.
+   *
+   * ## Usage
+   *
+   * In the example below, we'll show all the {@link Entity}s, within the given ````IfcBuildingStorey````,
+   * that have {@link MetaObject}s with type ````IfcSpace````. Note that the callback will only be given
+   * an {@link Entity} when one exists for the given {@link MetaObject}.
+   *
+   * ````JavaScript
+   * myStoreyViewsPlugin.withStoreyObjects(storeyId, (entity, metaObject) => {
+   *      if (entity && metaObject && metaObject.type === "IfcSpace") {
+   *          entity.visible = true;
+   *      }
+   * });
+   * ````
+   *
+   * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
+   * @param {Function} callback The callback.
+   */
+  withStoreyObjects(storeyId, callback) {
+    const viewer = this.viewer
+    const scene = viewer.scene
+    const metaScene = viewer.metaScene
+    const rootMetaObject = metaScene.metaObjects[storeyId]
+    if (!rootMetaObject) {
+      return
+    }
+    const storeySubObjects = rootMetaObject.getObjectIDsInSubtree()
+    for (var i = 0, len = storeySubObjects.length; i < len; i++) {
+      const objectId = storeySubObjects[i]
+      const metaObject = metaScene.metaObjects[objectId]
+      const entity = scene.objects[objectId]
+      if (entity) {
+        callback(entity, metaObject)
+      }
+    }
+  }
 
-        const viewer = this.viewer;
-        const scene = viewer.scene;
-        const format = options.format || "png";
-        const aabb = (this._fitStoreyMaps) ? storey.storeyAABB : storey.modelAABB;
-        const aspect = Math.abs((aabb[5] - aabb[2]) / (aabb[3] - aabb[0]));
-        const padding = options.padding || 0;
-
-        let width;
-        let height;
-
-        if (options.width && options.height) {
-            width = options.width;
-            height = options.height;
-
-        } else if (options.height) {
-            height = options.height;
-            width = Math.round(height / aspect);
-
-        } else if (options.width) {
-            width = options.width;
-            height = Math.round(width * aspect);
-
-        } else {
-            width = 300;
-            height = Math.round(width * aspect);
-        }
-
-        this._objectsMemento.saveObjects(scene);
-        this._cameraMemento.saveCamera(scene);
-
-        this.showStoreyObjects(storeyId, utils.apply(options, {
-            hideOthers: true
-        }));
-
-        this._arrangeStoreyMapCamera(storey);
-
-        const src = viewer.getSnapshot({
-            width: width,
-            height: height,
-            format: format,
-        });
-
-        this._objectsMemento.restoreObjects(scene);
-        this._cameraMemento.restoreCamera(scene);
-
-        return new StoreyMap(storeyId, src, format, width, height, padding);
+  /**
+   * Creates a 2D map of the given storey.
+   *
+   * @param {String} storeyId ID of the ````IfcBuildingStorey```` object.
+   * @param {*} [options] Options for creating the image.
+   * @param {Number} [options.width=300] Image width in pixels. Height will be automatically determined from this, if not given.
+   * @param {Number} [options.height=300] Image height in pixels, as an alternative to width. Width will be automatically determined from this, if not given.
+   * @param {String} [options.format="png"] Image format. Accepted values are "png" and "jpeg".
+   * @returns {StoreyMap} The StoreyMap.
+   */
+  createStoreyMap(storeyId, options = {}) {
+    const storey = this.storeys[storeyId]
+    if (!storey) {
+      this.error('IfcBuildingStorey not found with this ID: ' + storeyId)
+      return EMPTY_IMAGE
     }
 
-    _arrangeStoreyMapCamera(storey) {
-        const viewer = this.viewer;
-        const scene = viewer.scene;
-        const camera = scene.camera;
-        const aabb = (this._fitStoreyMaps) ? storey.storeyAABB : storey.modelAABB;
-        const look = math.getAABB3Center(aabb);
-        const sca = 0.5;
-        const eye = tempVec3a;
-        eye[0] = look[0] + (camera.worldUp[0] * sca);
-        eye[1] = look[1] + (camera.worldUp[1] * sca);
-        eye[2] = look[2] + (camera.worldUp[2] * sca);
-        const up = camera.worldForward;
-        viewer.cameraFlight.jumpTo({eye: eye, look: look, up: up});
-        const xHalfSize = (aabb[3] - aabb[0]) / 2;
-        const yHalfSize = (aabb[4] - aabb[1]) / 2;
-        const zHalfSize = (aabb[5] - aabb[2]) / 2;
-        const xmin = -xHalfSize;
-        const xmax = +xHalfSize;
-        const ymin = -yHalfSize;
-        const ymax = +yHalfSize;
-        const zmin = -zHalfSize;
-        const zmax = +zHalfSize;
-        viewer.camera.customProjection.matrix = math.orthoMat4c(xmin, xmax, zmin, zmax, ymin, ymax, tempMat4);
-        viewer.camera.projection = "customProjection";
+    const viewer = this.viewer
+    const scene = viewer.scene
+    const format = options.format || 'png'
+    const aabb = this._fitStoreyMaps ? storey.storeyAABB : storey.modelAABB
+    const aspect = Math.abs((aabb[5] - aabb[2]) / (aabb[3] - aabb[0]))
+    const padding = options.padding || 0
+
+    let width
+    let height
+
+    if (options.width && options.height) {
+      width = options.width
+      height = options.height
+    } else if (options.height) {
+      height = options.height
+      width = Math.round(height / aspect)
+    } else if (options.width) {
+      width = options.width
+      height = Math.round(width * aspect)
+    } else {
+      width = 300
+      height = Math.round(width * aspect)
     }
 
-    /**
-     * Attempts to pick an {@link Entity} at the given pixel coordinates within a StoreyMap image.
-     *
-     * @param {StoreyMap} storeyMap The StoreyMap.
-     * @param {Number[]} imagePos 2D pixel coordinates within the bounds of {@link StoreyMap#imageData}.
-     * @param {*} [options] Picking options.
-     * @param {Boolean} [options.pickSurface=false] Whether to return the picked position on the surface of the Entity.
-     * @returns {PickResult} The pick result, if an Entity was successfully picked, else null.
-     */
-    pickStoreyMap(storeyMap, imagePos, options = {}) {
+    this._objectsMemento.saveObjects(scene)
+    this._cameraMemento.saveCamera(scene)
 
-        const storeyId = storeyMap.storeyId;
-        const storey = this.storeys[storeyId];
+    this.showStoreyObjects(
+      storeyId,
+      utils.apply(options, {
+        hideOthers: true
+      })
+    )
 
-        if (!storey) {
-            this.error("IfcBuildingStorey not found with this ID: " + storeyId);
-            return null
-        }
+    this._arrangeStoreyMapCamera(storey)
 
-        const normX = 1.0 - (imagePos[0] / storeyMap.width);
-        const normZ = 1.0 - (imagePos[1] / storeyMap.height);
+    const src = viewer.getSnapshot({
+      width: width,
+      height: height,
+      format: format
+    })
 
-        const aabb = (this._fitStoreyMaps) ? storey.storeyAABB : storey.modelAABB;
+    this._objectsMemento.restoreObjects(scene)
+    this._cameraMemento.restoreCamera(scene)
 
-        const xmin = aabb[0];
-        const ymin = aabb[1];
-        const zmin = aabb[2];
-        const xmax = aabb[3];
-        const ymax = aabb[4];
-        const zmax = aabb[5];
+    return new StoreyMap(storeyId, src, format, width, height, padding)
+  }
 
-        const xWorldSize = xmax - xmin;
-        const yWorldSize = ymax - ymin;
-        const zWorldSize = zmax - zmin;
+  _arrangeStoreyMapCamera(storey) {
+    const viewer = this.viewer
+    const scene = viewer.scene
+    const camera = scene.camera
+    const aabb = this._fitStoreyMaps ? storey.storeyAABB : storey.modelAABB
+    const look = math.getAABB3Center(aabb)
+    const sca = 0.5
+    const eye = tempVec3a
+    eye[0] = look[0] + camera.worldUp[0] * sca
+    eye[1] = look[1] + camera.worldUp[1] * sca
+    eye[2] = look[2] + camera.worldUp[2] * sca
+    const up = camera.worldForward
+    viewer.cameraFlight.jumpTo({ eye: eye, look: look, up: up })
+    const xHalfSize = (aabb[3] - aabb[0]) / 2
+    const yHalfSize = (aabb[4] - aabb[1]) / 2
+    const zHalfSize = (aabb[5] - aabb[2]) / 2
+    const xmin = -xHalfSize
+    const xmax = +xHalfSize
+    const ymin = -yHalfSize
+    const ymax = +yHalfSize
+    const zmin = -zHalfSize
+    const zmax = +zHalfSize
+    viewer.camera.customProjection.matrix = math.orthoMat4c(
+      xmin,
+      xmax,
+      zmin,
+      zmax,
+      ymin,
+      ymax,
+      tempMat4
+    )
+    viewer.camera.projection = 'customProjection'
+  }
 
-        const origin = math.vec3([xmin + (xWorldSize * normX), ymin + (yWorldSize * 0.5), zmin + (zWorldSize * normZ)]);
-        const direction = math.vec3([0, -1, 0]);
-        const look = math.addVec3(origin, direction, tempVec3a);
-        const worldForward = this.viewer.camera.worldForward;
-        const matrix = math.lookAtMat4v(origin, look, worldForward, tempMat4);
+  /**
+   * Attempts to pick an {@link Entity} at the given pixel coordinates within a StoreyMap image.
+   *
+   * @param {StoreyMap} storeyMap The StoreyMap.
+   * @param {Number[]} imagePos 2D pixel coordinates within the bounds of {@link StoreyMap#imageData}.
+   * @param {*} [options] Picking options.
+   * @param {Boolean} [options.pickSurface=false] Whether to return the picked position on the surface of the Entity.
+   * @returns {PickResult} The pick result, if an Entity was successfully picked, else null.
+   */
+  pickStoreyMap(storeyMap, imagePos, options = {}) {
+    const storeyId = storeyMap.storeyId
+    const storey = this.storeys[storeyId]
 
-        const pickResult = this.viewer.scene.pick({  // Picking with arbitrarily-positioned ray
-            pickSurface: options.pickSurface,
-            pickInvisible: true,
-            matrix
-        });
-
-        return pickResult;
+    if (!storey) {
+      this.error('IfcBuildingStorey not found with this ID: ' + storeyId)
+      return null
     }
 
-    storeyMapToWorldPos(storeyMap, imagePos, options = {}) {
+    const normX = 1.0 - imagePos[0] / storeyMap.width
+    const normZ = 1.0 - imagePos[1] / storeyMap.height
 
-        const storeyId = storeyMap.storeyId;
-        const storey = this.storeys[storeyId];
+    const aabb = this._fitStoreyMaps ? storey.storeyAABB : storey.modelAABB
 
-        if (!storey) {
-            this.error("IfcBuildingStorey not found with this ID: " + storeyId);
-            return null
-        }
+    const xmin = aabb[0]
+    const ymin = aabb[1]
+    const zmin = aabb[2]
+    const xmax = aabb[3]
+    const ymax = aabb[4]
+    const zmax = aabb[5]
 
-        const normX = 1.0 - (imagePos[0] / storeyMap.width);
-        const normZ = 1.0 - (imagePos[1] / storeyMap.height);
+    const xWorldSize = xmax - xmin
+    const yWorldSize = ymax - ymin
+    const zWorldSize = zmax - zmin
 
-        const aabb = (this._fitStoreyMaps) ? storey.storeyAABB : storey.modelAABB;
+    const origin = math.vec3([
+      xmin + xWorldSize * normX,
+      ymin + yWorldSize * 0.5,
+      zmin + zWorldSize * normZ
+    ])
+    const direction = math.vec3([0, -1, 0])
+    const look = math.addVec3(origin, direction, tempVec3a)
+    const worldForward = this.viewer.camera.worldForward
+    const matrix = math.lookAtMat4v(origin, look, worldForward, tempMat4)
 
-        const xmin = aabb[0];
-        const ymin = aabb[1];
-        const zmin = aabb[2];
-        const xmax = aabb[3];
-        const ymax = aabb[4];
-        const zmax = aabb[5];
+    const pickResult = this.viewer.scene.pick({
+      // Picking with arbitrarily-positioned ray
+      pickSurface: options.pickSurface,
+      pickInvisible: true,
+      matrix
+    })
 
-        const xWorldSize = xmax - xmin;
-        const yWorldSize = ymax - ymin;
-        const zWorldSize = zmax - zmin;
+    return pickResult
+  }
 
-        const origin = math.vec3([xmin + (xWorldSize * normX), ymin + (yWorldSize * 0.5), zmin + (zWorldSize * normZ)]);
+  storeyMapToWorldPos(storeyMap, imagePos, options = {}) {
+    const storeyId = storeyMap.storeyId
+    const storey = this.storeys[storeyId]
 
-        return origin;
+    if (!storey) {
+      this.error('IfcBuildingStorey not found with this ID: ' + storeyId)
+      return null
     }
 
+    const normX = 1.0 - imagePos[0] / storeyMap.width
+    const normZ = 1.0 - imagePos[1] / storeyMap.height
 
-    /**
-     * Gets the ID of the storey that contains the given 3D World-space position.
-     *.
-     * @param {Number[]} worldPos 3D World-space position.
-     * @returns {String} ID of the storey containing the position, or null if the position falls outside all the storeys.
-     */
-    getStoreyContainingWorldPos(worldPos) {
-        for (var storeyId in this.storeys) {
-            const storey = this.storeys[storeyId];
-            if (math.point3AABB3Intersect(storey.storeyAABB, worldPos)) {
-                return storeyId;
-            }
-        }
-        return null;
+    const aabb = this._fitStoreyMaps ? storey.storeyAABB : storey.modelAABB
+
+    const xmin = aabb[0]
+    const ymin = aabb[1]
+    const zmin = aabb[2]
+    const xmax = aabb[3]
+    const ymax = aabb[4]
+    const zmax = aabb[5]
+
+    const xWorldSize = xmax - xmin
+    const yWorldSize = ymax - ymin
+    const zWorldSize = zmax - zmin
+
+    const origin = math.vec3([
+      xmin + xWorldSize * normX,
+      ymin + yWorldSize * 0.5,
+      zmin + zWorldSize * normZ
+    ])
+
+    return origin
+  }
+
+  /**
+   * Gets the ID of the storey that contains the given 3D World-space position.
+   *.
+   * @param {Number[]} worldPos 3D World-space position.
+   * @returns {String} ID of the storey containing the position, or null if the position falls outside all the storeys.
+   */
+  getStoreyContainingWorldPos(worldPos) {
+    for (var storeyId in this.storeys) {
+      const storey = this.storeys[storeyId]
+      if (math.point3AABB3Intersect(storey.storeyAABB, worldPos)) {
+        return storeyId
+      }
+    }
+    return null
+  }
+
+  /**
+   * Converts a 3D World-space position to a 2D position within a StoreyMap image.
+   *
+   * Use {@link StoreyViewsPlugin#pickStoreyMap} to convert 2D image positions to 3D world-space.
+   *
+   * @param {StoreyMap} storeyMap The StoreyMap.
+   * @param {Number[]} worldPos 3D World-space position within the storey.
+   * @param {Number[]} imagePos 2D pixel position within the {@link StoreyMap#imageData}.
+   * @returns {Boolean} True if ````imagePos```` is within the bounds of the {@link StoreyMap#imageData}, else ````false```` if it falls outside.
+   */
+  worldPosToStoreyMap(storeyMap, worldPos, imagePos) {
+    const storeyId = storeyMap.storeyId
+    const storey = this.storeys[storeyId]
+
+    if (!storey) {
+      this.error('IfcBuildingStorey not found with this ID: ' + storeyId)
+      return false
     }
 
-    /**
-     * Converts a 3D World-space position to a 2D position within a StoreyMap image.
-     *
-     * Use {@link StoreyViewsPlugin#pickStoreyMap} to convert 2D image positions to 3D world-space.
-     *
-     * @param {StoreyMap} storeyMap The StoreyMap.
-     * @param {Number[]} worldPos 3D World-space position within the storey.
-     * @param {Number[]} imagePos 2D pixel position within the {@link StoreyMap#imageData}.
-     * @returns {Boolean} True if ````imagePos```` is within the bounds of the {@link StoreyMap#imageData}, else ````false```` if it falls outside.
-     */
-    worldPosToStoreyMap(storeyMap, worldPos, imagePos) {
+    const aabb = this._fitStoreyMaps ? storey.storeyAABB : storey.modelAABB
 
-        const storeyId = storeyMap.storeyId;
-        const storey = this.storeys[storeyId];
+    const xmin = aabb[0]
+    const ymin = aabb[1]
+    const zmin = aabb[2]
 
-        if (!storey) {
-            this.error("IfcBuildingStorey not found with this ID: " + storeyId);
-            return false
-        }
+    const xmax = aabb[3]
+    const ymax = aabb[4]
+    const zmax = aabb[5]
 
-        const aabb = (this._fitStoreyMaps) ? storey.storeyAABB : storey.modelAABB;
+    const xWorldSize = xmax - xmin
+    const yWorldSize = ymax - ymin
+    const zWorldSize = zmax - zmin
 
-        const xmin = aabb[0];
-        const ymin = aabb[1];
-        const zmin = aabb[2];
+    const camera = this.viewer.camera
+    const worldUp = camera.worldUp
 
-        const xmax = aabb[3];
-        const ymax = aabb[4];
-        const zmax = aabb[5];
+    const xUp = worldUp[0] > worldUp[1] && worldUp[0] > worldUp[2]
+    const yUp = !xUp && worldUp[1] > worldUp[0] && worldUp[1] > worldUp[2]
+    const zUp = !xUp && !yUp && worldUp[2] > worldUp[0] && worldUp[2] > worldUp[1]
 
-        const xWorldSize = xmax - xmin;
-        const yWorldSize = ymax - ymin;
-        const zWorldSize = zmax - zmin;
+    const ratioX = storeyMap.width / xWorldSize
+    const ratioY = yUp ? storeyMap.height / zWorldSize : storeyMap.height / yWorldSize // Assuming either Y or Z is "up", but never X
 
-        const camera = this.viewer.camera;
-        const worldUp = camera.worldUp;
+    imagePos[0] = Math.floor(storeyMap.width - (worldPos[0] - xmin) * ratioX)
+    imagePos[1] = Math.floor(storeyMap.height - (worldPos[2] - zmin) * ratioY)
 
-        const xUp = worldUp[0] > worldUp[1] && worldUp[0] > worldUp[2];
-        const yUp = !xUp && worldUp[1] > worldUp[0] && worldUp[1] > worldUp[2];
-        const zUp = !xUp && !yUp && worldUp[2] > worldUp[0] && worldUp[2] > worldUp[1];
+    return (
+      imagePos[0] >= 0 &&
+      imagePos[0] < storeyMap.width &&
+      imagePos[1] >= 0 &&
+      imagePos[1] <= storeyMap.height
+    )
+  }
 
-        const ratioX = (storeyMap.width / xWorldSize);
-        const ratioY = yUp ? (storeyMap.height / zWorldSize) : (storeyMap.height / yWorldSize); // Assuming either Y or Z is "up", but never X
-
-        imagePos[0] = Math.floor(storeyMap.width - ((worldPos[0] - xmin) * ratioX));
-        imagePos[1] = Math.floor(storeyMap.height - ((worldPos[2] - zmin) * ratioY));
-
-        return (imagePos[0] >= 0 && imagePos[0] < storeyMap.width && imagePos[1] >= 0 && imagePos[1] <= storeyMap.height);
+  /**
+   * Converts a 3D World-space direction vector to a 2D vector within a StoreyMap image.
+   *
+   * @param {StoreyMap} storeyMap The StoreyMap.
+   * @param {Number[]} worldDir 3D World-space direction vector.
+   * @param {Number[]} imageDir Normalized 2D direction vector.
+   */
+  worldDirToStoreyMap(storeyMap, worldDir, imageDir) {
+    const camera = this.viewer.camera
+    const eye = camera.eye
+    const look = camera.look
+    const eyeLookDir = math.subVec3(look, eye, tempVec3a)
+    const worldUp = camera.worldUp
+    const xUp = worldUp[0] > worldUp[1] && worldUp[0] > worldUp[2]
+    const yUp = !xUp && worldUp[1] > worldUp[0] && worldUp[1] > worldUp[2]
+    const zUp = !xUp && !yUp && worldUp[2] > worldUp[0] && worldUp[2] > worldUp[1]
+    if (xUp) {
+      imageDir[0] = eyeLookDir[1]
+      imageDir[1] = eyeLookDir[2]
+    } else if (yUp) {
+      imageDir[0] = eyeLookDir[0]
+      imageDir[1] = eyeLookDir[2]
+    } else {
+      imageDir[0] = eyeLookDir[0]
+      imageDir[1] = eyeLookDir[1]
     }
+    math.normalizeVec2(imageDir)
+  }
 
-    /**
-     * Converts a 3D World-space direction vector to a 2D vector within a StoreyMap image.
-     *
-     * @param {StoreyMap} storeyMap The StoreyMap.
-     * @param {Number[]} worldDir 3D World-space direction vector.
-     * @param {Number[]} imageDir Normalized 2D direction vector.
-     */
-    worldDirToStoreyMap(storeyMap, worldDir, imageDir) {
-        const camera = this.viewer.camera;
-        const eye = camera.eye;
-        const look = camera.look;
-        const eyeLookDir = math.subVec3(look, eye, tempVec3a);
-        const worldUp = camera.worldUp;
-        const xUp = worldUp[0] > worldUp[1] && worldUp[0] > worldUp[2];
-        const yUp = !xUp && worldUp[1] > worldUp[0] && worldUp[1] > worldUp[2];
-        const zUp = !xUp && !yUp && worldUp[2] > worldUp[0] && worldUp[2] > worldUp[1];
-        if (xUp) {
-            imageDir[0] = eyeLookDir[1];
-            imageDir[1] = eyeLookDir[2];
-        } else if (yUp) {
-            imageDir[0] = eyeLookDir[0];
-            imageDir[1] = eyeLookDir[2];
-        } else {
-            imageDir[0] = eyeLookDir[0];
-            imageDir[1] = eyeLookDir[1];
-        }
-        math.normalizeVec2(imageDir);
-    }
-
-    /**
-     * Destroys this StoreyViewsPlugin.
-     */
-    destroy() {
-        this.viewer.scene.off(this._onModelLoaded);
-        super.destroy();
-    }
+  /**
+   * Destroys this StoreyViewsPlugin.
+   */
+  destroy() {
+    this.viewer.scene.off(this._onModelLoaded)
+    super.destroy()
+  }
 }
 
-export {StoreyViewsPlugin}
+export { StoreyViewsPlugin }

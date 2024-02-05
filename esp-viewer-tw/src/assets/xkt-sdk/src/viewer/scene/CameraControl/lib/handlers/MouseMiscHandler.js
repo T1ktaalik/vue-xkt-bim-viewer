@@ -2,67 +2,78 @@
  * @private
  */
 class MouseMiscHandler {
+  constructor(scene, controllers, configs, states, updates) {
+    this._scene = scene
 
-    constructor(scene, controllers, configs, states, updates) {
+    const canvas = this._scene.canvas.canvas
 
-        this._scene = scene;
+    canvas.addEventListener(
+      'mouseenter',
+      (this._mouseEnterHandler = () => {
+        states.mouseover = true
+      })
+    )
 
-        const canvas = this._scene.canvas.canvas;
+    canvas.addEventListener(
+      'mouseleave',
+      (this._mouseLeaveHandler = () => {
+        states.mouseover = false
+        canvas.style.cursor = null
+      })
+    )
 
-        canvas.addEventListener("mouseenter", this._mouseEnterHandler = () => {
-            states.mouseover = true;
-        });
+    document.addEventListener(
+      'mousemove',
+      (this._mouseMoveHandler = (e) => {
+        getCanvasPosFromEvent(e, canvas, states.pointerCanvasPos)
+      })
+    )
 
-        canvas.addEventListener("mouseleave", this._mouseLeaveHandler = () => {
-            states.mouseover = false;
-            canvas.style.cursor = null;
-        });
+    canvas.addEventListener(
+      'mousedown',
+      (this._mouseDownHandler = (e) => {
+        if (!(configs.active && configs.pointerEnabled)) {
+          return
+        }
+        getCanvasPosFromEvent(e, canvas, states.pointerCanvasPos)
+        states.mouseover = true
+      })
+    )
 
-        document.addEventListener("mousemove", this._mouseMoveHandler = (e) => {
-            getCanvasPosFromEvent(e, canvas, states.pointerCanvasPos);
-        });
+    canvas.addEventListener(
+      'mouseup',
+      (this._mouseUpHandler = (e) => {
+        if (!(configs.active && configs.pointerEnabled)) {
+          return
+        }
+      })
+    )
+  }
 
-        canvas.addEventListener("mousedown", this._mouseDownHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled)) {
-                return;
-            }
-            getCanvasPosFromEvent(e, canvas, states.pointerCanvasPos);
-            states.mouseover = true;
-        });
+  reset() {}
 
-        canvas.addEventListener("mouseup", this._mouseUpHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled)) {
-                return;
-            }
-        });
-    }
+  destroy() {
+    const canvas = this._scene.canvas.canvas
 
-    reset() {
-    }
-
-    destroy() {
-
-        const canvas = this._scene.canvas.canvas;
-
-        document.removeEventListener("mousemove", this._mouseMoveHandler);
-        canvas.removeEventListener("mouseenter", this._mouseEnterHandler);
-        canvas.removeEventListener("mouseleave", this._mouseLeaveHandler);
-        canvas.removeEventListener("mousedown", this._mouseDownHandler);
-        canvas.removeEventListener("mouseup", this._mouseUpHandler);
-    }
+    document.removeEventListener('mousemove', this._mouseMoveHandler)
+    canvas.removeEventListener('mouseenter', this._mouseEnterHandler)
+    canvas.removeEventListener('mouseleave', this._mouseLeaveHandler)
+    canvas.removeEventListener('mousedown', this._mouseDownHandler)
+    canvas.removeEventListener('mouseup', this._mouseUpHandler)
+  }
 }
 
 function getCanvasPosFromEvent(event, canvas, canvasPos) {
-    if (!event) {
-        event = window.event;
-        canvasPos[0] = event.x;
-        canvasPos[1] = event.y;
-    } else {
-        const { x, y } = canvas.getBoundingClientRect();
-        canvasPos[0] = event.clientX - x;
-        canvasPos[1] = event.clientY - y;
-    }
-    return canvasPos;
+  if (!event) {
+    event = window.event
+    canvasPos[0] = event.x
+    canvasPos[1] = event.y
+  } else {
+    const { x, y } = canvas.getBoundingClientRect()
+    canvasPos[0] = event.clientX - x
+    canvasPos[1] = event.clientY - y
+  }
+  return canvasPos
 }
 
-export {MouseMiscHandler};
+export { MouseMiscHandler }

@@ -1,1 +1,1 @@
-export * from "./FastNavPlugin.js";
+export * from './FastNavPlugin.js'

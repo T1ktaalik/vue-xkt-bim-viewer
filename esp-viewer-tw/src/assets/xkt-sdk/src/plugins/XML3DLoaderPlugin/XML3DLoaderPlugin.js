@@ -1,7 +1,7 @@
-import {utils} from "../../viewer/scene/utils.js"
-import {Node} from "../../viewer/scene/nodes/Node.js";
-import {Plugin} from "../../viewer/Plugin.js";
-import {XML3DSceneGraphLoader} from "./XML3DSceneGraphLoader.js";
+import { utils } from '../../viewer/scene/utils.js'
+import { Node } from '../../viewer/scene/nodes/Node.js'
+import { Plugin } from '../../viewer/Plugin.js'
+import { XML3DSceneGraphLoader } from './XML3DSceneGraphLoader.js'
 
 /**
  * {@link Viewer} plugin that loads models from [3DXML](https://en.wikipedia.org/wiki/3DXML) files.
@@ -154,85 +154,89 @@ import {XML3DSceneGraphLoader} from "./XML3DSceneGraphLoader.js";
  */
 
 class XML3DLoaderPlugin extends Plugin {
+  /**
+   * @constructor
+   * @param {Viewer} viewer The Viewer.
+   * @param {Object} cfg  Plugin configuration.
+   * @param {String} [cfg.id="XML3DLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+   * @param {String} cfg.workerScriptsPath Path to the directory that contains the
+   * bundled [zip.js](https://gildas-lormeau.github.io/zip.js/) archive, which is a dependency of this plugin. This directory
+   * contains the script that is used by zip.js to instantiate Web workers, which assist with unzipping the 3DXML, which is a ZIP archive.
+   * @param {String} [cfg.materialType="PhongMaterial"] What type of materials to create while loading: "MetallicMaterial" to create {@link MetallicMaterial}s, "SpecularMaterial" to create {@link SpecularMaterial}s or "PhongMaterial" to create {@link PhongMaterial}s. As it loads XML3D's Phong materials, the XMLLoaderPlugin will do its best approximate conversion of those to the specified workflow.
+   * @param {Boolean} [cfg.createMetaModel=false] When true, will create a {@link MetaModel} for the model in {@link MetaScene#metaModels}.
+   */
+  constructor(viewer, cfg = {}) {
+    super('XML3DLoader', viewer, cfg)
 
-    /**
-     * @constructor
-     * @param {Viewer} viewer The Viewer.
-     * @param {Object} cfg  Plugin configuration.
-     * @param {String} [cfg.id="XML3DLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {String} cfg.workerScriptsPath Path to the directory that contains the
-     * bundled [zip.js](https://gildas-lormeau.github.io/zip.js/) archive, which is a dependency of this plugin. This directory
-     * contains the script that is used by zip.js to instantiate Web workers, which assist with unzipping the 3DXML, which is a ZIP archive.
-     * @param {String} [cfg.materialType="PhongMaterial"] What type of materials to create while loading: "MetallicMaterial" to create {@link MetallicMaterial}s, "SpecularMaterial" to create {@link SpecularMaterial}s or "PhongMaterial" to create {@link PhongMaterial}s. As it loads XML3D's Phong materials, the XMLLoaderPlugin will do its best approximate conversion of those to the specified workflow.
-     * @param {Boolean} [cfg.createMetaModel=false] When true, will create a {@link MetaModel} for the model in {@link MetaScene#metaModels}.
-     */
-    constructor(viewer, cfg = {}) {
-
-        super("XML3DLoader", viewer, cfg);
-
-        if (!cfg.workerScriptsPath) {
-            this.error("Config expected: workerScriptsPath");
-            return
-        }
-
-        this._workerScriptsPath = cfg.workerScriptsPath;
-
-        /**
-         * @private
-         */
-        this._loader = new XML3DSceneGraphLoader(this, cfg);
-
-        /**
-         * Supported 3DXML schema versions
-         * @property supportedSchemas
-         * @type {string[]}
-         */
-        this.supportedSchemas = this._loader.supportedSchemas;
+    if (!cfg.workerScriptsPath) {
+      this.error('Config expected: workerScriptsPath')
+      return
     }
 
+    this._workerScriptsPath = cfg.workerScriptsPath
+
     /**
-     * Loads a 3DXML model from a file into this XML3DLoaderPlugin's {@link Viewer}.
-     *
-     * Creates a tree of {@link Entity}s within the Viewer's {@link Scene} that represents the model.
-     *
-     * @param {*} params  Loading parameters.
-     * @param {String} params.id ID to assign to the model's root {@link Entity}, unique among all components in the Viewer's {@link Scene}.
-     * @param {String} [params.src] Path to a 3DXML file.
-     * @param {Boolean} [params.edges=false] Whether or not xeokit renders the {@link Entity} with edges emphasized.
-     * @param {Number[]} [params.position=[0,0,0]] The model's World-space 3D position.
-     * @param {Number[]} [params.scale=[1,1,1]] The model's World-space scale.
-     * @param {Number[]} [params.rotation=[0,0,0]] The model's World-space rotation, as Euler angles given in degrees, for each of the X, Y and Z axis.
-     * @param {Number[]} [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters.
-     * @param {Boolean} [params.backfaces=false] When true, allows visible backfaces, wherever specified in the 3DXML. When false, ignores backfaces.
-     * @param {Number} [params.edgeThreshold=20] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
-     * @param {String} [params.materialType="PhongMaterial"] What type of materials to create while loading: "MetallicMaterial" to create {@link MetallicMaterial}s, "SpecularMaterial" to create {@link SpecularMaterial}s or "PhongMaterial" to create {@link PhongMaterial}s. As it loads XML3D's Phong materials, the XMLLoaderPlugin will do its best approximate conversion of those to the specified workflow.
-     * @param {Boolean} [params.createMetaModel=false] When true, will create a {@link MetaModel} for the model in {@link MetaScene#metaModels}.
-     * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}
+     * @private
      */
-    load(params = {}) {
+    this._loader = new XML3DSceneGraphLoader(this, cfg)
 
-        params.workerScriptsPath = this._workerScriptsPath;
+    /**
+     * Supported 3DXML schema versions
+     * @property supportedSchemas
+     * @type {string[]}
+     */
+    this.supportedSchemas = this._loader.supportedSchemas
+  }
 
-        if (params.id && this.viewer.scene.components[params.id]) {
-            this.error("Component with this ID already exists in viewer: " + params.id + " - will autogenerate this ID");
-            delete params.id;
-        }
+  /**
+   * Loads a 3DXML model from a file into this XML3DLoaderPlugin's {@link Viewer}.
+   *
+   * Creates a tree of {@link Entity}s within the Viewer's {@link Scene} that represents the model.
+   *
+   * @param {*} params  Loading parameters.
+   * @param {String} params.id ID to assign to the model's root {@link Entity}, unique among all components in the Viewer's {@link Scene}.
+   * @param {String} [params.src] Path to a 3DXML file.
+   * @param {Boolean} [params.edges=false] Whether or not xeokit renders the {@link Entity} with edges emphasized.
+   * @param {Number[]} [params.position=[0,0,0]] The model's World-space 3D position.
+   * @param {Number[]} [params.scale=[1,1,1]] The model's World-space scale.
+   * @param {Number[]} [params.rotation=[0,0,0]] The model's World-space rotation, as Euler angles given in degrees, for each of the X, Y and Z axis.
+   * @param {Number[]} [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters.
+   * @param {Boolean} [params.backfaces=false] When true, allows visible backfaces, wherever specified in the 3DXML. When false, ignores backfaces.
+   * @param {Number} [params.edgeThreshold=20] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
+   * @param {String} [params.materialType="PhongMaterial"] What type of materials to create while loading: "MetallicMaterial" to create {@link MetallicMaterial}s, "SpecularMaterial" to create {@link SpecularMaterial}s or "PhongMaterial" to create {@link PhongMaterial}s. As it loads XML3D's Phong materials, the XMLLoaderPlugin will do its best approximate conversion of those to the specified workflow.
+   * @param {Boolean} [params.createMetaModel=false] When true, will create a {@link MetaModel} for the model in {@link MetaScene#metaModels}.
+   * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}
+   */
+  load(params = {}) {
+    params.workerScriptsPath = this._workerScriptsPath
 
-        const modelNode = new Node(this.viewer.scene, utils.apply(params, {
-            isModel: true
-        }));
-
-        const src = params.src;
-
-        if (!src) {
-            this.error("load() param expected: src");
-            return modelNode; // Return new empty model
-        }
-
-        this._loader.load(this, modelNode, src, params);
-
-        return modelNode;
+    if (params.id && this.viewer.scene.components[params.id]) {
+      this.error(
+        'Component with this ID already exists in viewer: ' +
+          params.id +
+          ' - will autogenerate this ID'
+      )
+      delete params.id
     }
+
+    const modelNode = new Node(
+      this.viewer.scene,
+      utils.apply(params, {
+        isModel: true
+      })
+    )
+
+    const src = params.src
+
+    if (!src) {
+      this.error('load() param expected: src')
+      return modelNode // Return new empty model
+    }
+
+    this._loader.load(this, modelNode, src, params)
+
+    return modelNode
+  }
 }
 
-export {XML3DLoaderPlugin}
+export { XML3DLoaderPlugin }

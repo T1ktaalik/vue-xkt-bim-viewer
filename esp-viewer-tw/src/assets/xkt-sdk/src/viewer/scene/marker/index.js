@@ -1,2 +1,2 @@
-export * from "./Marker.js";
-export * from "./SpriteMarker.js";
+export * from './Marker.js'
+export * from './SpriteMarker.js'

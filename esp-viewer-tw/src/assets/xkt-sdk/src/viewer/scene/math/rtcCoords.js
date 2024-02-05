@@ -1,6 +1,6 @@
-import {math} from './math.js';
+import { math } from './math.js'
 
-const tempVec3a = math.vec3();
+const tempVec3a = math.vec3()
 
 /**
  * Given a view matrix and a relative-to-center (RTC) coordinate origin, returns a view matrix
@@ -11,22 +11,21 @@ const tempVec3a = math.vec3();
  * @private
  */
 const createRTCViewMat = (function () {
+  const tempMat = new Float64Array(16)
+  const rtcCenterWorld = new Float64Array(4)
+  const rtcCenterView = new Float64Array(4)
 
-    const tempMat = new Float64Array(16);
-    const rtcCenterWorld = new Float64Array(4);
-    const rtcCenterView = new Float64Array(4);
-
-    return function (viewMat, rtcCenter, rtcViewMat) {
-        rtcViewMat = rtcViewMat || tempMat;
-        rtcCenterWorld[0] = rtcCenter[0];
-        rtcCenterWorld[1] = rtcCenter[1];
-        rtcCenterWorld[2] = rtcCenter[2];
-        rtcCenterWorld[3] = 1;
-        math.transformVec4(viewMat, rtcCenterWorld, rtcCenterView);
-        math.setMat4Translation(viewMat, rtcCenterView, rtcViewMat);
-        return rtcViewMat.slice ();
-    }
-}());
+  return function (viewMat, rtcCenter, rtcViewMat) {
+    rtcViewMat = rtcViewMat || tempMat
+    rtcCenterWorld[0] = rtcCenter[0]
+    rtcCenterWorld[1] = rtcCenter[1]
+    rtcCenterWorld[2] = rtcCenter[2]
+    rtcCenterWorld[3] = 1
+    math.transformVec4(viewMat, rtcCenterWorld, rtcCenterView)
+    math.setMat4Translation(viewMat, rtcCenterView, rtcViewMat)
+    return rtcViewMat.slice()
+  }
+})()
 
 /**
  * Converts a World-space 3D position to RTC.
@@ -39,25 +38,23 @@ const createRTCViewMat = (function () {
  * @param {Float32Array} rtcPos Single-precision offset fom that center.
  */
 function worldToRTCPos(worldPos, rtcCenter, rtcPos) {
+  const xHigh = Float32Array.from([worldPos[0]])[0]
+  const xLow = worldPos[0] - xHigh
 
-    const xHigh = Float32Array.from([worldPos[0]])[0];
-    const xLow = worldPos[0] - xHigh;
+  const yHigh = Float32Array.from([worldPos[1]])[0]
+  const yLow = worldPos[1] - yHigh
 
-    const yHigh = Float32Array.from([worldPos[1]])[0];
-    const yLow = worldPos[1] - yHigh;
+  const zHigh = Float32Array.from([worldPos[2]])[0]
+  const zLow = worldPos[2] - zHigh
 
-    const zHigh = Float32Array.from([worldPos[2]])[0];
-    const zLow = worldPos[2] - zHigh;
+  rtcCenter[0] = xHigh
+  rtcCenter[1] = yHigh
+  rtcCenter[2] = zHigh
 
-    rtcCenter[0] = xHigh;
-    rtcCenter[1] = yHigh;
-    rtcCenter[2] = zHigh;
-
-    rtcPos[0] = xLow;
-    rtcPos[1] = yLow;
-    rtcPos[2] = zLow;
+  rtcPos[0] = xLow
+  rtcPos[1] = yLow
+  rtcPos[2] = zLow
 }
-
 
 /**
  * Converts a flat array of double-precision positions to RTC positions, if necessary.
@@ -79,28 +76,27 @@ function worldToRTCPos(worldPos, rtcCenter, rtcPos) {
  * since ````rtcCenter```` will equal ````[0,0,0]````, and ````rtcPositions```` will contain identical values to ````positions````.
  */
 function worldToRTCPositions(worldPositions, rtcPositions, rtcCenter, cellSize = 1000) {
+  const center = math.getPositionsCenter(worldPositions, tempVec3a)
 
-    const center = math.getPositionsCenter(worldPositions, tempVec3a);
+  const rtcCenterX = Math.round(center[0] / cellSize) * cellSize
+  const rtcCenterY = Math.round(center[1] / cellSize) * cellSize
+  const rtcCenterZ = Math.round(center[2] / cellSize) * cellSize
 
-    const rtcCenterX = Math.round(center[0] / cellSize) * cellSize;
-    const rtcCenterY = Math.round(center[1] / cellSize) * cellSize;
-    const rtcCenterZ = Math.round(center[2] / cellSize) * cellSize;
+  rtcCenter[0] = rtcCenterX
+  rtcCenter[1] = rtcCenterY
+  rtcCenter[2] = rtcCenterZ
 
-    rtcCenter[0] = rtcCenterX;
-    rtcCenter[1] = rtcCenterY;
-    rtcCenter[2] = rtcCenterZ;
+  const rtcNeeded = rtcCenter[0] !== 0 || rtcCenter[1] !== 0 || rtcCenter[2] !== 0
 
-    const rtcNeeded = (rtcCenter[0] !== 0 || rtcCenter[1] !== 0 || rtcCenter[2] !== 0);
-
-    if (rtcNeeded) {
-        for (let i = 0, len = worldPositions.length; i < len; i += 3) {
-            rtcPositions[i + 0] = worldPositions[i + 0] - rtcCenterX;
-            rtcPositions[i + 1] = worldPositions[i + 1] - rtcCenterY;
-            rtcPositions[i + 2] = worldPositions[i + 2] - rtcCenterZ;
-        }
+  if (rtcNeeded) {
+    for (let i = 0, len = worldPositions.length; i < len; i += 3) {
+      rtcPositions[i + 0] = worldPositions[i + 0] - rtcCenterX
+      rtcPositions[i + 1] = worldPositions[i + 1] - rtcCenterY
+      rtcPositions[i + 2] = worldPositions[i + 2] - rtcCenterZ
     }
+  }
 
-    return rtcNeeded;
+  return rtcNeeded
 }
 
 /**
@@ -112,10 +108,10 @@ function worldToRTCPositions(worldPositions, rtcPositions, rtcCenter, cellSize =
  * @param {Float64Array} worldPos The World-space position.
  */
 function rtcToWorldPos(rtcCenter, rtcPos, worldPos) {
-    worldPos[0] = rtcCenter[0] + rtcPos[0];
-    worldPos[1] = rtcCenter[1] + rtcPos[1];
-    worldPos[2] = rtcCenter[2] + rtcPos[2];
-    return worldPos;
+  worldPos[0] = rtcCenter[0] + rtcPos[0]
+  worldPos[1] = rtcCenter[1] + rtcPos[1]
+  worldPos[2] = rtcCenter[2] + rtcPos[2]
+  return worldPos
 }
 
 /**
@@ -130,10 +126,10 @@ function rtcToWorldPos(rtcCenter, rtcPos, worldPos) {
  * @returns {*}
  */
 function getPlaneRTCPos(dist, dir, rtcCenter, rtcPlanePos) {
-    const rtcCenterToPlaneDist = math.dotVec3(dir, rtcCenter) + dist;
-    const dirNormalized = math.normalizeVec3(dir, tempVec3a);
-    math.mulVec3Scalar(dirNormalized, -rtcCenterToPlaneDist, rtcPlanePos);
-    return rtcPlanePos;
+  const rtcCenterToPlaneDist = math.dotVec3(dir, rtcCenter) + dist
+  const dirNormalized = math.normalizeVec3(dir, tempVec3a)
+  math.mulVec3Scalar(dirNormalized, -rtcCenterToPlaneDist, rtcPlanePos)
+  return rtcPlanePos
 }
 
-export {createRTCViewMat, worldToRTCPos, worldToRTCPositions, rtcToWorldPos, getPlaneRTCPos};
+export { createRTCViewMat, worldToRTCPos, worldToRTCPositions, rtcToWorldPos, getPlaneRTCPos }

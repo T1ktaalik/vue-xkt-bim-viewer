@@ -1,1 +1,1 @@
-export * from "./FaceAlignedSectionPlanesPlugin.js";
+export * from './FaceAlignedSectionPlanesPlugin.js'

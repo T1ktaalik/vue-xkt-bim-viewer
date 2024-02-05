@@ -1,4 +1,4 @@
-import {CubeTexture} from './CubeTexture.js';
+import { CubeTexture } from './CubeTexture.js'
 
 /**
  * @desc A **LightMap** specifies a cube texture light map.
@@ -45,33 +45,32 @@ import {CubeTexture} from './CubeTexture.js';
  * ````
  */
 class LightMap extends CubeTexture {
-
-    /**
+  /**
      @private
      */
-    get type() {
-        return "LightMap";
-    }
+  get type() {
+    return 'LightMap'
+  }
 
-    /**
-     * @constructor
-     * @param {Component} owner Owner component. When destroyed, the owner will destroy this component as well.
-     * @param {*} [cfg] Configs
-     * @param {String} [cfg.id] Optional ID for this LightMap, unique among all components in the parent scene, generated automatically when omitted.
-     * @param {String:Object} [cfg.meta] Optional map of user-defined metadata to attach to this LightMap.
-     * @param {String[]} [cfg.src=null] Paths to six image files to load into this LightMap.
-     * @param {Boolean} [cfg.flipY=false] Flips this LightMap's source data along its vertical axis when true.
-     * @param {Number} [cfg.encoding=LinearEncoding] Encoding format. Supported values are {@link LinearEncoding} and {@link sRGBEncoding}.
-     */
-    constructor(owner, cfg = {}) {
-        super(owner, cfg);
-        this.scene._lightMapCreated(this);
-    }
+  /**
+   * @constructor
+   * @param {Component} owner Owner component. When destroyed, the owner will destroy this component as well.
+   * @param {*} [cfg] Configs
+   * @param {String} [cfg.id] Optional ID for this LightMap, unique among all components in the parent scene, generated automatically when omitted.
+   * @param {String:Object} [cfg.meta] Optional map of user-defined metadata to attach to this LightMap.
+   * @param {String[]} [cfg.src=null] Paths to six image files to load into this LightMap.
+   * @param {Boolean} [cfg.flipY=false] Flips this LightMap's source data along its vertical axis when true.
+   * @param {Number} [cfg.encoding=LinearEncoding] Encoding format. Supported values are {@link LinearEncoding} and {@link sRGBEncoding}.
+   */
+  constructor(owner, cfg = {}) {
+    super(owner, cfg)
+    this.scene._lightMapCreated(this)
+  }
 
-    destroy() {
-        super.destroy();
-        this.scene._lightMapDestroyed(this);
-    }
+  destroy() {
+    super.destroy()
+    this.scene._lightMapDestroyed(this)
+  }
 }
 
-export {LightMap};
+export { LightMap }

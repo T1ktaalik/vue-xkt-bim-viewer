@@ -1,1 +1,1 @@
-export * from "./SectionPlanesPlugin.js";
+export * from './SectionPlanesPlugin.js'

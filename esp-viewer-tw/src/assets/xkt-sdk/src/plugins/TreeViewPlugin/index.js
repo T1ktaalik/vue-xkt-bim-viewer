@@ -1,1 +1,1 @@
-export * from "./TreeViewPlugin.js";
+export * from './TreeViewPlugin.js'

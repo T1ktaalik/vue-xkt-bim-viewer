@@ -1,1 +1,1 @@
-export * from "./BCFViewpointsPlugin.js";
+export * from './BCFViewpointsPlugin.js'

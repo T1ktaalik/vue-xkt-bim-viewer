@@ -1,8 +1,8 @@
-import {Plugin, SceneModel, utils} from "../../viewer/index.js"
-import {GLTFSceneModelLoader} from "./GLTFSceneModelLoader.js";
+import { Plugin, SceneModel, utils } from '../../viewer/index.js'
+import { GLTFSceneModelLoader } from './GLTFSceneModelLoader.js'
 
-import {GLTFDefaultDataSource} from "./GLTFDefaultDataSource.js";
-import {IFCObjectDefaults} from "../../viewer/metadata/IFCObjectDefaults.js";
+import { GLTFDefaultDataSource } from './GLTFDefaultDataSource.js'
+import { IFCObjectDefaults } from '../../viewer/metadata/IFCObjectDefaults.js'
 
 /**
  * {@link Viewer} plugin that loads models from [glTF](https://www.khronos.org/gltf/).
@@ -159,263 +159,263 @@ import {IFCObjectDefaults} from "../../viewer/metadata/IFCObjectDefaults.js";
  * @class GLTFLoaderPlugin
  */
 class GLTFLoaderPlugin extends Plugin {
+  /**
+   * @constructor
+   *
+   * @param {Viewer} viewer The Viewer.
+   * @param {Object} cfg  Plugin configuration.
+   * @param {String} [cfg.id="GLTFLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
+   * @param {Object} [cfg.objectDefaults] Map of initial default states for each loaded {@link Entity} that represents an object.  Default value is {@link IFCObjectDefaults}.
+   * @param {Object} [cfg.dataSource] A custom data source through which the GLTFLoaderPlugin can load metadata, glTF and binary attachments. Defaults to an instance of {@link GLTFDefaultDataSource}, which loads over HTTP.
+   */
+  constructor(viewer, cfg = {}) {
+    super('GLTFLoader', viewer, cfg)
 
-    /**
-     * @constructor
-     *
-     * @param {Viewer} viewer The Viewer.
-     * @param {Object} cfg  Plugin configuration.
-     * @param {String} [cfg.id="GLTFLoader"] Optional ID for this plugin, so that we can find it within {@link Viewer#plugins}.
-     * @param {Object} [cfg.objectDefaults] Map of initial default states for each loaded {@link Entity} that represents an object.  Default value is {@link IFCObjectDefaults}.
-     * @param {Object} [cfg.dataSource] A custom data source through which the GLTFLoaderPlugin can load metadata, glTF and binary attachments. Defaults to an instance of {@link GLTFDefaultDataSource}, which loads over HTTP.
-     */
-    constructor(viewer, cfg = {}) {
+    this._sceneModelLoader = new GLTFSceneModelLoader(this, cfg)
 
-        super("GLTFLoader", viewer, cfg);
+    this.dataSource = cfg.dataSource
+    this.objectDefaults = cfg.objectDefaults
+  }
 
-        this._sceneModelLoader = new GLTFSceneModelLoader(this, cfg);
+  /**
+   * Sets a custom data source through which the GLTFLoaderPlugin can load metadata, glTF and binary attachments.
+   *
+   * Default value is {@link GLTFDefaultDataSource}, which loads via an XMLHttpRequest.
+   *
+   * @type {Object}
+   */
+  set dataSource(value) {
+    this._dataSource = value || new GLTFDefaultDataSource()
+  }
 
-        this.dataSource = cfg.dataSource;
-        this.objectDefaults = cfg.objectDefaults;
+  /**
+   * Gets the custom data source through which the GLTFLoaderPlugin can load metadata, glTF and binary attachments.
+   *
+   * Default value is {@link GLTFDefaultDataSource}, which loads via an XMLHttpRequest.
+   *
+   * @type {Object}
+   */
+  get dataSource() {
+    return this._dataSource
+  }
+
+  /**
+   * Sets map of initial default states for each loaded {@link Entity} that represents an object.
+   *
+   * Default value is {@link IFCObjectDefaults}.
+   *
+   * @type {{String: Object}}
+   */
+  set objectDefaults(value) {
+    this._objectDefaults = value || IFCObjectDefaults
+  }
+
+  /**
+   * Gets map of initial default states for each loaded {@link Entity} that represents an object.
+   *
+   * Default value is {@link IFCObjectDefaults}.
+   *
+   * @type {{String: Object}}
+   */
+  get objectDefaults() {
+    return this._objectDefaults
+  }
+
+  /**
+   * Loads a glTF model from a file into this GLTFLoaderPlugin's {@link Viewer}.
+   *
+   * @param {*} params Loading parameters.
+   * @param {String} [params.id] ID to assign to the root {@link Entity#id}, unique among all components in the Viewer's {@link Scene}, generated automatically by default.
+   * @param {String} [params.src] Path to a glTF file, as an alternative to the ````gltf```` parameter.
+   * @param {*} [params.gltf] glTF JSON, as an alternative to the ````src```` parameter.
+   * @param {String} [params.metaModelSrc] Path to an optional metadata file, as an alternative to the ````metaModelJSON```` parameter.
+   * @param {*} [params.metaModelJSON] JSON model metadata, as an alternative to the ````metaModelSrc```` parameter.
+   * @param {{String:Object}} [params.objectDefaults] Map of initial default states for each loaded {@link Entity} that represents an object. Default value is {@link IFCObjectDefaults}.
+   * @param {String[]} [params.includeTypes] When loading metadata, only loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
+   * @param {String[]} [params.excludeTypes] When loading metadata, never loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
+   * @param {Boolean} [params.edges=false] Whether or not xeokit renders the model with edges emphasized.
+   * @param {Number[]} [params.origin=[0,0,0]] The double-precision World-space origin of the model's coordinates.
+   * @param {Number[]} [params.position=[0,0,0]] The single-precision position, relative to ````origin````.
+   * @param {Number[]} [params.scale=[1,1,1]] The model's scale.
+   * @param {Number[]} [params.rotation=[0,0,0]] The model's orientation, as Euler angles given in degrees, for each of the X, Y and Z axis.
+   * @param {Number[]} [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters. Relative to ````origin````.
+   * @param {Boolean} [params.saoEnabled=true] Indicates if Scalable Ambient Obscurance (SAO) is enabled for the model. SAO is configured by the Scene's {@link SAO} component. Only works when {@link SAO#enabled} is also ````true````
+   * @param {Boolean} [params.pbrEnabled=true] Indicates if physically-based rendering (PBR) is enabled for the model. Overrides ````colorTextureEnabled````. Only works when {@link Scene#pbrEnabled} is also ````true````.
+   * @param {Boolean} [params.colorTextureEnabled=true] Indicates if base color texture rendering is enabled for the model. Overridden by ````pbrEnabled````.  Only works when {@link Scene#colorTextureEnabled} is also ````true````.
+   * @param {Boolean} [params.backfaces=false] When true, allows visible backfaces, wherever specified in the glTF. When false, ignores backfaces.
+   * @param {Number} [params.edgeThreshold=10] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
+   * @param {Boolean} [params.dtxEnabled=true] When ````true```` (default) use data textures (DTX), where appropriate, to
+   * represent the returned model. Set false to always use vertex buffer objects (VBOs). Note that DTX is only applicable
+   * to non-textured triangle meshes, and that VBOs are always used for meshes that have textures, line segments, or point
+   * primitives. Only works while {@link DTX#enabled} is also ````true````.
+   * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}
+   */
+  load(params = {}) {
+    if (params.id && this.viewer.scene.components[params.id]) {
+      this.error(
+        'Component with this ID already exists in viewer: ' +
+          params.id +
+          ' - will autogenerate this ID'
+      )
+      delete params.id
     }
 
-    /**
-     * Sets a custom data source through which the GLTFLoaderPlugin can load metadata, glTF and binary attachments.
-     *
-     * Default value is {@link GLTFDefaultDataSource}, which loads via an XMLHttpRequest.
-     *
-     * @type {Object}
-     */
-    set dataSource(value) {
-        this._dataSource = value || new GLTFDefaultDataSource();
+    const sceneModel = new SceneModel(
+      this.viewer.scene,
+      utils.apply(params, {
+        isModel: true,
+        dtxEnabled: params.dtxEnabled
+      })
+    )
+
+    const modelId = sceneModel.id // In case ID was auto-generated
+
+    if (!params.src && !params.gltf) {
+      this.error('load() param expected: src or gltf')
+      return sceneModel // Return new empty model
     }
 
-    /**
-     * Gets the custom data source through which the GLTFLoaderPlugin can load metadata, glTF and binary attachments.
-     *
-     * Default value is {@link GLTFDefaultDataSource}, which loads via an XMLHttpRequest.
-     *
-     * @type {Object}
-     */
-    get dataSource() {
-        return this._dataSource;
-    }
+    if (params.metaModelSrc || params.metaModelJSON) {
+      const objectDefaults = params.objectDefaults || this._objectDefaults || IFCObjectDefaults
 
-    /**
-     * Sets map of initial default states for each loaded {@link Entity} that represents an object.
-     *
-     * Default value is {@link IFCObjectDefaults}.
-     *
-     * @type {{String: Object}}
-     */
-    set objectDefaults(value) {
-        this._objectDefaults = value || IFCObjectDefaults;
-    }
+      const processMetaModelJSON = (metaModelJSON) => {
+        this.viewer.metaScene.createMetaModel(modelId, metaModelJSON, {
+          includeTypes: params.includeTypes,
+          excludeTypes: params.excludeTypes
+        })
 
-    /**
-     * Gets map of initial default states for each loaded {@link Entity} that represents an object.
-     *
-     * Default value is {@link IFCObjectDefaults}.
-     *
-     * @type {{String: Object}}
-     */
-    get objectDefaults() {
-        return this._objectDefaults;
-    }
+        this.viewer.scene.canvas.spinner.processes--
 
-    /**
-     * Loads a glTF model from a file into this GLTFLoaderPlugin's {@link Viewer}.
-     *
-     * @param {*} params Loading parameters.
-     * @param {String} [params.id] ID to assign to the root {@link Entity#id}, unique among all components in the Viewer's {@link Scene}, generated automatically by default.
-     * @param {String} [params.src] Path to a glTF file, as an alternative to the ````gltf```` parameter.
-     * @param {*} [params.gltf] glTF JSON, as an alternative to the ````src```` parameter.
-     * @param {String} [params.metaModelSrc] Path to an optional metadata file, as an alternative to the ````metaModelJSON```` parameter.
-     * @param {*} [params.metaModelJSON] JSON model metadata, as an alternative to the ````metaModelSrc```` parameter.
-     * @param {{String:Object}} [params.objectDefaults] Map of initial default states for each loaded {@link Entity} that represents an object. Default value is {@link IFCObjectDefaults}.
-     * @param {String[]} [params.includeTypes] When loading metadata, only loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
-     * @param {String[]} [params.excludeTypes] When loading metadata, never loads objects that have {@link MetaObject}s with {@link MetaObject#type} values in this list.
-     * @param {Boolean} [params.edges=false] Whether or not xeokit renders the model with edges emphasized.
-     * @param {Number[]} [params.origin=[0,0,0]] The double-precision World-space origin of the model's coordinates.
-     * @param {Number[]} [params.position=[0,0,0]] The single-precision position, relative to ````origin````.
-     * @param {Number[]} [params.scale=[1,1,1]] The model's scale.
-     * @param {Number[]} [params.rotation=[0,0,0]] The model's orientation, as Euler angles given in degrees, for each of the X, Y and Z axis.
-     * @param {Number[]} [params.matrix=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]] The model's world transform matrix. Overrides the position, scale and rotation parameters. Relative to ````origin````.
-     * @param {Boolean} [params.saoEnabled=true] Indicates if Scalable Ambient Obscurance (SAO) is enabled for the model. SAO is configured by the Scene's {@link SAO} component. Only works when {@link SAO#enabled} is also ````true````
-     * @param {Boolean} [params.pbrEnabled=true] Indicates if physically-based rendering (PBR) is enabled for the model. Overrides ````colorTextureEnabled````. Only works when {@link Scene#pbrEnabled} is also ````true````.
-     * @param {Boolean} [params.colorTextureEnabled=true] Indicates if base color texture rendering is enabled for the model. Overridden by ````pbrEnabled````.  Only works when {@link Scene#colorTextureEnabled} is also ````true````.
-     * @param {Boolean} [params.backfaces=false] When true, allows visible backfaces, wherever specified in the glTF. When false, ignores backfaces.
-     * @param {Number} [params.edgeThreshold=10] When xraying, highlighting, selecting or edging, this is the threshold angle between normals of adjacent triangles, below which their shared wireframe edge is not drawn.
-     * @param {Boolean} [params.dtxEnabled=true] When ````true```` (default) use data textures (DTX), where appropriate, to
-     * represent the returned model. Set false to always use vertex buffer objects (VBOs). Note that DTX is only applicable
-     * to non-textured triangle meshes, and that VBOs are always used for meshes that have textures, line segments, or point
-     * primitives. Only works while {@link DTX#enabled} is also ````true````.
-     * @returns {Entity} Entity representing the model, which will have {@link Entity#isModel} set ````true```` and will be registered by {@link Entity#id} in {@link Scene#models}
-     */
-    load(params = {}) {
-
-        if (params.id && this.viewer.scene.components[params.id]) {
-            this.error("Component with this ID already exists in viewer: " + params.id + " - will autogenerate this ID");
-            delete params.id;
+        let includeTypes
+        if (params.includeTypes) {
+          includeTypes = {}
+          for (let i = 0, len = params.includeTypes.length; i < len; i++) {
+            includeTypes[params.includeTypes[i]] = true
+          }
         }
 
-        const sceneModel = new SceneModel(this.viewer.scene, utils.apply(params, {
-            isModel: true,
-            dtxEnabled: params.dtxEnabled
-        }));
-
-        const modelId = sceneModel.id;  // In case ID was auto-generated
-
-        if (!params.src && !params.gltf) {
-            this.error("load() param expected: src or gltf");
-            return sceneModel; // Return new empty model
+        let excludeTypes
+        if (params.excludeTypes) {
+          excludeTypes = {}
+          if (!includeTypes) {
+            includeTypes = {}
+          }
+          for (let i = 0, len = params.excludeTypes.length; i < len; i++) {
+            includeTypes[params.excludeTypes[i]] = true
+          }
         }
 
-        if (params.metaModelSrc || params.metaModelJSON) {
+        params.readableGeometry = false
 
-            const objectDefaults = params.objectDefaults || this._objectDefaults || IFCObjectDefaults;
+        params.handleGLTFNode = (modelId, glTFNode, actions) => {
+          const name = glTFNode.name
 
-            const processMetaModelJSON = (metaModelJSON) => {
+          if (!name) {
+            return true // Continue descending this node subtree
+          }
 
-                this.viewer.metaScene.createMetaModel(modelId, metaModelJSON, {
-                    includeTypes: params.includeTypes,
-                    excludeTypes: params.excludeTypes
-                });
+          const nodeId = name
+          const metaObject = this.viewer.metaScene.metaObjects[nodeId]
+          const type = (metaObject ? metaObject.type : 'DEFAULT') || 'DEFAULT'
 
-                this.viewer.scene.canvas.spinner.processes--;
+          actions.createEntity = {
+            id: nodeId,
+            isObject: true // Registers the Entity in Scene#objects
+          }
 
-                let includeTypes;
-                if (params.includeTypes) {
-                    includeTypes = {};
-                    for (let i = 0, len = params.includeTypes.length; i < len; i++) {
-                        includeTypes[params.includeTypes[i]] = true;
-                    }
-                }
+          const props = objectDefaults[type]
 
-                let excludeTypes;
-                if (params.excludeTypes) {
-                    excludeTypes = {};
-                    if (!includeTypes) {
-                        includeTypes = {};
-                    }
-                    for (let i = 0, len = params.excludeTypes.length; i < len; i++) {
-                        includeTypes[params.excludeTypes[i]] = true;
-                    }
-                }
+          if (props) {
+            // Set Entity's initial rendering state for recognized type
 
-                params.readableGeometry = false;
-
-                params.handleGLTFNode = (modelId, glTFNode, actions) => {
-
-                    const name = glTFNode.name;
-
-                    if (!name) {
-                        return true; // Continue descending this node subtree
-                    }
-
-                    const nodeId = name;
-                    const metaObject = this.viewer.metaScene.metaObjects[nodeId];
-                    const type = (metaObject ? metaObject.type : "DEFAULT") || "DEFAULT";
-
-                    actions.createEntity = {
-                        id: nodeId,
-                        isObject: true // Registers the Entity in Scene#objects
-                    };
-
-                    const props = objectDefaults[type];
-
-                    if (props) { // Set Entity's initial rendering state for recognized type
-
-                        if (props.visible === false) {
-                            actions.createEntity.visible = false;
-                        }
-
-                        if (props.colorize) {
-                            actions.createEntity.colorize = props.colorize;
-                        }
-
-                        if (props.pickable === false) {
-                            actions.createEntity.pickable = false;
-                        }
-
-                        if (props.opacity !== undefined && props.opacity !== null) {
-                            actions.createEntity.opacity = props.opacity;
-                        }
-                    }
-
-                    return true; // Continue descending this glTF node subtree
-                };
-
-                if (params.src) {
-                    this._sceneModelLoader.load(this, params.src, metaModelJSON, params, sceneModel);
-                } else {
-                    this._sceneModelLoader.parse(this, params.gltf, metaModelJSON, params, sceneModel);
-                }
-            };
-
-            if (params.metaModelSrc) {
-
-                const metaModelSrc = params.metaModelSrc;
-
-                this.viewer.scene.canvas.spinner.processes++;
-
-                this._dataSource.getMetaModel(metaModelSrc, (metaModelJSON) => {
-
-                    this.viewer.scene.canvas.spinner.processes--;
-
-                    processMetaModelJSON(metaModelJSON);
-
-                }, (errMsg) => {
-                    this.error(`load(): Failed to load model metadata for model '${modelId} from  '${metaModelSrc}' - ${errMsg}`);
-                    this.viewer.scene.canvas.spinner.processes--;
-                });
-
-            } else if (params.metaModelJSON) {
-
-                processMetaModelJSON(params.metaModelJSON);
+            if (props.visible === false) {
+              actions.createEntity.visible = false
             }
 
+            if (props.colorize) {
+              actions.createEntity.colorize = props.colorize
+            }
+
+            if (props.pickable === false) {
+              actions.createEntity.pickable = false
+            }
+
+            if (props.opacity !== undefined && props.opacity !== null) {
+              actions.createEntity.opacity = props.opacity
+            }
+          }
+
+          return true // Continue descending this glTF node subtree
+        }
+
+        if (params.src) {
+          this._sceneModelLoader.load(this, params.src, metaModelJSON, params, sceneModel)
         } else {
+          this._sceneModelLoader.parse(this, params.gltf, metaModelJSON, params, sceneModel)
+        }
+      }
 
-            params.handleGLTFNode = (modelId, glTFNode, actions) => {
+      if (params.metaModelSrc) {
+        const metaModelSrc = params.metaModelSrc
 
-                const name = glTFNode.name;
+        this.viewer.scene.canvas.spinner.processes++
 
-                if (!name) {
-                    return true; // Continue descending this node subtree
-                }
+        this._dataSource.getMetaModel(
+          metaModelSrc,
+          (metaModelJSON) => {
+            this.viewer.scene.canvas.spinner.processes--
 
-                const id = name;
+            processMetaModelJSON(metaModelJSON)
+          },
+          (errMsg) => {
+            this.error(
+              `load(): Failed to load model metadata for model '${modelId} from  '${metaModelSrc}' - ${errMsg}`
+            )
+            this.viewer.scene.canvas.spinner.processes--
+          }
+        )
+      } else if (params.metaModelJSON) {
+        processMetaModelJSON(params.metaModelJSON)
+      }
+    } else {
+      params.handleGLTFNode = (modelId, glTFNode, actions) => {
+        const name = glTFNode.name
 
-                actions.createEntity = { // Create an Entity for this glTF scene node
-                    id: id,
-                    isObject: true // Registers the Entity in Scene#objects
-                };
-
-                return true; // Continue descending this glTF node subtree
-            };
-
-
-            if (params.src) {
-                this._sceneModelLoader.load(this, params.src, null, params, sceneModel);
-            } else {
-                this._sceneModelLoader.parse(this, params.gltf, null, params, sceneModel);
-            }
+        if (!name) {
+          return true // Continue descending this node subtree
         }
 
-        sceneModel.once("destroyed", () => {
-            this.viewer.metaScene.destroyMetaModel(modelId);
-        });
+        const id = name
 
-        return sceneModel;
+        actions.createEntity = {
+          // Create an Entity for this glTF scene node
+          id: id,
+          isObject: true // Registers the Entity in Scene#objects
+        }
+
+        return true // Continue descending this glTF node subtree
+      }
+
+      if (params.src) {
+        this._sceneModelLoader.load(this, params.src, null, params, sceneModel)
+      } else {
+        this._sceneModelLoader.parse(this, params.gltf, null, params, sceneModel)
+      }
     }
 
-    /**
-     * Destroys this GLTFLoaderPlugin.
-     */
-    destroy() {
-        super.destroy();
-    }
+    sceneModel.once('destroyed', () => {
+      this.viewer.metaScene.destroyMetaModel(modelId)
+    })
+
+    return sceneModel
+  }
+
+  /**
+   * Destroys this GLTFLoaderPlugin.
+   */
+  destroy() {
+    super.destroy()
+  }
 }
 
-export {GLTFLoaderPlugin}
+export { GLTFLoaderPlugin }
