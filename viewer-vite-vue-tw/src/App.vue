@@ -1,10 +1,10 @@
 <template>
-  <div class="tw-h-full tw-h-full">
+  <div class="tw-h-full tw-w-full">
    <!--  <input type="checkbox" id="explorer_toggle"/>
 <label for="explorer_toggle" class="xeokit-i18n explorer_toggle_label xeokit-btn fas fa-2x fa-sitemap" data-xeokit-i18ntip="toolbar.toggleExplorer" data-tippy-content="Toggle explorer"></label>
 <input type="checkbox" id="inspector_toggle"/>
 <label id="inspector_toggle_label" for="inspector_toggle" class="xeokit-i18n inspector_toggle_label xeokit-btn fas fa-info-circle fa-2x" data-xeokit-i18ntip="toolbar.toggleProperties" data-tippy-content="Toggle properties"></label> -->
-<div id="myExplorer" class=" tw-absolute tw-h-screen tw-md:w-1/3 tw-sm:w-2/3 tw-w-40  tw-bg-red-200 tw-z-10"></div>
+<div id="myExplorer" class=" tw-absolute tw-h-screen   md:tw-w-64 lg:tw-w-96 tw-w-48 tw-bg-red-200 tw-z-10"></div>
 <div id="myToolbar"></div>
 <div id="myInspector"></div>
 <div id="myViewer ">
