@@ -4,9 +4,12 @@
 <label for="explorer_toggle" class="xeokit-i18n explorer_toggle_label xeokit-btn fas fa-2x fa-sitemap" data-xeokit-i18ntip="toolbar.toggleExplorer" data-tippy-content="Toggle explorer"></label>
 <input type="checkbox" id="inspector_toggle"/>
 <label id="inspector_toggle_label" for="inspector_toggle" class="xeokit-i18n inspector_toggle_label xeokit-btn fas fa-info-circle fa-2x" data-xeokit-i18ntip="toolbar.toggleProperties" data-tippy-content="Toggle properties"></label> -->
-<div id="myExplorer" class=" tw-absolute tw-h-screen   md:tw-w-64 lg:tw-w-96 tw-w-48 tw-bg-red-200 tw-z-10"></div>
+<button class="tw-left-5 tw- top-5 tw-absolute tw-z-30"> Toggle explorer</button>
+<button class="tw-right-5 tw- top-5 tw-absolute tw-z-30"> Toggle inspector</button>
+<div id="myExplorer" class=" tw-absolute tw-h-screen   md:tw-w-64 lg:tw-w-96 tw-w-48 tw-bg-red-200 tw-z-10 tw-left-0"></div>
 <div id="myToolbar"></div>
-<div id="myInspector"></div>
+<div 
+id="myInspector" class="tw-absolute tw-h-screen md:tw-w-64 lg:tw-w-108 tw-w-48 tw-bg-orange-200 tw-z-20 tw-right-0"></div>
 <div id="myViewer ">
     <canvas id="myCanvas"></canvas>
     <canvas id="myNavCubeCanvas"></canvas>
