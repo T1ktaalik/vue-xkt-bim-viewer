@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "cheerio": "^1.0.0-rc.12",
+    "tippy.js": "^6.3.7",
     "vue": "^3.3.11"
   },
   "devDependencies": {
