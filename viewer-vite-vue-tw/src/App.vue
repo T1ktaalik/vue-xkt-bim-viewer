@@ -1,15 +1,15 @@
 <template>
   <div class="tw-h-full tw-w-full">
-    <input type="checkbox" id="explorer_toggle"/>
+<!--     <input type="checkbox" id="explorer_toggle"/>
 <label for="explorer_toggle" class="xeokit-i18n explorer_toggle_label xeokit-btn fas fa-2x fa-sitemap" data-xeokit-i18ntip="toolbar.toggleExplorer" data-tippy-content="Toggle explorer"></label>
 <input type="checkbox" id="inspector_toggle"/>
-<label id="inspector_toggle_label" for="inspector_toggle" class="xeokit-i18n inspector_toggle_label xeokit-btn fas fa-info-circle fa-2x" data-xeokit-i18ntip="toolbar.toggleProperties" data-tippy-content="Toggle properties"></label>
-<div id="myExplorer"></div>
-<div id="myToolbar"></div>
-<div id="myInspector"></div>
-<div id="myViewer">
-    <canvas id="myCanvas"></canvas>
-    <canvas id="myNavCubeCanvas"></canvas>
+<label id="inspector_toggle_label" for="inspector_toggle" class="xeokit-i18n inspector_toggle_label xeokit-btn fas fa-info-circle fa-2x" data-xeokit-i18ntip="toolbar.toggleProperties" data-tippy-content="Toggle properties"></label> -->
+<div id="myExplorer" class="tw-absolute tw-left-0 tw-h-full tw-z-30 tw-top-[200px]"></div>
+<div id="myToolbar" class="tw-absolute tw-bg-orange-300"></div>
+<div id="myInspector" class="tw-absolute tw-right-0 tw-w-48 tw-bg-red-500 tw-z-30"></div>
+<div id="myViewer" class="tw-absolute tw-h-screen tw-w-screen tw-top-[200px]">
+    <canvas id="myCanvas" class="tw-h-full tw-w-full tw-z-10"></canvas>
+    <canvas id="myNavCubeCanvas" class="tw-absolute tw-right-0 tw-bottom-0 tw-z-20"></canvas>
 </div>
   </div>
 </template>
@@ -27,13 +27,15 @@ onMounted(() => {
   launchViewer();
 });
 
+const isExplorerOpen = ref(true)
+const isInspectorOpen = ref(true)
+
 
 function launchViewer() {
         const requestParams = {
 
         }
   
-
         const locale = "ru";
         const projectId = 'Duplex' ;
 
@@ -41,10 +43,10 @@ function launchViewer() {
             return;
         }
 
-        const openExplorer = true;
-        setExplorerOpen(openExplorer === "true");
+       // const openExplorer = true;
+        //setExplorerOpen(openExplorer === "true");
 
-        const enableEditModels = (requestParams.enableEditModels === "true");
+        
 
         const server = new Server({
             dataDir:  "/data"
@@ -62,10 +64,10 @@ function launchViewer() {
             inspectorElement: document.getElementById("myInspector"), // Right panel
             navCubeCanvasElement: document.getElementById("myNavCubeCanvas"),
             busyModelBackdropElement: document.getElementById("myViewer"),
-            enableEditModels: enableEditModels
+            enableEditModels: false
         });
 
-        bimViewer.localeService.on("updated", () => {
+/*         bimViewer.localeService.on("updated", () => {
             const localizedElements = document.querySelectorAll('.xeokit-i18n');
             localizedElements.forEach((localizedElement) => {
                 if (localizedElement.dataset.xeokitI18n) {
@@ -89,36 +91,39 @@ function launchViewer() {
                     }
                 }
             });
-        });
+        }); */
 
-        bimViewer.setConfigs({
-            "showSpaces": false, // Default
-            "selectedGlowThrough": true,
-            "highlightGlowThrough": true,
-            "dtxEnabled": true // Enable data texture scene representation for models - may be slow on low-spec GPUs
-        });
+        //bimViewer.setConfigs({
+        //    "showSpaces": false, // Default
+        //    "selectedGlowThrough": true,
+        //    "highlightGlowThrough": true,
+        //    "dtxEnabled": true // Enable data texture scene representation for models - may be slow on low-spec GPUs
+       // });
 
         bimViewer.on("openExplorer", () => {
-            setExplorerOpen(true);
+            //setExplorerOpen(true);
+            isExplorerOpen.value = true
+            
         });
 
         bimViewer.on("openInspector", () => {
-            setInspectorOpen(true);
+            //setInspectorOpen(true);
+            isInspectorOpen.value = true
         });
 
-        bimViewer.on("addModel", (event) => { // "Add" selected in Models tab's context menu
-            console.log("addModel: " + JSON.stringify(event, null, "\t"));
-        });
+        //bimViewer.on("addModel", (event) => { // "Add" selected in Models tab's context menu
+        //    console.log("addModel: " + JSON.stringify(event, null, "\t"));
+        //});
 
-        bimViewer.on("editModel", (event) => { // "Edit" selected in Models tab's context menu
-            console.log("editModel: " + JSON.stringify(event, null, "\t"));
-        });
+        //bimViewer.on("editModel", (event) => { // "Edit" selected in Models tab's context menu
+        //    console.log("editModel: " + JSON.stringify(event, null, "\t"));
+        //});
 
-        bimViewer.on("deleteModel", (event) => { // "Delete" selected in Models tab's context menu
-            console.log("deleteModel: " + JSON.stringify(event, null, "\t"));
-        });
+        //bimViewer.on("deleteModel", (event) => { // "Delete" selected in Models tab's context menu
+        //    console.log("deleteModel: " + JSON.stringify(event, null, "\t"));
+        //});
 
-        const viewerConfigs = requestParams.configs;
+        /* const viewerConfigs = requestParams.configs;
         if (viewerConfigs) {
             const configNameVals = viewerConfigs.split(",");
             for (let i = 0, len = configNameVals.length; i < len; i++) {
@@ -128,7 +133,7 @@ function launchViewer() {
                 const configVal = configNameVal[1];
                 bimViewer.setConfig(configName, configVal);
             }
-        }
+        } */
         
         bimViewer.loadProject(projectId, () => {
                 const modelId = requestParams.modelId;
@@ -139,13 +144,13 @@ function launchViewer() {
                 if (tab) {
                     bimViewer.openTab(tab);
                 }
-                watchHashParams();
+                /* watchHashParams(); */
             },
             (errorMsg) => {
                 console.error(errorMsg);
             });
         
-        function watchHashParams() {
+/*         function watchHashParams() {
             let lastHash = "";
             window.setInterval(() => {
                 const currentHash = window.location.hash;
@@ -216,12 +221,12 @@ function launchViewer() {
                 }
             }
         }
-
-        function setExplorerOpen(explorerOpen) {
+ */
+/*         function setExplorerOpen(explorerOpen) {
             const toggle = document.getElementById("explorer_toggle");
             if (toggle) {
                 toggle.checked = explorerOpen;
-            }
+            }loadP
         }
 
         function setInspectorOpen(inspectorOpen) {
@@ -229,7 +234,7 @@ function launchViewer() {
             if (toggle) {
                 toggle.checked = inspectorOpen;
             }
-        }
+        } */
 
       
 

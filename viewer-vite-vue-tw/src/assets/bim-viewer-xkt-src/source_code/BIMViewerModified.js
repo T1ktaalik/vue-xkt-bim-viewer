@@ -34,7 +34,58 @@ const hideEdgesMinDrawCount = 5; // FastNavPlugin enables dynamic edges when xeo
 const scaleCanvasResolutionMinDrawCount = 1000; // FastNavPlugin switches to low-res canvas when xeokit's per-frame draw count rises above this
 
 function createExplorerTemplate(cfg) {
-    const explorerTemplate = `<div class="xeokit-tabs"> 
+
+        const $xeokitTabModels = `<div class="xeokit-tab xeokit-modelsTab">
+        <a class="xeokit-i18n xeokit-tab-btn" href="#" data-xeokit-i18n="modelsExplorer.title">Models</a>
+            <div class="xeokit-tab-content">
+                <div class="xeokit-buttin-group">
+                    <button class="xeokit-loadAllModels">Показать все модели</button>
+                    <button class="xeokit-unloadAllModels"> Скрыть все модели</button>
+                </div>
+                <div class="xeokit-tree-panel xeokit-models">
+                </div>
+            </div>`;
+        const $xeokitTabObjects = `<div class="xeokit-tab xeokit-objectsTab">
+        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="objectsExplorer.title">Objects</a>
+            <div class="xeokit-tab-content">
+                <div class="xeokit-buttin-group">
+                    <button type="button" class="xeokit-showAllObjects">Показать все объекты</button>
+                    <button class="xeokit-hideAllObjects">Скрыть все объекты</button>
+                </div>
+                <div class="xeokit-tree-panel xeokit-objects">
+                </div>
+            </div>`;
+        const $xeokitTabClasses  = `<div class="xeokit-tab xeokit-classesTab">
+        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="classesExplorer.title">Classes</a>
+            <div class="xeokit-tab-content">
+                <div class="xeokit-buttin-group">
+                    <button class="xeokit-showAllClasses">Показать все классы</button>
+                    <button class="xeokit-hideAllClasses">Скрыть все классы</button>
+                </div>
+                <div class="xeokit-tree-panel xeokit-classes">
+                </div>
+         </div>`
+        const $xeokitTabStoreys = `<div class="xeokit-tab xeokit-storeysTab">
+        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="storeysExplorer.title">Storeys</a>
+            <div class="xeokit-tab-content">
+                <div class="xeokit-buttin-group">
+                    <button class="xeokit-showAllStoreys">Показать все уровни</button>
+                    <button class="xeokit-hideAllStoreys">Скрыть все уровни</button>
+                </div>
+                <div class="xeokit-tree-panel xeokit-storeys">
+                </div>
+            </div>`;
+         
+
+    const $ = cheerio.load(`<div class="xeokit-tabs"></div>`)
+    $('.xeokit-tabs').append($xeokitTabModels)
+    $('.xeokit-tabs').append($xeokitTabObjects)
+    $('.xeokit-tabs').append($xeokitTabClasses)
+    $('.xeokit-tabs').append($xeokitTabStoreys)
+    return $('body')
+
+
+   /*  const explorerTemplate = `<div class="xeokit-tabs"> 
     <div class="xeokit-tab xeokit-modelsTab">
         <a class="xeokit-i18n xeokit-tab-btn" href="#" data-xeokit-i18n="modelsExplorer.title">Models</a>
         <div class="xeokit-tab-content">
@@ -75,64 +126,59 @@ function createExplorerTemplate(cfg) {
              <div class="xeokit-storeys xeokit-tree-panel"></div>
         </div>
     </div>
-</div>`;
-    return explorerTemplate;
+</div>`; */
+    //return explorerTemplate;
+   
 }
 
-function createExplorerTemplateModified(cfg) {
-
-    const $ = cheerio.load('<div class="xeo"></div>')
-    console.log($('html'))
-
-
-    const explorerTemplate = `<div class="xeokit-tabs"> 
-    <div class="xeokit-tab xeokit-modelsTab">
-        <a class="xeokit-i18n xeokit-tab-btn" href="#" data-xeokit-i18n="modelsExplorer.title">Models</a>
-        <div class="xeokit-tab-content">
-            <div class="xeokit-btn-group">
-                <button type="button" class="xeokit-i18n xeokit-loadAllModels xeokit-btn disabled" data-xeokit-i18n="modelsExplorer.loadAll" data-xeokit-i18ntip="modelsExplorer.loadAllTip" data-tippy-content="Load all models">Load all</button>
-                <button type="button" class="xeokit-i18n xeokit-unloadAllModels xeokit-btn disabled" data-xeokit-i18n="modelsExplorer.unloadAll"  data-xeokit-i18ntip="modelsExplorer.unloadAllTip" data-tippy-content="Unload all models">Unload all</button>` +
-        (cfg.enableEditModels ? `<button type="button" class="xeokit-i18n xeokit-addModel xeokit-btn disabled" data-xeokit-i18n="modelsExplorer.add"  data-xeokit-i18ntip="modelsExplorer.addTip" data-tippy-content="Add model">Add</button>` : ``) + `</div>
-            <div class="xeokit-models" ></div>
-        </div>
-    </div>
-    <div class="xeokit-tab xeokit-objectsTab">
-        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="objectsExplorer.title">Objects</a>
-        <div class="xeokit-tab-content">
-         <div class="xeokit-btn-group">
-            <button type="button" class="xeokit-i18n xeokit-showAllObjects xeokit-btn disabled" data-xeokit-i18n="objectsExplorer.showAll" data-xeokit-i18ntip="objectsExplorer.showAllTip" data-tippy-content="Show all objects">Show all</button>
-            <button type="button" class="xeokit-i18n xeokit-hideAllObjects xeokit-btn disabled" data-xeokit-i18n="objectsExplorer.hideAll" data-xeokit-i18ntip="objectsExplorer.hideAllTip" data-tippy-content="Hide all objects">Hide all</button>
-        </div>
-        <div class="xeokit-objects xeokit-tree-panel" ></div>
-        </div>
-    </div>
-    <div class="xeokit-i18n xeokit-tab xeokit-classesTab">
-        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="classesExplorer.title">Classes</a>
-        <div class="xeokit-tab-content">
-            <div class="xeokit-btn-group">
-                <button type="button" class="xeokit-i18n xeokit-showAllClasses xeokit-btn disabled" data-xeokit-i18n="classesExplorer.showAll"  data-xeokit-i18ntip="classesExplorer.hideAllTip" data-tippy-content="Show all classes">Show all</button>
-                <button type="button" class="xeokit-i18n xeokit-hideAllClasses xeokit-btn disabled" data-xeokit-i18n="classesExplorer.hideAll" data-xeokit-i18ntip="classesExplorer.hideAllTip" data-tippy-content="Hide all classes">Hide all</button>
-            </div>
-            <div class="xeokit-classes xeokit-tree-panel" ></div>
-        </div>
-    </div>
-     <div class="xeokit-tab xeokit-storeysTab">
-        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="storeysExplorer.title">Storeys</a>
-        <div class="xeokit-tab-content">
-         <div class="xeokit-btn-group">
-                <button type="button" class="xeokit-i18n xeokit-showAllStoreys xeokit-btn disabled" data-xeokit-i18n="storeysExplorer.showAll" data-xeokit-i18ntip="storeysExplorer.showAllTip" data-tippy-content="Show all storeys">Show all</button>
-                <button type="button" class="xeokit-i18n xeokit-hideAllStoreys xeokit-btn disabled" data-xeokit-i18n="storeysExplorer.hideAll" data-xeokit-i18ntip="storeysExplorer.hideAllTip" data-tippy-content="Hide all storeys">Hide all</button>
-            </div>
-             <div class="xeokit-storeys xeokit-tree-panel"></div>
-        </div>
-    </div>
-</div>`;
-    return explorerTemplate;
-}
 
 
 function createToolbarTemplate(cfg = {}) {
-    const toolbarTemplate = `<div class="xeokit-toolbar">
+    const $xeokitToolbarTemplate =`<div class="xeokit-toolbar tw-w-[300px] " style="z-index: 999999999999999999999999999">zorro</div> `
+    const resetViewButtonTemplate = `<!-- Reset button -->
+    <div class="xeokit-btn-group">
+        <button type="button" class="xeokit-i18n xeokit-reset xeokit-btn fa fa-home fa-2x disabled" data-xeokit-i18ntip="toolbar.resetViewTip" data-tippy-content="Reset view">
+        </button>
+    </div>`
+
+    const firstButtonGroup = `<div class="xeokit-btn-group" role="group">
+    <!-- 3D Mode button -->
+    <button type="button" class="xeokit-i18n xeokit-threeD xeokit-btn fa fa-cube fa-2x disabled" data-xeokit-i18ntip="toolbar.toggle2d3dTip" data-tippy-content="Toggle 2D/3D"></button>
+    <!-- Perspective/Ortho Mode button -->
+    <button type="button" class="xeokit-i18n xeokit-ortho xeokit-btn fa fa-th fa-2x  disabled" data-xeokit-i18ntip="toolbar.togglePerspectiveTip" data-tippy-content="Toggle Perspective/Ortho"></button>
+    <!-- Fit button -->
+    <button type="button" class="xeokit-i18n xeokit-fit xeokit-btn fa fa-crop fa-2x disabled" data-xeokit-i18ntip="toolbar.viewFitTip" data-tippy-content="View fit"></button>
+    <!-- First Person mode button -->
+    <button type="button" class="xeokit-i18n xeokit-firstPerson xeokit-btn fa fa-male fa-2x disabled" data-xeokit-i18ntip="toolbar.firstPersonTip" data-tippy-content="Toggle first-person mode"></button>
+      <!-- Show/hide IFCSpaces -->
+    <button type="button" class="xeokit-i18n xeokit-showSpaces xeokit-btn fab fa-codepen fa-2x disabled" data-xeokit-i18ntip="toolbar.showSpacesTip" data-tippy-content="Show IFCSpaces"></button>   
+</div>`
+
+    const secondButtonGroup = `<div class="xeokit-btn-group" role="group">
+    <!-- Hide tool button -->
+    <button type="button" class="xeokit-i18n xeokit-hide xeokit-btn fa fa-eraser fa-2x disabled" data-xeokit-i18ntip="toolbar.hideObjectsTip" data-tippy-content="Hide objects"></button>
+    <!-- Select tool button -->
+    <button type="button" class="xeokit-i18n xeokit-select xeokit-btn fa fa-mouse-pointer fa-2x disabled" data-xeokit-i18ntip="toolbar.selectObjectsTip" data-tippy-content="Select objects"></button>    
+      <!-- Marquee select tool button -->
+    <button type="button" class="xeokit-i18n xeokit-marquee xeokit-btn fas fa-object-group fa-2x disabled" data-xeokit-i18ntip="toolbar.marqueeSelectTip" data-tippy-content="Marquee select objects"></button><!-- Measure distance tool button -->
+    <button type="button" class="xeokit-i18n xeokit-measure-distance xeokit-btn fa fa-ruler fa-2x disabled" data-xeokit-i18ntip="toolbar.measureDistanceTip" data-tippy-content="Measure distance"></button>  
+      <!-- Measure angle tool button -->
+    <button type="button" class="xeokit-i18n xeokit-measure-angle xeokit-btn fa fa-chevron-left fa-2x disabled" data-xeokit-i18ntip="toolbar.measureAngleTip" data-tippy-content="Measure angle"></button><!-- section tool button -->
+    <button type="button" class="xeokit-i18n xeokit-section xeokit-btn fa fa-cut fa-2x disabled" data-xeokit-i18ntip="toolbar.sliceObjectsTip" data-tippy-content="Slice objects">
+        <div class="xeokit-i18n xeokit-section-menu-button disabled" data-xeokit-i18ntip="toolbar.slicesMenuTip"  data-tippy-content="Slices menu">
+            <span class="xeokit-arrow-down xeokit-section-menu-button-arrow"></span>
+        </div>
+        <div class="xeokit-i18n xeokit-section-counter" data-xeokit-i18ntip="toolbar.numSlicesTip" data-tippy-content="Number of existing slices"></div>
+    </button>
+</div>
+</div>`
+    const $ = cheerio.load( $xeokitToolbarTemplate)
+    $('.xeokit-toolbar').append(resetViewButtonTemplate)
+    $('.xeokit-toolbar').append(firstButtonGroup)
+    $('.xeokit-toolbar').append(secondButtonGroup)
+    return $('body')
+    /* const toolbarTemplate = `<div class="xeokit-toolbar">
+
     <!-- Reset button -->
     <div class="xeokit-btn-group">
         <button type="button" class="xeokit-i18n xeokit-reset xeokit-btn fa fa-home fa-2x disabled" data-xeokit-i18ntip="toolbar.resetViewTip" data-tippy-content="Reset view"></button>
@@ -170,8 +216,8 @@ function createToolbarTemplate(cfg = {}) {
             <div class="xeokit-i18n xeokit-section-counter" data-xeokit-i18ntip="toolbar.numSlicesTip" data-tippy-content="Number of existing slices"></div>
         </button>
     </div>
-</div>`;
-    return toolbarTemplate;
+</div>`; 
+    return toolbarTemplate;*/
 }
 
 function createInspectorTemplate() {

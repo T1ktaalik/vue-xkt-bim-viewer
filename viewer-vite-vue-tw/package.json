@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.8",
     "@popperjs/core": "^2.11.8",
     "cheerio": "^1.0.0-rc.12",
     "tippy.js": "^6.3.7",
