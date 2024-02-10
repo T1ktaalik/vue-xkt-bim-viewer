@@ -1,15 +1,27 @@
 <template>
-  <div class="tw-h-full tw-w-full">
+  <div class="tw-h-full tw-w-full flex">
 <!--     <input type="checkbox" id="explorer_toggle"/>
 <label for="explorer_toggle" class="xeokit-i18n explorer_toggle_label xeokit-btn fas fa-2x fa-sitemap" data-xeokit-i18ntip="toolbar.toggleExplorer" data-tippy-content="Toggle explorer"></label>
 <input type="checkbox" id="inspector_toggle"/>
 <label id="inspector_toggle_label" for="inspector_toggle" class="xeokit-i18n inspector_toggle_label xeokit-btn fas fa-info-circle fa-2x" data-xeokit-i18ntip="toolbar.toggleProperties" data-tippy-content="Toggle properties"></label> -->
-<div id="myExplorer" class="tw-absolute tw-left-0 tw-h-full tw-z-30 tw-top-[200px]"></div>
-<div id="myToolbar" class="tw-absolute tw-bg-orange-300"></div>
-<div id="myInspector" class="tw-absolute tw-right-0 tw-w-48 tw-bg-red-500 tw-z-30"></div>
-<div id="myViewer" class="tw-absolute tw-h-screen tw-w-screen tw-top-[200px]">
-    <canvas id="myCanvas" class="tw-h-full tw-w-full tw-z-10"></canvas>
-    <canvas id="myNavCubeCanvas" class="tw-absolute tw-right-0 tw-bottom-0 tw-z-20"></canvas>
+<div id="myExplorer" class="tw-absolute tw-left-0 tw-h-full tw-z-30 ">
+
+</div>
+<div id="myToolbar" class=" tw-absolute tw-bg-transparent tw-z-40 tw-justify-center tw-left-1/2 tw-transform tw--translate-x-1/2 tw-top-[30px]">
+
+</div>
+<div id="myInspector" class="tw-absolute tw-right-0 tw-w-48 tw-bg-red-600 tw-z-30">
+<div class="xeokit-tabs">
+    <div class="xeokit-tab xeokit-propertiesTab">
+        <a href="#" disabled class="xeokit-i18n xeokit-tab-btn" data-xeokit-i18n="propertiesInspector.title"> Properties</a>
+        <div class="xeokit-tab-content"></div>
+        <div class="xeokit-properties"></div>
+    </div>
+</div>
+</div>
+<div id="myViewer" class="tw-h-full tw-w-full">
+    <canvas id="myCanvas" class="tw-absolute tw-h-full tw-w-full tw-z-10"></canvas>
+    <canvas id="myNavCubeCanvas" class="tw-absolute tw-right-0 tw-bottom-0 tw-z-50"></canvas>
 </div>
   </div>
 </template>
