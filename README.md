@@ -36,3 +36,7 @@ https://visme.co/blog/website-color-schemes/
 https://tailgrids.com/components/tabs tailwind tabs
 
 https://marta-szymanska-mdb-tailwind.mdbgo.io/docs/standard/navigation/tabs/ coool tabs!
+
+ахуеть https://purecode.ai/ai/
+
+https://flowbite.com/docs/components/tabs/

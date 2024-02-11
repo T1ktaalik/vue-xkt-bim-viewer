@@ -101,14 +101,15 @@
     
     <div>
       <ul>
-        <li>Модели</li>
-        <li>Объекты</li>
-        <li>Классы</li>
-        <li>Уровни</li>
-        <li>Свойтва</li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
       </ul>
-    </div>
 
+
+    </div>
 
     <div
     v-show="false"
@@ -243,12 +244,11 @@
   } from "./assets/bim-viewer-xkt-src/index";
   import { ref, onMounted } from "vue";
   import { messages as localeMessages } from "./assets/locales/messagesRu";
+  import { initFlowbite } from 'flowbite'
+
+
   onMounted(() => {
-    explorerTab.value = 'models'
-    explorerTab.value = 'objects'
-    explorerTab.value = 'classes'
-    explorerTab.value = 'storeys'
-    explorerTab.value = 'properties'
+    initFlowbite();
       launchViewer();
   });
 

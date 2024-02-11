@@ -13,6 +13,8 @@
     "@popperjs/core": "^2.11.8",
     "@quasar/extras": "^1.16.9",
     "cheerio": "^1.0.0-rc.12",
+    "flowbite": "^2.2.1",
+    "flowbite-vue": "^0.1.2",
     "quasar": "^2.14.3",
     "tippy.js": "^6.3.7",
     "vue": "^3.3.11"
