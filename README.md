@@ -32,3 +32,7 @@ https://designshack.net/articles/trends/best-website-color-schemes/
 19 Minimal Yet Warm
 
 https://visme.co/blog/website-color-schemes/
+
+https://tailgrids.com/components/tabs tailwind tabs
+
+https://marta-szymanska-mdb-tailwind.mdbgo.io/docs/standard/navigation/tabs/ coool tabs!

@@ -33,187 +33,7 @@ import * as cheerio from 'cheerio';
 const hideEdgesMinDrawCount = 5; // FastNavPlugin enables dynamic edges when xeokit's per-frame draw count drops below this
 const scaleCanvasResolutionMinDrawCount = 1000; // FastNavPlugin switches to low-res canvas when xeokit's per-frame draw count rises above this
 
-function createExplorerTemplate(cfg) {
 
-        const $tabModels = `<div class="xeokit-tab xeokit-modelsTab">
-        <a class="xeokit-i18n xeokit-tab-btn" href="#" data-xeokit-i18n="modelsExplorer.title">Models</a>
-            <div class="xeokit-tab-content">
-                <div class="xeokit-buttin-group">
-                    <button class="xeokit-loadAllModels">Показать все модели</button>
-                    <button class="xeokit-unloadAllModels"> Скрыть все модели</button>
-                </div>
-                <div class="xeokit-tree-panel xeokit-models">
-                </div>
-            </div>`;
-        const $tabObjects = `<div class="xeokit-tab xeokit-objectsTab">
-        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="objectsExplorer.title">Objects</a>
-            <div class="xeokit-tab-content">
-                <div class="xeokit-buttin-group">
-                    <button type="button" class="xeokit-showAllObjects">Показать все объекты</button>
-                    <button class="xeokit-hideAllObjects">Скрыть все объекты</button>
-                </div>
-                <div class="xeokit-tree-panel xeokit-objects">
-                </div>
-            </div>`;
-        const $tabClasses  = `<div class="xeokit-tab xeokit-classesTab">
-        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="classesExplorer.title">Classes</a>
-            <div class="xeokit-tab-content">
-                <div class="xeokit-buttin-group">
-                    <button class="xeokit-showAllClasses">Показать все классы</button>
-                    <button class="xeokit-hideAllClasses">Скрыть все классы</button>
-                </div>
-                <div class="xeokit-tree-panel xeokit-classes">
-                </div>
-         </div>`
-        const $tabStoreys = `<div class="xeokit-tab xeokit-storeysTab">
-        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="storeysExplorer.title">Storeys</a>
-            <div class="xeokit-tab-content">
-                <div class="xeokit-buttin-group">
-                    <button class="xeokit-showAllStoreys">Показать все уровни</button>
-                    <button class="xeokit-hideAllStoreys">Скрыть все уровни</button>
-                </div>
-                <div class="xeokit-tree-panel xeokit-storeys">
-                </div>
-            </div>`;
-         
-
-    const $ = cheerio.load(`<div class="xeokit-tabs"></div>`)
-    $('.xeokit-tabs').append($tabModels)
-    $('.xeokit-tabs').append($tabObjects)
-    $('.xeokit-tabs').append($tabClasses)
-    $('.xeokit-tabs').append($tabStoreys)
-    return $('body')
-}
-
-function createToolbarTemplate(cfg = {}) {
-    const $toolbarTemplate =`<div class="xeokit-toolbar"> <div class="xeokit-btn-group role="group"></div></div> `
-    const $buttonGroup = `
-    <button type="button" class="xeokit-i18n xeokit-reset xeokit-btn fa fa-home fa-2x disabled" data-xeokit-i18ntip="toolbar.resetViewTip" data-tippy-content="Reset view"></button>
-    <!-- 3D Mode button -->
-    <button type="button" class="xeokit-i18n xeokit-threeD xeokit-btn fa fa-cube fa-2x disabled" data-xeokit-i18ntip="toolbar.toggle2d3dTip" data-tippy-content="Toggle 2D/3D"></button>
-    <!-- Perspective/Ortho Mode button -->
-    <button type="button" class="xeokit-i18n xeokit-ortho xeokit-btn fa fa-th fa-2x  disabled" data-xeokit-i18ntip="toolbar.togglePerspectiveTip" data-tippy-content="Toggle Perspective/Ortho"></button>
-    <!-- Fit button -->
-    <button type="button" class="xeokit-i18n xeokit-fit xeokit-btn fa fa-crop fa-2x disabled" data-xeokit-i18ntip="toolbar.viewFitTip" data-tippy-content="View fit"></button>
-    <!-- First Person mode button -->
-    <button type="button" class="xeokit-i18n xeokit-firstPerson xeokit-btn fa fa-male fa-2x disabled" data-xeokit-i18ntip="toolbar.firstPersonTip" data-tippy-content="Toggle first-person mode"></button>
-      <!-- Show/hide IFCSpaces -->
-    <button type="button" class="xeokit-i18n xeokit-showSpaces xeokit-btn fab fa-codepen fa-2x disabled" data-xeokit-i18ntip="toolbar.showSpacesTip" data-tippy-content="Show IFCSpaces"></button>
-    <!-- Hide tool button -->
-    <button type="button" class="xeokit-i18n xeokit-hide xeokit-btn fa fa-eraser fa-2x disabled" data-xeokit-i18ntip="toolbar.hideObjectsTip" data-tippy-content="Hide objects"></button>
-    <!-- Select tool button -->
-    <button type="button" class="xeokit-i18n xeokit-select xeokit-btn fa fa-mouse-pointer fa-2x disabled" data-xeokit-i18ntip="toolbar.selectObjectsTip" data-tippy-content="Select objects"></button>    
-      <!-- Marquee select tool button -->
-    <button type="button" class="xeokit-i18n xeokit-marquee xeokit-btn fas fa-object-group fa-2x disabled" data-xeokit-i18ntip="toolbar.marqueeSelectTip" data-tippy-content="Marquee select objects"></button><!-- Measure distance tool button -->
-    <button type="button" class="xeokit-i18n xeokit-measure-distance xeokit-btn fa fa-ruler fa-2x disabled" data-xeokit-i18ntip="toolbar.measureDistanceTip" data-tippy-content="Measure distance"></button>  
-      <!-- Measure angle tool button -->
-    <button type="button" class="xeokit-i18n xeokit-measure-angle xeokit-btn fa fa-chevron-left fa-2x disabled" data-xeokit-i18ntip="toolbar.measureAngleTip" data-tippy-content="Measure angle"></button>
-    <!-- section tool button -->
-    <button type="button" class="xeokit-i18n xeokit-section xeokit-btn fa fa-cut fa-2x disabled" data-xeokit-i18ntip="toolbar.sliceObjectsTip" data-tippy-content="Slice objects">
-    <div class="xeokit-i18n xeokit-section-menu-button disabled" data-xeokit-i18ntip="toolbar.slicesMenuTip"  data-tippy-content="Slices menu">
-        <span class="xeokit-arrow-down xeokit-section-menu-button-arrow"></span>
-    </div>
-    <div class="xeokit-i18n xeokit-section-counter" data-xeokit-i18ntip="toolbar.numSlicesTip" data-tippy-content="Number of existing slices"></div>
-</button>`
-
-    const $ = cheerio.load( $toolbarTemplate)
-    $('.xeokit-btn-group').append($buttonGroup)
-    return $('body')
-    /* const toolbarTemplate = `<div class="xeokit-toolbar">
-
-    <!-- Reset button -->
-    <div class="xeokit-btn-group">
-        <button type="button" class="xeokit-i18n xeokit-reset xeokit-btn fa fa-home fa-2x disabled" data-xeokit-i18ntip="toolbar.resetViewTip" data-tippy-content="Reset view"></button>
-    </div>
-    <div class="xeokit-btn-group" role="group">
-        <!-- 3D Mode button -->
-        <button type="button" class="xeokit-i18n xeokit-threeD xeokit-btn fa fa-cube fa-2x disabled" data-xeokit-i18ntip="toolbar.toggle2d3dTip" data-tippy-content="Toggle 2D/3D"></button>
-        <!-- Perspective/Ortho Mode button -->
-        <button type="button" class="xeokit-i18n xeokit-ortho xeokit-btn fa fa-th fa-2x  disabled" data-xeokit-i18ntip="toolbar.togglePerspectiveTip" data-tippy-content="Toggle Perspective/Ortho"></button>
-        <!-- Fit button -->
-        <button type="button" class="xeokit-i18n xeokit-fit xeokit-btn fa fa-crop fa-2x disabled" data-xeokit-i18ntip="toolbar.viewFitTip" data-tippy-content="View fit"></button>
-        <!-- First Person mode button -->
-        <button type="button" class="xeokit-i18n xeokit-firstPerson xeokit-btn fa fa-male fa-2x disabled" data-xeokit-i18ntip="toolbar.firstPersonTip" data-tippy-content="Toggle first-person mode"></button>
-          <!-- Show/hide IFCSpaces -->
-        <button type="button" class="xeokit-i18n xeokit-showSpaces xeokit-btn fab fa-codepen fa-2x disabled" data-xeokit-i18ntip="toolbar.showSpacesTip" data-tippy-content="Show IFCSpaces"></button>   
-    </div>
-    <!-- Tools button group -->
-    <div class="xeokit-btn-group" role="group">
-        <!-- Hide tool button -->
-        <button type="button" class="xeokit-i18n xeokit-hide xeokit-btn fa fa-eraser fa-2x disabled" data-xeokit-i18ntip="toolbar.hideObjectsTip" data-tippy-content="Hide objects"></button>
-        <!-- Select tool button -->
-        <button type="button" class="xeokit-i18n xeokit-select xeokit-btn fa fa-mouse-pointer fa-2x disabled" data-xeokit-i18ntip="toolbar.selectObjectsTip" data-tippy-content="Select objects"></button>    
-          <!-- Marquee select tool button -->
-        <button type="button" class="xeokit-i18n xeokit-marquee xeokit-btn fas fa-object-group fa-2x disabled" data-xeokit-i18ntip="toolbar.marqueeSelectTip" data-tippy-content="Marquee select objects"></button>`
-        + (cfg.enableMeasurements ? `<!-- Measure distance tool button -->
-        <button type="button" class="xeokit-i18n xeokit-measure-distance xeokit-btn fa fa-ruler fa-2x disabled" data-xeokit-i18ntip="toolbar.measureDistanceTip" data-tippy-content="Measure distance"></button>  
-          <!-- Measure angle tool button -->
-        <button type="button" class="xeokit-i18n xeokit-measure-angle xeokit-btn fa fa-chevron-left fa-2x disabled" data-xeokit-i18ntip="toolbar.measureAngleTip" data-tippy-content="Measure angle"></button>`
-            : ` `)
-        + `<!-- section tool button -->
-        <button type="button" class="xeokit-i18n xeokit-section xeokit-btn fa fa-cut fa-2x disabled" data-xeokit-i18ntip="toolbar.sliceObjectsTip" data-tippy-content="Slice objects">
-            <div class="xeokit-i18n xeokit-section-menu-button disabled" data-xeokit-i18ntip="toolbar.slicesMenuTip"  data-tippy-content="Slices menu">
-                <span class="xeokit-arrow-down xeokit-section-menu-button-arrow"></span>
-            </div>
-            <div class="xeokit-i18n xeokit-section-counter" data-xeokit-i18ntip="toolbar.numSlicesTip" data-tippy-content="Number of existing slices"></div>
-        </button>
-    </div>
-</div>`; 
-    return toolbarTemplate;*/
-}
-
-/* function createInspectorTemplate() {
-    const inspectorTemplate = `<div class="xeokit-tabs">  
-    <div class="xeokit-tab xeokit-propertiesTab">
-        <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="propertiesInspector.title">Properties</a>
-        <div class="xeokit-tab-content">        
-        <div class="xeokit-properties"></div>
-        </div>
-    </div>
-</div>`;
-
-    return inspectorTemplate;
-} */
-
-function initTabs(containerElement) {
-
-    const tabsClass = 'xeokit-tabs';
-    const tabClass = 'xeokit-tab';
-    const tabButtonClass = 'xeokit-tab-btn';
-    const activeClass = 'active';
-
-    // Activates the chosen tab and deactivates the rest
-    function activateTab(chosenTabElement) {
-        let tabList = chosenTabElement.parentNode.querySelectorAll('.' + tabClass);
-        for (let i = 0; i < tabList.length; i++) {
-            let tabElement = tabList[i];
-            if (tabElement.isEqualNode(chosenTabElement)) {
-                tabElement.classList.add(activeClass)
-            } else {
-                tabElement.classList.remove(activeClass)
-            }
-        }
-    }
-
-    // Initialize each tabbed container
-    let tabbedContainers = containerElement.querySelectorAll('.' + tabsClass);
-    for (let i = 0; i < tabbedContainers.length; i++) {
-        let tabbedContainer = tabbedContainers[i];
-        let tabList = tabbedContainer.querySelectorAll('.' + tabClass);
-        activateTab(tabList[0]);
-        for (let i = 0; i < tabList.length; i++) {
-            let tabElement = tabList[i];
-            let tabButton = tabElement.querySelector('.' + tabButtonClass);
-            tabButton.addEventListener('click', function (event) {
-                event.preventDefault();
-                if (this.classList.contains("disabled")) {
-                    return;
-                }
-                activateTab(event.target.parentNode);
-            })
-        }
-    }
-}
 
 
 /**
@@ -248,7 +68,7 @@ class BIMViewer extends Controller {
         if (!cfg.navCubeCanvasElement) {
             throw "Config expected: navCubeCanvasElement";
         }
-
+        const viewerApp = cfg.viewerApp
         const canvasElement = cfg.canvasElement;
         const explorerElement = cfg.explorerElement;
         const inspectorElement = cfg.inspectorElement;
@@ -269,6 +89,7 @@ class BIMViewer extends Controller {
         };
 
         const viewer = new Viewer({
+
             localeService: cfg.localeService,
             canvasElement: canvasElement,
             keyboardEventsElement: cfg.keyboardEventsElement,
@@ -305,7 +126,6 @@ class BIMViewer extends Controller {
          * @type {Viewer}
          */
         this.viewer = viewer;
-
         this._objectsKdTree3 = new ObjectsKdTree3(({
             viewer
         }))
@@ -313,27 +133,19 @@ class BIMViewer extends Controller {
         this._customizeViewer();
         this._initCanvasContextMenus();
 
-        explorerElement.innerHTML = createExplorerTemplate(cfg);
-        toolbarElement.innerHTML = createToolbarTemplate({enableMeasurements: this._enableMeasurements});
-        if (this._enablePropertiesInspector) {
-            /* inspectorElement.innerHTML = createInspectorTemplate(); */
-        }
-
         this._explorerElement = explorerElement;
         this._inspectorElement = inspectorElement;
-
-        initTabs(explorerElement);
-        if (this._enablePropertiesInspector) {
-            initTabs(inspectorElement);
-        }
+        console.log(document)
+      
 
         this._modelsExplorer = new ModelsExplorer(this, {
             enableMeasurements: this._enableMeasurements,
-            modelsTabElement: explorerElement.querySelector(".xeokit-modelsTab"),
-            loadModelsButtonElement: explorerElement.querySelector(".xeokit-loadAllModels"), // Can be undefined
-            unloadModelsButtonElement: explorerElement.querySelector(".xeokit-unloadAllModels"),
-            addModelButtonElement: explorerElement.querySelector(".xeokit-addModel"), // Can be undefined
-            modelsElement: explorerElement.querySelector(".xeokit-models"),
+           // modelsTabElement: explorerElement.querySelector(".xeokit-modelsTab"),
+            modelsTabElement: document.querySelector(".xeokit-modelsTab"),
+            loadModelsButtonElement: document.querySelector(".xeokit-loadAllModels"), // Can be undefined
+            unloadModelsButtonElement: document.querySelector(".xeokit-unloadAllModels"),
+            addModelButtonElement: document.querySelector(".xeokit-addModel"), // Can be undefined
+            modelsElement: document.querySelector(".xeokit-models"),
             enableEditModels: this._enableAddModels
         });
 
