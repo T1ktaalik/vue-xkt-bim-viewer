@@ -1,12 +1,145 @@
 <template>
-  <div class="tw-h-full tw-w-full flex" id="viewerApp">
+  <div class="tw-h-full tw-w-full flex tw-top-[600px]" id="viewerApp">
+    <div class="tw-z-50 tw-absolute">
+      <ul id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+      <li role="presentation">
+        <button type="button" role="tab" data-tabs-target="#models" aria-controls="models" aria-selected="false" class="" id="models-tab">
+          <q-icon size="md" color="primary" name="list_alt" ></q-icon>
+        </button>
+      </li>
+      <li role="presentation">
+        <button type="button" role="tab" data-tabs-target="#objects" aria-controls="objects" aria-selected="true" class="" id="objects-tab">
+          <q-icon size="md" color="primary" name="account_tree"></q-icon>
+        </button>
+      </li>
+      <li role="presentation">
+        <button type="button" role="tab" data-tabs-target="#classes" aria-controls="classes" aria-selected="false" class="" id="classes-tab">
+          <q-icon size="md" color="primary" name="class"></q-icon>
+        </button>
+      </li>
+      <li role="presentation">
+        <button type="button" role="tab" data-tabs-target="#storeys" aria-controls="storeys" aria-selected="false" class="" id="storeys-tab">
+          <q-icon size="md" color="primary" name="layers" >
+          </q-icon>
+        </button>
+      </li>
+      <li role="presentation">
+        <button type="button" role="tab" data-tabs-target="#properties" aria-controls="properties" aria-selected="false" class="" id="properties-tab">
+          <q-icon size="md" color="primary" name="perm_data_setting"></q-icon>
+        </button>
+      </li>
+    </ul>
+    </div>
+    <div id="default-tab-content" class="tw-z-50">
+      <div role="tabpanel" aria-labelledby="models-tab"  id="models" class="hidden absolute tw-left-20 tw-bg-blue-500 tw-size-32">
+        <div class="xeokit-tab xeokit-modelsTab">
+          <a
+            class="xeokit-i18n xeokit-tab-btn"
+            href="#"
+            data-xeokit-i18n="modelsExplorer.title"
+            >Models</a
+          >
+          <div class="xeokit-tab-content">
+            <div class="xeokit-buttin-group">
+              <button class="xeokit-loadAllModels">Показать все модели</button>
+              <button class="xeokit-unloadAllModels">Скрыть все модели</button>
+            </div>
+            <div class="xeokit-tree-panel xeokit-models"></div>
+          </div>
+        </div>  
+        </div>
+      <div role="tabpanel" aria-labelledby="objects-tab"  id="objects" class="hidden absolute tw-left-20 tw-bg-gray-300 tw-size-32">
+        <div class="xeokit-tab xeokit-objectsTab">
+          <a
+          class="xeokit-i18n xeokit-tab-btn disabled"
+          href="#"
+          data-xeokit-i18n="objectsExplorer.title"
+          >Objects</a
+        >
+        <div class="xeokit-tab-content">
+          <div class="xeokit-btn-group">
+            <button
+              type="button"
+              class="xeokit-i18n xeokit-showAllObjects xeokit-btn disabled"
+              data-xeokit-i18n="objectsExplorer.showAll"
+              data-xeokit-i18ntip="objectsExplorer.showAllTip"
+              data-tippy-content="Show all objects"
+            >
+              Show all
+            </button>
+            <button
+              type="button"
+              class="xeokit-i18n xeokit-hideAllObjects xeokit-btn disabled"
+              data-xeokit-i18n="objectsExplorer.hideAll"
+              data-xeokit-i18ntip="objectsExplorer.hideAllTip"
+              data-tippy-content="Hide all objects"
+            >
+              Hide all
+            </button>
+          </div>
+          <div class="xeokit-objects xeokit-tree-panel"></div>
+        </div>
+        </div>
+        
+       </div>
+      <div role="tabpanel" aria-labelledby="classes-tab"  id="classes" class="hidden absolute tw-left-20 tw-bg-red-300 tw-size-32">
+        <div class="xeokit-tab xeokit-classesTab">
+          <a
+          class="xeokit-i18n xeokit-tab-btn disabled"
+          href="#"
+          data-xeokit-i18n="classesExplorer.title"
+          >Classes</a
+        >
+        <div class="xeokit-tab-content">
+          <div class="xeokit-buttin-group">
+            <button class="xeokit-showAllClasses">Показать все классы</button>
+            <button class="xeokit-hideAllClasses">Скрыть все классы</button>
+          </div>
+          <div class="xeokit-tree-panel xeokit-classes"></div>
+        </div>
+        </div>
+        
+      
+      </div>
+      <div role="tabpanel" aria-labelledby="storeys-tab"  id="storeys" class="hidden absolute tw-left-20 tw-bg-green-400 tw-size-32">
+        <div class="xeokit-tab xeokit-storeysTab">
+          <a
+          class="xeokit-i18n xeokit-tab-btn disabled"
+          href="#"
+          data-xeokit-i18n="storeysExplorer.title"
+          >Storeys</a
+        >
+        <div class="xeokit-tab-content">
+          <div class="xeokit-buttin-group">
+            <button class="xeokit-showAllStoreys">Показать все уровни</button>
+            <button class="xeokit-hideAllStoreys">Скрыть все уровни</button>
+          </div>
+          <div class="xeokit-tree-panel xeokit-storeys"></div>
+        </div>
+        </div>
+        
+        </div>
+      <div role="tabpanel" aria-labelledby="properties-tab"  id="properties" class="hidden absolute tw-left-20 tw-bg-purple-400 tw-size-32">
 
-<!--     <q-tabs class="absolute z-max" v-model="explorerTab" vertical>
-        <q-tab name="models"><q-icon  size="md" color="primary" name="list_alt"></q-icon></q-tab>
-        <q-tab name="objects"><q-icon  size="md" color="primary" name="account_tree"></q-icon></q-tab>
-        <q-tab name="classes"><q-icon  size="md" color="primary" name="class"></q-icon></q-tab>
-        <q-tab name="storeys"><q-icon  size="md" color="primary" name="layers"></q-icon></q-tab>
-        <q-tab name="properties"><q-icon  size="md" color="primary" name="perm_data_setting"></q-icon></q-tab>
+        <div class="xeokit-tab xeokit-propertiesTab">
+          <a
+          href="#"
+          disabled
+          class="xeokit-i18n xeokit-tab-btn"
+          data-xeokit-i18n="propertiesInspector.title"
+        >
+          Properties</a
+        >
+        <div class="xeokit-tab-content"></div>
+        <div class="xeokit-properties"></div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!--     <q-tabs class="absolute z-max" v-model="explorerTab" vertical>
+
     </q-tabs>
     <q-tab-panels keep-alive id="myExplorerInspector" v-model="explorerTab"  class="xeokit-tabs absolute z-max tw-left-[100px]">
         <q-tab-panel name="models" class="xeokit-tab xeokit-modelsTab">ъ
@@ -55,7 +188,7 @@
           <div class="xeokit-objects xeokit-tree-panel"></div>
         </div>
         </q-tab-panel>
-        <q-tab-panel name="classes" class="xeokit-tab xeokit-classesTab">
+        <q-tab-panel name="classes" >
             <a
           class="xeokit-i18n xeokit-tab-btn disabled"
           href="#"
@@ -97,22 +230,10 @@
         <div class="xeokit-tab-content"></div>
         <div class="xeokit-properties"></div>
         </q-tab-panel>
-    </q-tab-panels>  --> 
-    
-    <div>
-      <ul>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-      </ul>
-
-
-    </div>
+    </q-tab-panels>  -->
 
     <div
-    v-show="false"
+      v-show="false"
       id="myToolbar"
       class=" tw-absolute tw-bg-transparent tw-z-40 tw-justify-center tw-left-1/2 tw-transform tw--translate-x-1/2 tw-top-[30px]"
     >
@@ -245,7 +366,7 @@
   import { ref, onMounted } from "vue";
   import { messages as localeMessages } from "./assets/locales/messagesRu";
   import { initFlowbite } from 'flowbite'
-
+  import { FwbTab, FwbTabs } from 'flowbite-vue'
 
   onMounted(() => {
     initFlowbite();
@@ -255,6 +376,8 @@
   const isExplorerOpen = ref(true)
   const isInspectorOpen = ref(true)
   const explorerTab=ref('models')
+
+
 
   function launchViewer() {
       const requestParams = {
@@ -280,7 +403,7 @@
           viewerApp: document.getElementById("viewerApp"), //it has been introduced ti simplify HTML selection
           canvasElement: document.getElementById("myCanvas"), // WebGL canvas
           keyboardEventsElement: document, // Optional, defaults to document
-          explorerElement: document.getElementById("myExplorerInspector"), // Left panel
+          explorerElement: document.getElementById("default-tab-content"), // Left panel
           toolbarElement: document.getElementById("myToolbar"), // Toolbar
           inspectorElement: document.getElementById("myExplorerInspector"), // Right panel
           navCubeCanvasElement: document.getElementById("myNavCubeCanvas"),
