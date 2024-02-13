@@ -3,19 +3,18 @@
     <div class="tw-z-50 tw-absolute tw-left-[10px]">
       <button @click="isExplorerVisible = !isExplorerVisible"> <q-icon size="md" color="positive" name="menu"></q-icon> </button>
     </div>
-    <div v-show="isExplorerVisible" class="tw-z-50 tw-absolute tw-top-[32px] tw-left-[10px]">
-      
+    <div v-show="isExplorerVisible" class="tw-z-50 tw-absolute tw-top-[32px] tw-left-[10px]">  
       <ul id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
         <li role="presentation">
           <button type="button" role="tab" data-tabs-target="#models" aria-controls="models" aria-selected="false"
-            class="" id="models-tab">
+            class=" " id="models-tab">
             <q-icon size="md" color="primary" name="list_alt"></q-icon>
           </button>
         </li>
         <li role="presentation">
           <button type="button" role="tab" data-tabs-target="#objects" aria-controls="objects" aria-selected="true"
             class="" id="objects-tab">
-            <q-icon size="md" color="primary" name="account_tree"></q-icon>
+            <q-icon size="md" color="primary" class="text-red-500" name="account_tree"></q-icon>
           </button>
         </li>
         <li role="presentation">
@@ -39,15 +38,15 @@
         </li>
       </ul>
     </div>
-    <div v-show="isExplorerVisible" id="default-tab-content" class="tw-z-50 tw-absolute tw-top-[32px] tw-w-[300px]">
+    <div v-show="isExplorerVisible" id="default-tab-content" class="tw-z-50 tw-absolute tw-top-[32px] tw-w-[400px] ">
       <div role="tabpanel" aria-labelledby="models-tab" id="models"
-        class="hidden absolute tw-left-20 tw-bg-blue-500 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-32px)] tw-overflow-auto">
-        <div class="xeokit-tab xeokit-modelsTab">
-          <a class="xeokit-i18n xeokit-tab-btn" href="#" data-xeokit-i18n="modelsExplorer.title">Models</a>
+        class="hidden absolute tw-left-20 tw-bg-blue-100/30 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-32px)] tw-overflow-auto tw-border-solid tw-border tw-border-blue-200 ">
+        <div class="xeokit-tab xeokit-modelsTab  tw-p-2">   
+             <a class="xeokit-i18n xeokit-tab-btn" href="#" data-xeokit-i18n="modelsExplorer.title ">Модели</a>
           <div class="xeokit-tab-content">
             <div class="xeokit-buttin-group">
-              <button class="xeokit-loadAllModels">Показать все модели</button>
-              <button class="xeokit-unloadAllModels">Скрыть все модели</button>
+              <button  class="xeokit-loadAllModels tw-p-1">Показать все модели</button>
+              <button class="xeokit-unloadAllModels tw-p-1">Скрыть все модели</button>
             </div>
             <div class="xeokit-tree-panel xeokit-models"></div>
           </div>
@@ -219,7 +218,7 @@ function launchViewer() {
     enableEditModels: false
   });
 
-  /*         bimViewer.localeService.on("updated", () => {
+           bimViewer.localeService.on("updated", () => {
               const localizedElements = document.querySelectorAll('.xeokit-i18n');
               localizedElements.forEach((localizedElement) => {
                   if (localizedElement.dataset.xeokitI18n) {
@@ -243,14 +242,14 @@ function launchViewer() {
                       }
                   }
               });
-          }); */
+          }); 
 
-  //bimViewer.setConfigs({
-  //    "showSpaces": false, // Default
-  //    "selectedGlowThrough": true,
-  //    "highlightGlowThrough": true,
-  //    "dtxEnabled": true // Enable data texture scene representation for models - may be slow on low-spec GPUs
-  // });
+bimViewer.setConfigs({
+      "showSpaces": false, // Default
+      "selectedGlowThrough": true,
+      "highlightGlowThrough": true,
+      "dtxEnabled": true // Enable data texture scene representation for models - may be slow on low-spec GPUs
+   });
 
   bimViewer.on("openExplorer", () => {
 

@@ -40,3 +40,6 @@ https://marta-szymanska-mdb-tailwind.mdbgo.io/docs/standard/navigation/tabs/ coo
 ахуеть https://purecode.ai/ai/
 
 https://flowbite.com/docs/components/tabs/
+
+
+hero icons https://heroicons.com/
