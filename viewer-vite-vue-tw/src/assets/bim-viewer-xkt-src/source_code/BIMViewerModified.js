@@ -12,10 +12,10 @@ import {QueryTool} from "./toolbar/QueryTool.js";
 import {SectionTool} from "./toolbar/SectionTool.js";
 import {NavCubeMode} from "./toolbar/NavCubeMode.js";
 
-import {ModelsExplorer} from "./explorer/ModelsExplorer.js";
-import {ObjectsExplorer} from "./explorer/ObjectsExplorer.js";
-import {ClassesExplorer} from "./explorer/ClassesExplorer.js";
-import {StoreysExplorer} from "./explorer/StoreysExplorer.js";
+import {ModelsExplorer} from "./explorer/ModelsExplorerModified.js";
+import {ObjectsExplorer} from "./explorer/ObjectsExplorerModified.js";
+import {ClassesExplorer} from "./explorer/ClassesExplorerModified.js";
+import {StoreysExplorer} from "./explorer/StoreysExplorerModified.js";
 
 import {ThreeDMode} from "./toolbar/ThreeDMode.js";
 import {ObjectContextMenu} from "./contextMenus/ObjectContextMenu.js";

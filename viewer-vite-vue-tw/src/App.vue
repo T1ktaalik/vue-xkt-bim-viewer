@@ -1,61 +1,58 @@
 <template>
   <div class="tw-h-full tw-w-full" id="viewerApp">
-    <div class="tw-z-50 tw-absolute tw-left-[10px]">
-      <button @click="isExplorerVisible = !isExplorerVisible"> <q-icon size="md" color="positive" name="menu"></q-icon> </button>
-    </div>
-    <div v-show="isExplorerVisible" class="tw-z-50 tw-absolute tw-top-[32px] tw-left-[10px]">  
+    
+    <div  class="tw-z-50 tw-absolute tw-top-[50px] tw-left-[10px]">  
       <ul id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
         <li role="presentation">
           <button type="button" role="tab" data-tabs-target="#models" aria-controls="models" aria-selected="false"
-            class=" " id="models-tab">
-            <q-icon size="md" color="primary" name="list_alt"></q-icon>
+            class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[100px] tw-m-1" id="models-tab">
+            Модели
           </button>
         </li>
         <li role="presentation">
-          <button type="button" role="tab" data-tabs-target="#objects" aria-controls="objects" aria-selected="true"
-            class="" id="objects-tab">
-            <q-icon size="md" color="primary" class="text-red-500" name="account_tree"></q-icon>
+          <button type="button" role="tab" data-tabs-target="#objects" aria-controls="objects" aria-selected="false"
+            class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[100px] tw-m-1" id="objects-tab">
+            Объекты
           </button>
         </li>
         <li role="presentation">
           <button type="button" role="tab" data-tabs-target="#classes" aria-controls="classes" aria-selected="false"
-            class="" id="classes-tab">
-            <q-icon size="md" color="primary" name="class"></q-icon>
+            class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[100px] tw-m-1" id="classes-tab">
+            Классы
           </button>
         </li>
         <li role="presentation">
           <button type="button" role="tab" data-tabs-target="#storeys" aria-controls="storeys" aria-selected="false"
-            class="" id="storeys-tab">
-            <q-icon size="md" color="primary" name="layers">
-            </q-icon>
+            class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[100px] tw-m-1" id="storeys-tab">
+            Уровни
           </button>
         </li>
         <li role="presentation">
           <button type="button" role="tab" data-tabs-target="#properties" aria-controls="properties" aria-selected="false"
-            class="" id="properties-tab">
-            <q-icon size="md" color="primary" name="perm_data_setting"></q-icon>
+            class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[100px] tw-m-1" id="properties-tab">
+           Свойства
           </button>
         </li>
       </ul>
     </div>
-    <div v-show="isExplorerVisible" id="default-tab-content" class="tw-z-50 tw-absolute tw-top-[32px] tw-w-[400px] ">
+    <div  id="default-tab-content" class="tw-z-50 tw-absolute tw-top-[50px] tw-left-[50px] tw-w-[400px] tw-m-1 ">
       <div role="tabpanel" aria-labelledby="models-tab" id="models"
-        class="hidden absolute tw-left-20 tw-bg-blue-100/30 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-32px)] tw-overflow-auto tw-border-solid tw-border tw-border-blue-200 ">
+        class="hidden absolute tw-left-20 tw-bg-blue-200/30 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-32px)] tw-overflow-auto tw-border-solid tw-border tw-border-blue-200 tw-shadow-md">
         <div class="xeokit-tab xeokit-modelsTab  tw-p-2">   
-             <a class="xeokit-i18n xeokit-tab-btn" href="#" data-xeokit-i18n="modelsExplorer.title ">Модели</a>
+             <div class="xeokit-i18n xeokit-tab-btn tw-text-center tw-uppercase" data-xeokit-i18n="modelsExplorer.title "> Модели </div>
           <div class="xeokit-tab-content">
-            <div class="xeokit-buttin-group">
-              <button  class="xeokit-loadAllModels tw-p-1">Показать все модели</button>
-              <button class="xeokit-unloadAllModels tw-p-1">Скрыть все модели</button>
+            <div class="xeokit-buttin-group tw-flex tw-justify-center">
+              <button class="xeokit-loadAllModels tw-p-1 tw-m-1 tw-border-solid tw-border tw-border-blue-200">Показать все модели</button>
+              <button class="xeokit-unloadAllModels tw-p-1 tw-border-solid tw-border">Скрыть все модели</button>
             </div>
             <div class="xeokit-tree-panel xeokit-models"></div>
           </div>
         </div>
       </div>
       <div role="tabpanel" aria-labelledby="objects-tab" id="objects"
-        class="hidden absolute tw-left-20 tw-bg-gray-300 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-32px)] tw-overflow-auto">
-        <div class="xeokit-tab xeokit-objectsTab">
-          <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="objectsExplorer.title">Objects</a>
+        class="hidden absolute tw-left-20 tw-bg-blue-200/30 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-42px)] tw-overflow-auto tw-border-solid tw-border tw-border-blue-200 tw-shadow-md">
+        <div class="xeokit-tab xeokit-objectsTab  tw-p-2">
+          <div class="xeokit-i18n xeokit-tab-btn tw-text-center disabled tw-uppercase"  data-xeokit-i18n="objectsExplorer.title">Objects</div>
           <div class="xeokit-tab-content">
             <div class="xeokit-btn-group">
               <button type="button" class="xeokit-i18n xeokit-showAllObjects xeokit-btn disabled"
@@ -74,9 +71,9 @@
         </div>
       </div>
       <div role="tabpanel" aria-labelledby="classes-tab" id="classes"
-        class="hidden absolute tw-left-20 tw-bg-red-300 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-32px)] tw-overflow-auto">
-        <div class="xeokit-tab xeokit-classesTab">
-          <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="classesExplorer.title">Classes</a>
+        class="hidden absolute tw-left-20 tw-bg-blue-200/30 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-42px)] tw-overflow-auto tw-border-solid tw-border tw-border-blue-200 tw-shadow-md">
+        <div class="xeokit-tab xeokit-classesTab  tw-p-2">
+          <div class="xeokit-i18n xeokit-tab-btn tw-text-center disabled tw-uppercase"  data-xeokit-i18n="classesExplorer.title">Classes</div>
           <div class="xeokit-tab-content">
             <div class="xeokit-buttin-group">
               <button class="xeokit-showAllClasses">Показать все классы</button>
@@ -87,9 +84,9 @@
         </div>
       </div>
       <div role="tabpanel" aria-labelledby="storeys-tab" id="storeys"
-        class="hidden absolute tw-left-20 tw-bg-green-400 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-32px)] tw-overflow-auto">
-        <div class="xeokit-tab xeokit-storeysTab">
-          <a class="xeokit-i18n xeokit-tab-btn disabled" href="#" data-xeokit-i18n="storeysExplorer.title">Storeys</a>
+        class="hidden absolute tw-left-20 tw-bg-blue-200/30 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-42px)] tw-overflow-auto tw-border-solid tw-border tw-border-blue-200 tw-shadow-md">
+        <div class="xeokit-tab xeokit-storeysTab  tw-p-2">
+            <div class="xeokit-i18n xeokit-tab-btn tw-text-center disabled tw-uppercase "  data-xeokit-i18n="storeysExplorer.title">Storeys</div>
           <div class="xeokit-tab-content">
             <div class="xeokit-buttin-group">
               <button class="xeokit-showAllStoreys">Показать все уровни</button>
@@ -100,10 +97,10 @@
         </div>
       </div>
       <div role="tabpanel" aria-labelledby="properties-tab" id="properties"
-        class="hidden absolute tw-left-20 tw-bg-purple-400 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-32px)] tw-overflow-auto">
+        class="hhidden absolute tw-left-20 tw-bg-blue-200/30 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-42px)] tw-overflow-auto tw-border-solid tw-border tw-border-blue-200 tw-shadow-md">
         <div class="xeokit-tab xeokit-propertiesTab">
-          <a href="#" disabled class="xeokit-i18n xeokit-tab-btn" data-xeokit-i18n="propertiesInspector.title">
-            Properties</a>
+          <div  class="xeokit-i18n xeokit-tab-btn tw-uppercase tw-text-center" data-xeokit-i18n="propertiesInspector.title">
+            Свойства </div>
           <div class="xeokit-tab-content"></div>
           <div class="xeokit-properties"></div>
         </div>
@@ -176,14 +173,13 @@ import {
 import { ref, onMounted } from "vue";
 import { messages as localeMessages } from "./assets/locales/messagesRu";
 import { initFlowbite } from 'flowbite'
-import { FwbTab, FwbTabs } from 'flowbite-vue'
 
 onMounted(() => {
   initFlowbite();
   launchViewer();
 });
 
-const isExplorerVisible = ref(true)
+
 
 
 function launchViewer() {
@@ -212,7 +208,7 @@ function launchViewer() {
     keyboardEventsElement: document, // Optional, defaults to document
     explorerElement: document.getElementById("default-tab-content"), // Left panel
     toolbarElement: document.getElementById("myToolbar"), // Toolbar
-    inspectorElement: document.getElementById("myExplorerInspector"), // Right panel
+    inspectorElement: document.getElementById("default-tab-content"), // Right panel
     navCubeCanvasElement: document.getElementById("myNavCubeCanvas"),
     busyModelBackdropElement: document.getElementById("myViewer"),
     enableEditModels: false
@@ -253,11 +249,10 @@ bimViewer.setConfigs({
 
   bimViewer.on("openExplorer", () => {
 
-    isExplorerVisible.value = true
   });
 
   bimViewer.on("openInspector", () => {
-    isInspectorVisible.value = true
+    
   });
 
   //bimViewer.on("addModel", (event) => { // "Add" selected in Models tab's context menu
