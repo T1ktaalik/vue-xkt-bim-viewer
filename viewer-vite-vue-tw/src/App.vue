@@ -97,7 +97,7 @@
         </div>
       </div>
       <div role="tabpanel" aria-labelledby="properties-tab" id="properties"
-        class="hhidden absolute tw-left-20 tw-bg-blue-200/30 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-42px)] tw-overflow-auto tw-border-solid tw-border tw-border-blue-200 tw-shadow-md">
+        class="hidden absolute tw-left-20 tw-bg-blue-200/30 tw-w-full tw-h-fit-content tw-max-h-[calc(100vh-42px)] tw-overflow-auto tw-border-solid tw-border tw-border-blue-200 tw-shadow-md">
         <div class="xeokit-tab xeokit-propertiesTab">
           <div  class="xeokit-i18n xeokit-tab-btn tw-uppercase tw-text-center" data-xeokit-i18n="propertiesInspector.title">
             Свойства </div>
@@ -161,18 +161,29 @@
       <canvas id="myNavCubeCanvas" class="tw-absolute tw-right-0 tw-bottom-0 tw-z-50"></canvas>
     </div>
     <div id="menu-tabs" class=" tw-absolute tw-top-[50px] tw-left-[600px] tw-flex tw-flex-col">
-      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Модели</button>  
-      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Объекты</button>  
-      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Классы</button>  
-      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Уровни</button>  
-      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Свойства</button>  
+      <button @click="activateTab('models')" type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Модели</button>  
+      <button @click="activateTab('objects')" type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Объекты</button>  
+      <button @click="activateTab('classes')" type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Классы</button>  
+      <button @click="activateTab('storeys')" type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Уровни</button>  
+      <button @click="activateTab('properties')" type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Свойства</button>  
     </div>
     
-      <div @click="" v-show="isTabPanelVisible.models" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Модели</div>
-      <div @click="" v-show="isTabPanelVisible.objects" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Объекты</div>
-      <div @click="" v-show="isTabPanelVisible.classes" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Классы</div>
-      <div @click="" v-show="isTabPanelVisible.storeys" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Уровни</div>
-      <div @click="" v-show="isTabPanelVisible.properties" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Свойства</div>
+      <div v-show="isTabPanelVisible.models"  class=" tw-z-50 tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[180000000] tw-absolute tw-top-[50px] tw-left-[700px]">
+        <div class="xeokit-tab xeokit-modelsTab  tw-p-2">   
+             <div class="xeokit-i18n xeokit-tab-btn tw-text-center tw-uppercase" data-xeokit-i18n="modelsExplorer.title "> Модели </div>
+          <div class="xeokit-tab-content">
+            <div class="xeokit-buttin-group tw-flex tw-justify-center">
+              <button class="xeokit-loadAllModels tw-p-1 tw-m-1 tw-border-solid tw-border tw-border-blue-200">Показать все модели</button>
+              <button class="xeokit-unloadAllModels tw-p-1 tw-border-solid tw-border">Скрыть все модели</button>
+            </div>
+            <div class="xeokit-tree-panel xeokit-models"></div>
+          </div>
+        </div>
+      </div>
+      <div  v-show="isTabPanelVisible.objects" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-z-50 tw-absolute tw-top-[50px] tw-left-[700px]">Объекты</div>
+      <div  v-show="isTabPanelVisible.classes" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-z-50 tw-absolute tw-top-[50px] tw-left-[700px]">Классы</div>
+      <div  v-show="isTabPanelVisible.storeys" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-z-50 tw-absolute tw-top-[50px] tw-left-[700px]">Уровни</div>
+      <div  v-show="isTabPanelVisible.properties" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-z-50 tw-absolute tw-top-[50px] tw-left-[700px]">Свойства</div>
     
   </div>
 </template>
@@ -184,7 +195,7 @@ import {
   BIMViewer,
   LocaleService,
 } from "./assets/bim-viewer-xkt-src/index";
-import { ref, onMounted, r } from "vue";
+import { ref, onMounted } from "vue";
 import { messages as localeMessages } from "./assets/locales/messagesRu";
 import { initFlowbite } from 'flowbite'
 
@@ -193,19 +204,15 @@ onMounted(() => {
   launchViewer();
 });
 
-const isTabPanelVisible= ref([
-  { models: true},
-  { objects: true},
-  { classes: true},
-  { storeys: true},
-  { properties: true},
-])
-function changeTabPanelVisibility() {
-  isTabPanelVisible.value.forEach(function(i){
-    
-    
-
-  })
+const isTabPanelVisible= ref({ models: true, objects: false, classes: false, storeys: false, properties: false})
+function activateTab(tabPanel) {
+  for (let key in isTabPanelVisible.value) {
+    if (tabPanel === key) {
+      isTabPanelVisible.value[key] =true
+    } else {
+      isTabPanelVisible.value[key] =false
+    }
+  }
 }
 
 
