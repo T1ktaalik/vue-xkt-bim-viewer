@@ -160,6 +160,20 @@
       <canvas id="myCanvas" class="tw-absolute tw-h-full tw-w-full tw-z-10"></canvas>
       <canvas id="myNavCubeCanvas" class="tw-absolute tw-right-0 tw-bottom-0 tw-z-50"></canvas>
     </div>
+    <div id="menu-tabs" class=" tw-absolute tw-top-[50px] tw-left-[600px] tw-flex tw-flex-col">
+      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Модели</button>  
+      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Объекты</button>  
+      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Классы</button>  
+      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Уровни</button>  
+      <button type="button" class="tw-z-[70000000] tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md hover:tw-bg-blue-400/30 tw-rounded-md text-transform: tw-uppercase tw-w-[150px] tw-m-1">Свойства</button>  
+    </div>
+    
+      <div @click="" v-show="isTabPanelVisible.models" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Модели</div>
+      <div @click="" v-show="isTabPanelVisible.objects" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Объекты</div>
+      <div @click="" v-show="isTabPanelVisible.classes" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Классы</div>
+      <div @click="" v-show="isTabPanelVisible.storeys" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Уровни</div>
+      <div @click="" v-show="isTabPanelVisible.properties" class="tw-bg-blue-200/30 tw-border tw-border-blue-200 tw-p-1 tw-border-solid tw-shadow-md tw-w-[250px] tw-h-[250px] tw-w-z-[70000000] tw-absolute tw-top-[50px] tw-left-[800px]">Свойства</div>
+    
   </div>
 </template>
 <script setup>
@@ -170,7 +184,7 @@ import {
   BIMViewer,
   LocaleService,
 } from "./assets/bim-viewer-xkt-src/index";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, r } from "vue";
 import { messages as localeMessages } from "./assets/locales/messagesRu";
 import { initFlowbite } from 'flowbite'
 
@@ -179,7 +193,20 @@ onMounted(() => {
   launchViewer();
 });
 
+const isTabPanelVisible= ref([
+  { models: true},
+  { objects: true},
+  { classes: true},
+  { storeys: true},
+  { properties: true},
+])
+function changeTabPanelVisibility() {
+  isTabPanelVisible.value.forEach(function(i){
+    
+    
 
+  })
+}
 
 
 function launchViewer() {
