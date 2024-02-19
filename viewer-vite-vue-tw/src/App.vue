@@ -140,133 +140,26 @@
     >
       <div class="xeokit-toolbar">
         <q-btn-group class="xeokit-btn-group tw-bg-blue-200/30 tw-text-gray-900 tw-border-solid tw-border tw-border-blue-200" flat role="group">
-          <q-btn  icon="mdi-home" size="xl" padding="none xs" class="xeokit-reset"></q-btn>
-          <q-btn icon="mdi-arrow-expand-all" size="xl" padding="none xs" class="xeokit-fit"></q-btn>
+          <q-btn  icon="mdi-home" size="xl" padding="none md" class="xeokit-reset"></q-btn>
+          <q-btn icon="mdi-arrow-expand-all" size="xl" padding="none md" class="xeokit-fit"></q-btn>
           <q-btn @click="is2dActive = !is2dActive" :icon="is2dActive ? 'mdi-video-2d' : 'mdi-video-3d'" size="xl" padding="none xs"
           class="xeokit-threeD"
           ></q-btn>
           <q-btn @click="isPerspectiveActive = !isPerspectiveActive" :icon="isPerspectiveActive ? 'mdi-perspective-less' : 'mdi-perspective-more'" size="xl" padding="none xs" class="xeokit-ortho"></q-btn>
-          <q-btn icon="mdi-human-male" size="xl" padding="none xs" class="xeokit-firstPerson" ></q-btn>
-          <q-btn icon="mdi-cube-outline" size="xl" padding="none xs" class="xeokit-showSpaces"></q-btn>
-          <q-btn icon="mdi-eraser" size="xl" padding="none xs" class="xeokit-hide"></q-btn>
-          <q-btn icon="mdi-cursor-default" size="xl" padding="none xs" class="xeokit-select"></q-btn>
-          <q-btn icon="mdi-selection" size="xl" padding="none xs" class="xeokit-marquee"></q-btn>
-          <q-btn icon="mdi-ruler" size="xl" padding="none xs" class="xeokit-measure-distance"></q-btn>
-          <q-btn icon="mdi-angle-acute" size="xl" padding="none xs" class="xeokit-measure-angle" disable></q-btn>
-          <q-btn icon="mdi-content-cut" size="xl" padding="none xs" class="xeokit-section"></q-btn>
-          
-            <q-btn size="xl" padding="none xs" class="xeokit-section-counter" disable></q-btn>
-          <q-btn icon="mdi-menu-down"  size="xl" padding="none xs" class="xeokit-section-menu-button-arrow xeokit-section-menu-button xeokit-section-menu-button-arrow">
-          </q-btn>
-          <!-- @click="isMenuDownActive = !isMenuDownActive" :icon="isMenuDownActive ? 'mdi-menu-down' : 'mdi-menu-up'" -->
-          
-          
-        </q-btn-group>
-
-
-        <div class="xeokit-btn-group tw-absolute tw-top-[100px]" role="group">
-          
-          <!-- <button
-            type="button"
-            class="xeokit-i18n xeokit-reset xeokit-btn fa fa-home fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.resetViewTip"
-            data-tippy-content="Reset view"
-          ></button> -->
-          <!-- 3D Mode button -->
-          <button
-            type="button"
-            class="xeokit-i18n xeokit-threeD xeokit-btn fa fa-cube fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.toggle2d3dTip"
-            data-tippy-content="Toggle 2D/3D"
-          ></button>
-          <!-- Perspective/Ortho Mode button -->
-          <button
-            type="button"
-            class="xeokit-i18n xeokit-ortho xeokit-btn fa fa-th fa-2x  disabled"
-            data-xeokit-i18ntip="toolbar.togglePerspectiveTip"
-            data-tippy-content="Toggle Perspective/Ortho"
-          ></button>
-          <!-- Fit button -->
-          <button
-            type="button"
-            class="xeokit-i18n xeokit-fit xeokit-btn fa fa-crop fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.viewFitTip"
-            data-tippy-content="View fit"
-          ></button>
-          <!-- First Person mode button -->
-          <button
-            type="button"
-            class="xeokit-i18n xeokit-firstPerson xeokit-btn fa fa-male fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.firstPersonTip"
-            data-tippy-content="Toggle first-person mode"
-          ></button>
-          <!-- Show/hide IFCSpaces -->
-          <button
-            type="button"
-            class="xeokit-i18n xeokit-showSpaces xeokit-btn fab fa-codepen fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.showSpacesTip"
-            data-tippy-content="Show IFCSpaces"
-          ></button>
-          <!-- Hide tool button -->
-          <button
-            type="button"
-            class="xeokit-i18n xeokit-hide xeokit-btn fa fa-eraser fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.hideObjectsTip"
-            data-tippy-content="Hide objects"
-          ></button>
-          <!-- Select tool button -->
-          <button
-            type="button"
-            class="xeokit-i18n xeokit-select xeokit-btn fa fa-mouse-pointer fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.selectObjectsTip"
-            data-tippy-content="Select objects"
-          ></button>
-          <!-- Marquee select tool button -->
-          <button
-            type="button"
-            class="xeokit-i18n xeokit-marquee xeokit-btn fas fa-object-group fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.marqueeSelectTip"
-            data-tippy-content="Marquee select objects"
-          ></button
-          ><!-- Measure distance tool button -->
-          <button
-            type="button"
-            class="xeokit-i18n xeokit-measure-distance xeokit-btn fa fa-ruler fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.measureDistanceTip"
-            data-tippy-content="Measure distance"
-          ></button>
-          <!-- Measure angle tool button -->
-          <button
-            type="button"
-            v-show="false"
-            class="xeokit-i18n xeokit-measure-angle xeokit-btn fa fa-chevron-left fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.measureAngleTip"
-            data-tippy-content="Measure angle"
-          ></button>
-          <!-- section tool button -->
-          <button
-            type="button"
-            v-show="false"
-            class="xeokit-i18n xeokit-section xeokit-btn fa fa-cut fa-2x disabled"
-            data-xeokit-i18ntip="toolbar.sliceObjectsTip"
-            data-tippy-content="Slice objects"
-          >
-            <div
-              class="xeokit-i18n xeokit-section-menu-button disabled"
-              data-xeokit-i18ntip="toolbar.slicesMenuTip"
-              data-tippy-content="Slices menu"
-            >
-              <span
-                class="xeokit-arrow-down xeokit-section-menu-button-arrow"
-              ></span>
+          <q-btn icon="mdi-human-male" size="xl" padding="none md" class="xeokit-firstPerson" ></q-btn>
+          <q-btn icon="mdi-cube-outline" size="xl" padding="none md" class="xeokit-showSpaces"></q-btn>
+          <q-btn icon="mdi-eraser" size="xl" padding="none md" class="xeokit-hide"></q-btn>
+          <q-btn icon="mdi-cursor-default" size="xl" padding="none md" class="xeokit-select"></q-btn>
+          <q-btn icon="mdi-selection" size="xl" padding="none md" class="xeokit-marquee"></q-btn>
+          <q-btn icon="mdi-ruler" size="xl" padding="none md" class="xeokit-measure-distance"></q-btn>
+          <q-btn icon="mdi-angle-acute" size="xl" padding="none md" class="xeokit-measure-angle" disable></q-btn>
+          <q-btn icon="mdi-content-cut" size="xl" padding="none md" class="xeokit-section">
+            <div class=" xeokit-section-menu-button ">    
+                <q-icon :name="isMenuDownActive ? 'mdi-menu-down' : 'mdi-menu-up'" class="xeokit-section-menu-button-arrow"></q-icon>
             </div>
-            <div
-              class="xeokit-i18n xeokit-section-counter"
-              data-xeokit-i18ntip="toolbar.numSlicesTip"
-              data-tippy-content="Number of existing slices"
-            ></div>
-          </button>
-        </div>
+            <div class="xeokit-section-counter" ></div>
+          </q-btn> 
+        </q-btn-group>
       </div>
     </div>
     <div id="myViewer" class="tw-h-full tw-w-full">

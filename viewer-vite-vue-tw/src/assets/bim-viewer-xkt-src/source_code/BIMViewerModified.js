@@ -9,7 +9,8 @@ import {HideTool} from "./toolbar/HideTool.js";
 import {SelectionTool} from "./toolbar/SelectionTool.js";
 import {ShowSpacesMode} from "./toolbar/ShowSpacesMode.js";
 import {QueryTool} from "./toolbar/QueryTool.js";
-import {SectionTool} from "./toolbar/SectionTool.js";
+//import {SectionTool} from "./toolbar/SectionTool.js";
+import {SectionTool} from "./toolbar/SectionToolModified.js";
 import {NavCubeMode} from "./toolbar/NavCubeMode.js";
 
 import {ModelsExplorer} from "./explorer/ModelsExplorerModified.js";
@@ -268,6 +269,7 @@ class BIMViewer extends Controller {
             menuButtonArrowElement: toolbarElement.querySelector(".xeokit-section-menu-button-arrow"),
             active: false
         });
+
 
         this._measureDistanceTool = new MeasureDistanceTool(this, {
             buttonElement: toolbarElement.querySelector(".xeokit-measure-distance"),
