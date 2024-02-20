@@ -43,3 +43,6 @@ https://flowbite.com/docs/components/tabs/
 
 
 hero icons https://heroicons.com/
+
+
+круто квазар https://www.youtube.com/watch?v=rX1gfM47-KY

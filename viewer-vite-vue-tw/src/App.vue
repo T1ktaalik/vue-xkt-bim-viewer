@@ -1,6 +1,6 @@
 <template>
   <div class="tw-h-full tw-w-full" id="viewerApp">
-      <q-btn-group unelevated class=" tw-m-1 tw-flex tw-flex-row  tw-justify-between tw-w-[400px] tw-absolute tw-top-[20px] tw-left-[20px] tw-z-[40] tw-bg-blue-200/30 tw-border-solid tw-border tw-border-blue-200  tw-rounded-md">
+      <q-btn-group unelevated class=" tw-m-1 tw-flex tw-flex-col  sm:tw-flex-row  tw-justify-between sm:tw-w-[400px] tw-w-[80px] tw-absolute sm:tw-top-[20px] sm:tw-left-[20px] tw-top-[5px] tw-left-[5px]  tw-z-[40] tw-bg-blue-200/30 tw-border-solid tw-border tw-border-blue-200  tw-rounded-md">
         <q-btn class="tw-flex-auto" padding="xs" @click="activateTab('models')" >Модели</q-btn>
         <q-btn class="tw-flex-auto" padding="xs" @click="activateTab('objects')">Объекты</q-btn>
         <q-btn class="tw-flex-auto" padding="xs" @click="activateTab('classes')">Классы</q-btn>
@@ -9,7 +9,7 @@
       </q-btn-group>
     <div
       id="explorer"
-      class="tw-z-[40] tw-absolute tw-top-[80px] tw-left-[20px] tw-w-[400px] tw-m-1"
+      class="tw-z-[40] tw-absolute sm:tw-top-[80px] sm:tw-left-[20px] tw-top-[5px] tw-left-[100px] sm:tw-w-[400px] tw-w-[250px] tw-m-1"
     >
       <div
         v-show="isTabPanelVisible.models"
@@ -140,20 +140,20 @@
     >
       <div class="xeokit-toolbar">
         <q-btn-group class="xeokit-btn-group tw-bg-blue-200/30 tw-text-gray-900 tw-border-solid tw-border tw-border-blue-200" flat role="group">
-          <q-btn  icon="mdi-home" size="xl" padding="none md" class="xeokit-reset"></q-btn>
-          <q-btn icon="mdi-arrow-expand-all" size="xl" padding="none md" class="xeokit-fit"></q-btn>
-          <q-btn @click="is2dActive = !is2dActive" :icon="is2dActive ? 'mdi-video-2d' : 'mdi-video-3d'" size="xl" padding="none xs"
+          <q-btn  icon="mdi-home" size="md" padding="md md" class="xeokit-reset"></q-btn>
+          <q-btn icon="mdi-arrow-expand-all" size="md" padding="md md" class="xeokit-fit"></q-btn>
+          <q-btn @click="is2dActive = !is2dActive" :icon="is2dActive ? 'mdi-video-2d' : 'mdi-video-3d'" size="md" padding="md xs"
           class="xeokit-threeD"
           ></q-btn>
-          <q-btn @click="isPerspectiveActive = !isPerspectiveActive" :icon="isPerspectiveActive ? 'mdi-perspective-less' : 'mdi-perspective-more'" size="xl" padding="none xs" class="xeokit-ortho"></q-btn>
-          <q-btn icon="mdi-human-male" size="xl" padding="none md" class="xeokit-firstPerson" ></q-btn>
-          <q-btn icon="mdi-cube-outline" size="xl" padding="none md" class="xeokit-showSpaces"></q-btn>
-          <q-btn icon="mdi-eraser" size="xl" padding="none md" class="xeokit-hide"></q-btn>
-          <q-btn icon="mdi-cursor-default" size="xl" padding="none md" class="xeokit-select"></q-btn>
-          <q-btn icon="mdi-selection" size="xl" padding="none md" class="xeokit-marquee"></q-btn>
-          <q-btn icon="mdi-ruler" size="xl" padding="none md" class="xeokit-measure-distance"></q-btn>
-          <q-btn icon="mdi-angle-acute" size="xl" padding="none md" class="xeokit-measure-angle" disable></q-btn>
-          <q-btn icon="mdi-content-cut" size="xl" padding="none md" class="xeokit-section">
+          <q-btn @click="isPerspectiveActive = !isPerspectiveActive" :icon="isPerspectiveActive ? 'mdi-perspective-less' : 'mdi-perspective-more'" size="md" padding="md xs" class="xeokit-ortho"></q-btn>
+          <q-btn icon="mdi-human-male" size="md" padding="md md" class="xeokit-firstPerson" ></q-btn>
+          <q-btn icon="mdi-cube-outline" size="md" padding="md md" class="xeokit-showSpaces"></q-btn>
+          <q-btn icon="mdi-eraser" size="md" padding="md md" class="xeokit-hide"></q-btn>
+          <q-btn icon="mdi-cursor-default" size="md" padding="md md" class="xeokit-select"></q-btn>
+          <q-btn icon="mdi-selection" size="md" padding="md md" class="xeokit-marquee"></q-btn>
+          <q-btn icon="mdi-ruler" size="md" padding="md md" class="xeokit-measure-distance"></q-btn>
+          <q-btn icon="mdi-angle-acute" size="md" padding="md md" class="xeokit-measure-angle" disable></q-btn>
+          <q-btn icon="mdi-content-cut" size="md" padding="md md" class="xeokit-section">
             <div class=" xeokit-section-menu-button ">    
                 <q-icon :name="isMenuDownActive ? 'mdi-menu-down' : 'mdi-menu-up'" class="xeokit-section-menu-button-arrow"></q-icon>
             </div>
