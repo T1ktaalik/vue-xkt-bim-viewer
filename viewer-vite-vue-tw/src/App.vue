@@ -1,5 +1,5 @@
 <template>
-  <div class="tw-h-full tw-w-full" id="viewerApp">
+  <div class="tw-absolute tw-h-[100vh] tw-w-[100vw] tw-overflow-hidden" id="viewerApp">
     <div id="ToolsTabs" class="tw-absolute tw-flex tw-w-[100vw]  tw-justify-between   ">
       <div id="myToolbar"  class="tw-z-40">
           <div class="xeokit-toolbar">
@@ -33,7 +33,7 @@
       </div>
       <div class="tw-z-40">
         <div
-          class=" tw-flex tw-flex-col tw-grid-rows-5 tw-gap-1 sm:tw-flex-row  tw-justify-between    tw-bg-blue-200/30 tw-border-solid tw-border tw-border-blue-200  tw-rounded-md">
+          class=" tw-flex  tw-grid-rows-5 tw-gap-1  tw-justify-between    tw-bg-blue-200/30 tw-border-solid tw-border tw-border-blue-200  tw-rounded-md">
           <q-btn flat class="tw-flex-auto" padding="xs" @click="activateTab('models')">Модели</q-btn>
           <q-btn flat class="tw-flex-auto" padding="xs" @click="activateTab('objects')">Объекты</q-btn>
           <q-btn flat class="tw-flex-auto" padding="xs" @click="activateTab('classes')">Классы</q-btn>
@@ -140,22 +140,10 @@
         </div>
       </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
-    <div id="myViewer" class="tw-h-full tw-w-full">
-      <canvas id="myCanvas" class="tw-absolute tw-h-full tw-w-full tw-z-[20]"></canvas>
-      <canvas id="myNavCubeCanvas" class="tw-absolute tw-right-0 tw-bottom-0 tw-z-[30]"></canvas>
+    <div id="myViewer" class="tw-absolute tw-w-[100vw] tw-h-[100vh] ">
+      <canvas id="myCanvas" class="tw-absolute "></canvas>
+      <canvas id="myNavCubeCanvas" class="tw-absolute"></canvas>
     </div>
-
   </div>
 </template>
 <script setup>

@@ -3,11 +3,14 @@
   <head>
     <meta charset="UTF-8">
     <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <!--  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0"> -->
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vite App</title>
   </head>
-  <body class="tw-w-screen tw-h-screen tw-overflow-hidden ">
-    <div id="app" class=""></div>
+  <!-- https://www.youtube.com/watch?v=JGz_dTzijzU -->
+<!--   https://allthingssmitty.com/2020/05/11/css-fix-for-100vh-in-mobile-webkit/ -->
+  <body style="min-height: -webkit-fill-awaliable; min-height: 100vh">
+    <div id="app" class=" tw-overflow-hidden tw-fixed"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
