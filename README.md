@@ -46,3 +46,12 @@ hero icons https://heroicons.com/
 
 
 круто квазар https://www.youtube.com/watch?v=rX1gfM47-KY
+
+
+https://dev.to/nirazanbasnet/dont-use-100vh-for-mobile-responsive-3o97
+
+https://dev.to/admitkard/mobile-issue-with-100vh-height-100-100vh-3-solutions-3nae
+
+!!!!!!!!!!!!!!!!!!! 
+https://stackforgeeks.com/blog/why-windowinnerheight-is-bigger-than-real-on-mobile
+!!!!!!!!!!!!!!!!!!!

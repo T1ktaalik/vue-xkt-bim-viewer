@@ -161,6 +161,7 @@ import { initFlowbite } from 'flowbite'
 onMounted(() => {
   initFlowbite();
   launchViewer();
+  console.log(window.innerHeight)
 });
 
 const isTabPanelVisible = ref({ models: false, objects: false, classes: false, storeys: false, properties: false })
