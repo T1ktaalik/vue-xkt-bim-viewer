@@ -4,28 +4,34 @@
       <div id="myToolbar"  class="tw-z-40">
           <div class="xeokit-toolbar">
             <div
-              class="xeokit-btn-group tw-bg-blue-200/30 tw-text-gray-900 tw-border-solid tw-border tw-border-blue-200 tw-flex tw-flex-col"
-              t role="group">
-              <q-btn flat icon="mdi-home" size="md" padding="xs xs" class="xeokit-reset"></q-btn>
+              class="xeokit-btn-group tw-border-solid tw-border  tw-flex tw-flex-col"
+               role="group"> <!-- tw-bg-blue-200/30 tw-text-gray-900 tw-border-blue-200  -->
+              <q-btn flat icon="mdi-home" size="md" padding="xs xs" class="xeokit-reset" style="color: "></q-btn>
               <q-btn flat icon="mdi-arrow-expand-all" size="md" padding="xs xs" class="xeokit-fit"></q-btn>
               <q-btn flat @click="is2dActive = !is2dActive" :icon="is2dActive ? 'mdi-video-2d' : 'mdi-video-3d'" size="md"
                 padding="xs xs" class="xeokit-threeD"></q-btn>
               <q-btn flat @click="isPerspectiveActive = !isPerspectiveActive"
                 :icon="isPerspectiveActive ? 'mdi-perspective-less' : 'mdi-perspective-more'" size="md" padding="xs xs"
                 class="xeokit-ortho"></q-btn>
-              <q-btn flat icon="mdi-human-male" size="md" padding="xs xs" class="xeokit-firstPerson"></q-btn>
-              <q-btn flat icon="mdi-cube-outline" size="md" padding="xs xs" class="xeokit-showSpaces"></q-btn>
-              <q-btn flat icon="mdi-eraser" size="md" padding="xs xs" class="xeokit-hide"></q-btn>
-              <q-btn flat icon="mdi-cursor-default" size="md" padding="xs xs" class="xeokit-select"></q-btn>
-              <q-btn flat icon="mdi-selection" size="md" padding="xs xs" class="xeokit-marquee"></q-btn>
-              <q-btn flat icon="mdi-ruler" size="md" padding="xs xs" class="xeokit-measure-distance"></q-btn>
-              <q-btn flat icon="mdi-angle-acute" size="md" padding="xs xs" class="xeokit-measure-angle" disable></q-btn>
-              <q-btn flat icon="mdi-content-cut" size="md" padding="xs xs" class="xeokit-section" >
+              <q-btn @click="isFirstPersonModeActive = !isFirstPersonModeActive" :[firstModeStyle]="true" icon="mdi-human-male" size="md" padding="xs xs" class="xeokit-firstPerson"></q-btn>
+              <q-btn  icon="mdi-cube-outline" size="md" padding="xs xs" class="xeokit-showSpaces" @click="spaceMode = !spaceMode" :[spaceModeStyle]="true"></q-btn>
+              <q-btn icon="mdi-eraser" size="md" padding="xs xs" class="xeokit-hide" @click="isRubberActive = !isRubberActive" :[rubberStyle]="true"></q-btn>
+              <q-btn icon="mdi-cursor-default" size="md" padding="xs xs" class="xeokit-select" @click="isElementPickerActive = !isElementPickerActive" :[elementPickerStyle]="true"></q-btn>
+              <q-btn  icon="mdi-selection" size="md" padding="xs xs" class="xeokit-marquee" @click="isMarqueeActive = !isMarqueeActive" :[marqueeStyle]="true"></q-btn>
+              <q-btn icon="mdi-ruler" size="md" padding="xs xs" class="xeokit-measure-distance" @click="isDistanseMeasurementActive = !isDistanseMeasurementActive" :[distanceMeasurementStyle]="true"></q-btn>
+              <q-btn v-show=false flat icon="mdi-angle-acute" size="md" padding="xs xs" class="xeokit-measure-angle" ></q-btn>
+              <q-btn flat  size="md" padding="xs xs" class="xeokit-section"  >
+                <div class="tw-flex tw-flex-col">
+                  <div >
+                  <q-icon @click="isSectionButtonActive = !isSectionButtonActive" :name="isSectionButtonActive? 'mdi-scissors-cutting' : 'mdi-content-cut' "></q-icon>
+                </div>
                 <div class=" xeokit-section-menu-button ">
                   <q-icon name="mdi-menu-down"
                     class="xeokit-section-menu-button-arrow"></q-icon>
                 </div>
                 <div class="xeokit-section-counter"></div>
+                </div>
+          
               </q-btn>
             </div>
           </div>
@@ -140,28 +146,27 @@
         </div>
       </div>
     </div>
-    <div id="myViewer" class="tw-absolute tw-w-[100vw] tw-h-[100vh] ">
-      <canvas id="myCanvas" class="tw-absolute "></canvas>
-      <canvas id="myNavCubeCanvas" class="tw-absolute"></canvas>
+    <div id="myViewer" class="tw-w-full tw-h-full">
+      <canvas id="myCanvas" class="tw-absolute tw-w-[100vw] tw-h-[100vh] "></canvas>
+      <canvas id="myNavCubeCanvas" class="tw-absolute tw-w-[150px] tw-h-[150px] tw-bottom-0 tw-right-0"></canvas>
     </div>
   </div>
 </template>
 <script setup>
-import { createPopper } from '@popperjs/core';
+import { createPopper, offset } from '@popperjs/core';
 import tippy from 'tippy.js'
 import {
   Server,
   BIMViewer,
   LocaleService,
 } from "./assets/bim-viewer-xkt-src/index";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { messages as localeMessages } from "./assets/locales/messagesRu";
 import { initFlowbite } from 'flowbite'
 
 onMounted(() => {
   initFlowbite();
   launchViewer();
-  console.log(window.innerHeight)
 });
 
 const isTabPanelVisible = ref({ models: false, objects: false, classes: false, storeys: false, properties: false })
@@ -177,7 +182,64 @@ function activateTab(tabPanel) {
 
 const is2dActive = ref(true)
 const isPerspectiveActive = ref(true)
-const isMenuDownActive = ref(true)
+const isFirstPersonModeActive = ref(false)
+const firstModeStyle = computed(()=>{
+  if(isFirstPersonModeActive.value) {
+    return 'outline'
+  } else {
+    return 'flat'
+  }
+} )
+const spaceMode = ref(false)
+const spaceModeStyle = computed(()=>{
+  if(spaceMode.value) {
+    return 'outline'
+  } else {
+    return 'flat'
+  }
+})
+
+const isRubberActive = ref(false)
+const rubberStyle = computed(()=>{
+  if(isRubberActive.value) {
+    return 'outline'
+  } else {
+    return 'flat'
+  }
+})
+
+const isElementPickerActive = ref(false)
+const elementPickerStyle = computed(()=>{
+  if(isElementPickerActive.value) {
+    return 'outline'
+  } else {
+    return 'flat'
+  }
+})
+
+const isMarqueeActive = ref(false)
+const marqueeStyle = computed(()=>{
+  if(isMarqueeActive.value) {
+    return 'outline'
+  } else {
+    return 'flat'
+  }
+})
+
+const isDistanseMeasurementActive = ref(false)
+const distanceMeasurementStyle =  computed(()=>{
+  if(isDistanseMeasurementActive.value) {
+    return 'outline'
+  } else {
+    return 'flat'
+  }
+})
+
+const isSectionButtonActive = ref(false)
+
+function disableRestButtons(activeButton) {
+  const buttonsList = []
+}
 function launchViewer() {
   const requestParams = {
 
