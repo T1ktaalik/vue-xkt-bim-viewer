@@ -5,6 +5,10 @@
         {
             "id": "design",
             "name": "Duplex Design"
+        },
+        {
+            "id": "forte-glb",
+            "name": "forte-glb"
         }
     ],
     "viewerConfigs": {

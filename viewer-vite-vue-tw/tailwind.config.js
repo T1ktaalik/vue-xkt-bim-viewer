@@ -1,4 +1,7 @@
 /** @type {import('tailwindcss').Config} */
+
+//const { iconsPlugin, getIconCollections } = require("@egoist/tailwindcss-icons")
+const { addDynamicIconSelectors } = require('@iconify/tailwind');
 export default {
   content: [
     "./index.html",
@@ -9,7 +12,11 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [ require('flowbite/plugin')
+  plugins: [
+    addDynamicIconSelectors()
+   /*  iconsPlugin({
+      collection: getIconCollections("all")
+    }) */
 ],
   prefix: 'tw-'
 }

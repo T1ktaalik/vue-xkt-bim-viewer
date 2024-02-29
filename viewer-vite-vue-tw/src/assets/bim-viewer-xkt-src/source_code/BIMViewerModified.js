@@ -4,7 +4,7 @@ import {Controller} from "./Controller.js";
 import {BusyModal} from "./BusyModal.js";
 import {ResetAction} from "./toolbar/ResetAction.js";
 import {FitAction} from "./toolbar/FitAction.js";
-import {FirstPersonMode} from "./toolbar/FirstPersonMode.js";
+import {FirstPersonMode} from "./toolbar/FirstPersonModeModified.js";
 import {HideTool} from "./toolbar/HideTool.js";
 import {SelectionTool} from "./toolbar/SelectionTool.js";
 import {ShowSpacesMode} from "./toolbar/ShowSpacesMode.js";
