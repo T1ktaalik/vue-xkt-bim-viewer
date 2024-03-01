@@ -1,0 +1,14 @@
+{
+    "id": "forte-logistics",
+    "name": "Forte Logistics",
+    "models": [
+        {
+            "id": "ware-house",
+            "name": "Складские помещения"
+        }
+
+    ],
+    "viewerContent": {
+        "modelsLoaded": ["ware-house"]
+    }
+}

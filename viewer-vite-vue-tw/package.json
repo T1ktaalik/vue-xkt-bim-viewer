@@ -25,6 +25,7 @@
     "@iconify/tailwind": "^0.1.4",
     "@quasar/vite-plugin": "^1.6.0",
     "@vitejs/plugin-vue": "^4.5.2",
+    "@vueuse/core": "^10.9.0",
     "@xeokit/xeokit-sdk": "^2.5.2-beta-20",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.34",

@@ -1,0 +1,25 @@
+{
+  "name": "forte-logistics-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.19"
+  },
+  "devDependencies": {
+    "@iconify/tailwind": "^0.1.4",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@xeokit/xeokit-bim-viewer": "^2.5.1-beta-15",
+    "autoprefixer": "^10.4.17",
+    "pako": "^2.1.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "tippy.js": "^6.3.7",
+    "vite": "^5.1.4"
+  }
+}
