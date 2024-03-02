@@ -10,19 +10,18 @@
 <!-- Forte banner start -->
 <div class="absolute z-[40] mt-5 top-0 left-1/2 transform -translate-x-1/2 bg-opacity-80 bg-white p-3 rounded-md border border-gray-200"><!--  tw-top-1/2 tw-left-1/2 tw-transform -translate-x-1/2 -translate-y-1/2 -->
 <div>
-    <h1 class="text-3xl text-red-700 m-1" >Forte Logistics</h1> 
-<h2 class="text-lg uppercase m-2">3PL логистический провайдер</h2> 
-<h3 class="text-md uppercase m-1">Комплексные складские и транспортные услуги на юге России</h3> 
-
+<h1 class="text-3xl text-red-700 m-1">Forte Logistics</h1> 
+<h2 class="text-xl text-black uppercase m-1" >логистический провайдер</h2> 
+<h3 class="text-xl text-black uppercase m-1">Комплексные складские и транспортные услуги на юге России</h3> 
 </div>
 <!-- radio button group start -->
-<fieldset class="flex flex-wrap gap-1 z-[40] mt-5">
+<fieldset class="flex flex-wrap flex-col lg:flex-row flex-wrap gap-1 z-[40] mt-1 lg:mt-5">
   <legend class="sr-only">Color</legend>
 
-  <div class="w-[180px]" id="mainView">
+  <div class="lg:w-[180px]" id="mainView">
     <label
       for="ColorBlack"
-      class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-1 py-1 text-red-700 hover:border-gray-200 has-[:checked]:border-red-700 has-[:checked]:bg-red-700/80 has-[:checked]:text-white"
+      class="flex   cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-[2px] py-[2px] text-red-700 hover:border-gray-200 has-[:checked]:border-red-700 has-[:checked]:bg-red-700/80 has-[:checked]:text-white"
     >
       <input
         type="radio"
@@ -33,39 +32,39 @@
         checked
       />
 
-      <p class="text-sm font-normal uppercase" >Площадь 12 тыс. м2</p>
+      <p class="text-xs lg:text-sm font-normal uppercase" >Площадь 12 тыс. м2</p>
     </label>
   </div>
 
-  <div class="w-[180px]" id="wareHouseRoom">
+  <div class="lg:w-[180px]" id="wareHouseRoom">
     <label
       for="ColorRed"
-      class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-1 py-1 text-red-700 hover:border-gray-200 has-[:checked]:border-red-700 has-[:checked]:bg-red-700/80 has-[:checked]:text-white"
+      class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-[2px] py-[2px] text-red-700 hover:border-gray-200 has-[:checked]:border-red-700 has-[:checked]:bg-red-700/80 has-[:checked]:text-white"
     >
       <input type="radio" name="ColorOption" value="ColorRed" id="ColorRed" class="sr-only" />
 
-      <p class="text-sm font-normal uppercase" >30 тыс. палетомест</p>
+      <p class="text-xs lg:text-sm font-normal uppercase" >30 тыс. паллето-мест</p>
     </label>
   </div>
 
-  <div class="w-[180px]" id="storeLevels">
+  <div class="lg:w-[180px]" id="storeLevels">
     <label
       for="ColorBlue"
-      class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-1 py-1 text-red-700 hover:border-gray-200 has-[:checked]:border-red-700 has-[:checked]:bg-red-700/80 has-[:checked]:text-white"
+      class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-[2px] py-[2px] text-red-700 hover:border-gray-200 has-[:checked]:border-red-700 has-[:checked]:bg-red-700/80 has-[:checked]:text-white"
     >
       <input type="radio" name="ColorOption" value="ColorBlue" id="ColorBlue" class="sr-only" />
-      <p class="text-sm font-normal uppercase" >8 уровней хранения</p>
+      <p class="text-xs lg:text-sm font-normal uppercase" >8 уровней хранения</p>
     </label>
   </div>
 
-  <div class="w-[180px]" id="dockShelters">
+  <div class="lg:w-[180px]" id="dockShelters">
     <label
       for="ColorGold"
-      class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-1 py-1 text-red-700 hover:border-gray-200 has-[:checked]:border-red-700 has-[:checked]:bg-red-700/80 has-[:checked]:text-white"
+      class="flex cursor-pointer items-center justify-center rounded-md border border-gray-100 bg-white px-[2px] py-[2px] text-red-700 hover:border-gray-200 has-[:checked]:border-red-700 has-[:checked]:bg-red-700/80 has-[:checked]:text-white"
     >
       <input type="radio" name="ColorOption" value="ColorGold" id="ColorGold" class="sr-only" />
 
-      <p class="text-sm font-normal uppercase" >Погрузочные рампы</p>
+      <p class="text-xs lg:text-sm font-normal uppercase" >Погрузочные рампы</p>
     </label>
   </div>
 </fieldset>
@@ -77,7 +76,7 @@
 
 <div id="myViewer" class="absolute h-screen w-screen top-0 left-0 bg-red-200 overflow-hidden ">
     <canvas id="myCanvas" class=" h-full w-full z-[20]"></canvas>
-    <canvas id="myNavCubeCanvas" class="absolute bottom-0 right-0 z-[30]"></canvas>
+    <canvas id="myNavCubeCanvas" class="absolute bottom-0 right-0 z-[30] w-[200px] h-[200px]"></canvas>
 </div>
 </div>
 </template>
@@ -290,7 +289,7 @@ function launchForteLogisticsDemoModel () {
 
     const server = new Server({
         //dataDir: requestParams.dataDir || "./data"
-        dataDir: "/data"
+        dataDir: "./data"
     });
 
     const bimViewer = new BIMViewer(server, {
