@@ -29,6 +29,8 @@ https://designshack.net/articles/trends/best-website-color-schemes/
 ************************************************************
 ************************************************************
 
+https://cloudbim.ru/
+
 19 Minimal Yet Warm
 
 https://visme.co/blog/website-color-schemes/
